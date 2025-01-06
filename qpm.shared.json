@@ -7,7 +7,7 @@
       "name": "BSML",
       "id": "bsml",
       "version": "0.5.0",
-      "url": "https://github.com/RedBrumbler/Quest-BSML",
+      "url": "https://github.com/bsq-ports/Quest-BSML",
       "additionalData": {
         "overrideSoName": "libbsml.so",
         "cmake": true
