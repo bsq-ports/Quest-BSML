@@ -61,13 +61,13 @@ namespace BSML {
     custom_types::Helpers::Coroutine AnimationLoader::ProcessAnimationInfo(AnimationInfo* animationInfo, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed) {
         DEBUG("ProcessAnimInfo");
         int textureSize = get_atlasSizeLimit(), width = 0, height = 0;
-        SafePtrUnity<UnityEngine::Texture2D> resultTexture;
         SafePtr<Array<UnityEngine::Texture2D*>> textureListSafe = Array<UnityEngine::Texture2D*>::NewLength(animationInfo->frameCount);
         ArrayW<UnityEngine::Texture2D*> textureList(textureListSafe.ptr());
         SafePtr<Array<float>> delaysSafe = Array<float>::NewLength(animationInfo->frameCount);
         ArrayW<float> delays(delaysSafe.ptr());
         float lastThrottleTime = UnityEngine::Time::get_realtimeSinceStartup();
 
+        int gifWidth = 0, gifHeight = 0;
         for (int currentFrameIndex = 0; currentFrameIndex < animationInfo->frameCount; currentFrameIndex++) {
             DEBUG("Frame {}", currentFrameIndex);
 
@@ -81,12 +81,10 @@ namespace BSML {
             if (throttled) lastThrottleTime = UnityEngine::Time::get_realtimeSinceStartup();
             auto currentFrameInfo = animationInfo->PopNextFrame();
 
-            if (!resultTexture) {
+            if (currentFrameIndex == 0) {
+                gifWidth = currentFrameInfo->width;
+                gifHeight = currentFrameInfo->height;
                 textureSize = GetTextureSize(animationInfo);
-
-                width = currentFrameInfo->width;
-                height = currentFrameInfo->height;
-                resultTexture = UnityEngine::Texture2D::New_ctor(width, height);
             }
 
             delays[currentFrameIndex] = currentFrameInfo->delay;
@@ -102,7 +100,13 @@ namespace BSML {
             }
         }
 
+        SafePtrUnity<UnityEngine::Texture2D> resultTexture = UnityEngine::Texture2D::New_ctor(gifWidth, gifHeight);
+
         // note to self, no longer readable = true means you can't encode the texture to png!
+        // Warning: If this will ever crash, it means that one of the
+        // textures in the array has been garbage collected and we need to attach
+        // them to a gameobject to prevent that
+        DEBUG("Packing gif textures");
         SafePtr<Array<::UnityEngine::Rect>> atlasSafe = static_cast<Array<::UnityEngine::Rect>*>(resultTexture->PackTextures(textureList, 2, textureSize, true));
         ArrayW<::UnityEngine::Rect> atlas(atlasSafe.ptr());
         // cleanup
