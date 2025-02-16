@@ -4,6 +4,7 @@
 #include "_config.h"
 #include "hooking.hpp"
 #include "logging.hpp"
+#include "git_info.h"
 
 #include "BSMLDataCache.hpp"
 #include "assets.hpp"

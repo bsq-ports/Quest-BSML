@@ -10,3 +10,4 @@ mod.json
 *.psd
 .vscode/
 .cache/
+include/git_info.h
