@@ -32,6 +32,11 @@ namespace BSML {
         auto gameObject = baseSetting->get_gameObject();
         gameObject->set_name("BSMLSliderSetting");
 
+        auto rectTransform = baseSetting->transform.cast<RectTransform>();
+        rectTransform->set_anchoredPosition({0, 0});
+        Object::Destroy(rectTransform->Find("SliderLeft")->gameObject);
+        Object::Destroy(baseSetting->GetComponent<CanvasGroup*>());
+
         auto sliderSetting = gameObject->AddComponent(get_type()).cast<BSML::SliderSettingBase>();
         auto slider = gameObject->GetComponentInChildren<HMUI::CustomFormatRangeValuesSlider*>();
         sliderSetting->slider = slider;
@@ -57,10 +62,19 @@ namespace BSML {
         auto nameText = gameObject->get_transform()->Find("Title")->get_gameObject();
         Object::Destroy(nameText->GetComponent<BGLib::Polyglot::LocalizedTextMeshProUGUI*>());
 
+        auto titleTransform = nameText->get_transform()->gameObject->transform.cast<RectTransform>();
+        titleTransform->set_anchorMin({0, 0});
+        titleTransform->set_anchorMax({0, 0});
+        titleTransform->set_offsetMin({0, 0});
+        titleTransform->set_offsetMax({-52, 0});
+
         TMPro::TextMeshProUGUI* text = nameText->GetComponent<TMPro::TextMeshProUGUI*>();
         text->set_richText(true);
         text->set_text("BSMLSlider");
         text->get_rectTransform()->set_anchorMax({1, 1});
+        text->set_alignment(::TMPro::TextAlignmentOptions::CaplineLeft);
+        text->set_enableWordWrapping(false);
+        text->set_overflowMode(::TMPro::TextOverflowModes::Overflow);
 
         baseSetting->set_preferredWidth(90.0f);
 
