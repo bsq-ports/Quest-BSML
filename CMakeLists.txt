@@ -39,11 +39,26 @@ message(STATUS "GIT_BRANCH: ${GIT_BRANCH}")
 message(STATUS "GIT_COMMIT: 0x${GIT_COMMIT}")
 message(STATUS "GIT_MODIFIED: ${GIT_MODIFIED}")
 
-# set git defines
-add_compile_definitions(GIT_USER=\"${GIT_USER}\")
-add_compile_definitions(GIT_BRANCH=\"${GIT_BRANCH}\")
-add_compile_definitions(GIT_COMMIT=0x${GIT_COMMIT})
-add_compile_definitions(GIT_MODIFIED=${GIT_MODIFIED})
+# Check for file presence and read current contents
+set(GIT_INFO_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/git_info.h")
+if(EXISTS "${GIT_INFO_H_PATH}")
+    file(READ "${GIT_INFO_H_PATH}" GIT_INFO_H_CURRENT)
+else()
+    set(GIT_INFO_H_CURRENT "")
+endif()
+
+# Define new git info content
+set(GIT_INFO_H "#pragma once
+#define GIT_USER \"${GIT_USER}\"
+#define GIT_BRANCH \"${GIT_BRANCH}\"
+#define GIT_COMMIT 0x${GIT_COMMIT}
+#define GIT_MODIFIED ${GIT_MODIFIED}
+")
+
+# Write git info to file if the contents have changed
+if(NOT "${GIT_INFO_H}" STREQUAL "${GIT_INFO_H_CURRENT}")
+    file(WRITE "${GIT_INFO_H_PATH}" "${GIT_INFO_H}")
+endif()
 
 # compile definitions used
 add_compile_definitions(VERSION=\"${MOD_VERSION}\")
