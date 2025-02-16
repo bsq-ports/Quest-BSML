@@ -62,7 +62,7 @@ namespace BSML {
         auto nameText = gameObject->get_transform()->Find("Title")->get_gameObject();
         Object::Destroy(nameText->GetComponent<BGLib::Polyglot::LocalizedTextMeshProUGUI*>());
 
-        auto titleTransform = nameText->get_transform()->gameObject->transform.cast<RectTransform>();
+        auto titleTransform = nameText->get_transform().cast<RectTransform>();
         titleTransform->set_anchorMin({0, 0});
         titleTransform->set_anchorMax({0, 0});
         titleTransform->set_offsetMin({0, 0});
