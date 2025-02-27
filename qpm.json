@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/QuestPackageManager/QPM.Package/refs/heads/main/qpm.schema.json",
   "version": "0.4.0",
   "sharedDir": "shared",
   "dependenciesDir": "extern",
@@ -32,9 +33,13 @@
         "pwsh ./scripts/createqmod.ps1 BSML -clean"
       ]
     },
-    "qmodIncludeDirs": [],
+    "ndk": "^27.2.12479018",
+    "qmodIncludeDirs": [
+      "build",
+      "extern/libs"
+    ],
     "qmodIncludeFiles": [],
-    "qmodOutput": null
+    "qmodOutput": "./BSML.qmod"
   },
   "dependencies": [
     {
@@ -49,17 +54,17 @@
     },
     {
       "id": "bs-cordl",
-      "versionRange": "^4020.0.0",
+      "versionRange": "^4030.0.0",
       "additionalData": {}
     },
     {
       "id": "custom-types",
-      "versionRange": "^0.18.0",
+      "versionRange": "^0.18.2",
       "additionalData": {}
     },
     {
       "id": "scotland2",
-      "versionRange": "^0.1.4",
+      "versionRange": "^0.1.6",
       "additionalData": {
         "includeQmod": false,
         "private": true
@@ -67,7 +72,7 @@
     },
     {
       "id": "paper2_scotland2",
-      "versionRange": "^4.0.0",
+      "versionRange": "^4.6.1",
       "additionalData": {
         "private": true
       }
