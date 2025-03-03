@@ -10,3 +10,4 @@ mod.json
 *.psd
 .vscode/
 .cache/
+ndkpath.txt
