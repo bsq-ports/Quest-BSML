@@ -84,7 +84,23 @@ namespace BSML {
         // this one didn't exist yet, so check if we should add the bsml menu (first)
         TryAddBSMLMenu();
 
-        menus->Add(menu);
+        bool menuAdded = false;
+
+        // Starting after the first entry, insert the new menu alphabetically
+        for (int i = 1; i < menus.size(); i++) {
+            auto existing = menus[i];
+            if (menu->name < existing->text) {
+                menus->Insert(i, menu);
+                menuAdded = true;
+                break;
+            }
+        }
+
+        // Add the menu to the end, we didn't insert it anywhere
+        if (!menuAdded) {
+            menus->Add(menu);
+        }
+
         if (isInitialized) {
             // per definition this is a new menu, so we can run setup if we're already initialized
             menu->Setup();
