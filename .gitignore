@@ -11,3 +11,4 @@ mod.json
 .vscode/
 .cache/
 include/git_info.h
+ndkpath.txt
