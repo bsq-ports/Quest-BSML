@@ -185,8 +185,14 @@ namespace BSML::Utilities {
         auto req = www->SendWebRequest();
         while (!req->get_isDone()) co_yield nullptr;
         auto error = www->GetError();
-        onFinished((error == UnityEngine::Networking::UnityWebRequest::UnityWebRequestError::OK) ? www->get_downloadHandler()->GetData() : nullptr);
+        if (error != UnityEngine::Networking::UnityWebRequest::UnityWebRequestError::OK) {
+            onFinished(nullptr);
+            www->Dispose();
+            co_return;
+        };
 
+        onFinished(www->get_downloadHandler()->GetData());
+        www->Dispose();
         co_return;
     }
 
