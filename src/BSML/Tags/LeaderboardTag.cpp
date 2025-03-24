@@ -7,6 +7,7 @@
 #include "UnityEngine/Object.hpp"
 #include "Helpers/getters.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
+#include "GlobalNamespace/PlatformLeaderboardViewController.hpp"
 
 using namespace UnityEngine;
 
@@ -16,9 +17,7 @@ namespace BSML {
     GlobalNamespace::LeaderboardTableView* get_leaderboardTemplate() {
         static SafePtrUnity<GlobalNamespace::LeaderboardTableView> leaderboardTemplate;
         if (!leaderboardTemplate) {
-            leaderboardTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::LeaderboardTableView*>()->First([](auto x) {
-                return x->get_name() == "LeaderboardTableView";
-            });
+            leaderboardTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PlatformLeaderboardViewController*>()->_leaderboardTableView;
         }
         return leaderboardTemplate.ptr();
     }

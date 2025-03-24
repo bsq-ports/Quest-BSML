@@ -21,6 +21,10 @@
 #include "HMUI/TableView.hpp"
 #include "HMUI/Touchable.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
+#include "GlobalNamespace/PlayerSettingsPanelController.hpp"
+#include "GlobalNamespace/NoteJumpStartBeatOffsetDropdown.hpp"
+#include "HMUI/SimpleTextDropdown.hpp"
 
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -30,7 +34,7 @@ namespace BSML {
     Canvas* get_customListCanvasTemplate() {
         static SafePtrUnity<Canvas> customListCanvasTemplate;
         if (!customListCanvasTemplate) {
-            customListCanvasTemplate = Resources::FindObjectsOfTypeAll<Canvas*>()->FirstOrDefault([](auto x){ return x->get_name() == "DropdownTableView"; });
+            customListCanvasTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_playerSettingsPanelController->_noteJumpStartBeatOffsetDropdown->_simpleTextDropdown->_tableView->GetComponent<Canvas*>();
         }
         return customListCanvasTemplate.ptr();
     }

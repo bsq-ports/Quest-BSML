@@ -25,17 +25,23 @@ using namespace GlobalNamespace;
 namespace BSML::Helpers {
     SafePtrUnity<UnityEngine::UI::Button> soloButton;
     bool TryGetSoloButton(UnityEngine::UI::Button*& button) {
-        if(!soloButton) {
-            auto vc = UnityEngine::Resources::FindObjectsOfTypeAll<MainMenuViewController*>()->First();
-            soloButton = vc->_soloButton;
+        auto container = GetDiContainer();
+
+        if(!container) {
+            CacheNotFoundWarningLog(SoloButton);
+            button = nullptr;
+            return false;
         }
+
+        soloButton = container->Resolve<MainMenuViewController*>()->_soloButton;
         if(!soloButton) {
             CacheNotFoundWarningLog(SoloButton);
+            button = nullptr;
             return false;
         }
 
         button = soloButton.ptr();
-        return soloButton;
+        return true;
     }
 
     bool TryGetUITextTemplate(TMPro::TextMeshProUGUI*& textMesh) {
@@ -119,7 +125,7 @@ namespace BSML::Helpers {
         if(!mainUIFontMaterial) {
             CacheNotFoundWarningLog(Material);
             return nullptr;
-        } 
+        }
         return mainUIFontMaterial.ptr();
     }
 
