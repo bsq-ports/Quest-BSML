@@ -5,6 +5,7 @@
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/UI/Image.hpp"
 #include "GlobalNamespace/MainMenuViewController.hpp"
 #include "GlobalNamespace/LevelCollectionTableView.hpp"
 #include "GlobalNamespace/MainSettingsMenuViewControllersInstaller.hpp"
@@ -60,7 +61,7 @@ namespace BSML::Helpers {
     PhysicsRaycasterWithCache* GetPhysicsRaycasterWithCache()
     {
         if(!physicsRaycaster) {
-            physicsRaycaster = Resources::FindObjectsOfTypeAll<MainMenuViewController*>()->First()->GetComponent<VRGraphicRaycaster*>()->_physicsRaycaster;
+            physicsRaycaster = GetDiContainer()->Resolve<PhysicsRaycasterWithCache*>();
         }
         if(!physicsRaycaster) {
             CacheNotFoundWarningLog(PhysicsRaycasterWithCache);
@@ -71,10 +72,8 @@ namespace BSML::Helpers {
 
     SafePtr<DiContainer> diContainer;
     DiContainer* GetDiContainer() {
-        if(!diContainer)
-            diContainer = Resources::FindObjectsOfTypeAll<TextSegmentedControl*>()->FirstOrDefault([](TextSegmentedControl* x) { return x->get_transform()->get_parent()->get_name() == "PlayerStatisticsViewController" && x->_container; })->_container;
         if(!diContainer) {
-            CacheNotFoundWarningLog(DiContainer);
+            ERROR("Tried getting DiContainer too early!");
             return nullptr;
         }
         return diContainer.ptr();
@@ -83,7 +82,7 @@ namespace BSML::Helpers {
     SafePtrUnity<HoverHintController> hoverHintController;
     HoverHintController* GetHoverHintController() {
         if(!hoverHintController)
-            hoverHintController = Resources::FindObjectsOfTypeAll<HoverHintController*>()->FirstOrDefault();
+            hoverHintController = GetDiContainer()->Resolve<HoverHintController*>();
         if(!hoverHintController) {
             CacheNotFoundWarningLog(HoverHintController);
             return nullptr;
@@ -94,7 +93,7 @@ namespace BSML::Helpers {
     SafePtr<IVRPlatformHelper> platformHelper;
     IVRPlatformHelper* GetIVRPlatformHelper() {
         if (!platformHelper)
-            platformHelper = Resources::FindObjectsOfTypeAll<LevelCollectionTableView*>()->First()->GetComponentInChildren<ScrollView*>()->_platformHelper;
+            platformHelper = GetDiContainer()->Resolve<IVRPlatformHelper*>();
         if (!platformHelper) {
             CacheNotFoundWarningLog(IVRPlatformHelper);
             return nullptr;
@@ -132,7 +131,10 @@ namespace BSML::Helpers {
     SafePtrUnity<Material> noGlowUIMat;
     Material* GetUINoGlowMat() {
         if (!noGlowUIMat) {
-            noGlowUIMat = Resources::FindObjectsOfTypeAll<Material*>()->FirstOrDefault([](auto x){ return x->get_name() == "UINoGlow"; });
+            UnityEngine::UI::Button* soloButton;
+            if (TryGetSoloButton(soloButton)) {
+                noGlowUIMat = soloButton->transform->Find("Image/Image0")->GetComponent<UnityEngine::UI::Image*>()->material;
+            }
         }
         if(!noGlowUIMat) {
             CacheNotFoundWarningLog(Material);
@@ -144,7 +146,7 @@ namespace BSML::Helpers {
     SafePtrUnity<MainFlowCoordinator> mainFlowCoordinator;
     MainFlowCoordinator* GetMainFlowCoordinator() {
         if (!mainFlowCoordinator)
-            mainFlowCoordinator = Resources::FindObjectsOfTypeAll<MainFlowCoordinator*>()->FirstOrDefault();
+            mainFlowCoordinator = GetDiContainer()->Resolve<MainFlowCoordinator*>();
         if(!mainFlowCoordinator) {
             CacheNotFoundWarningLog(MainFlowCoordinator);
             return nullptr;
