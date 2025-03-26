@@ -90,6 +90,7 @@ namespace BSML {
             delays[currentFrameIndex] = currentFrameInfo->delay;
 
             auto frameTexture = UnityEngine::Texture2D::New_ctor(currentFrameInfo->width, currentFrameInfo->height, UnityEngine::TextureFormat::RGBA32, false);
+            frameTexture->hideFlags = UnityEngine::HideFlags::DontSave; // Avoids unity GC
             frameTexture->set_wrapMode(UnityEngine::TextureWrapMode::Clamp);
             frameTexture->LoadRawTextureData(currentFrameInfo->colors.ptr());
 
