@@ -49,12 +49,12 @@
     },
     {
       "id": "beatsaber-hook",
-      "versionRange": "^6.2.0",
+      "versionRange": "^6.4.1",
       "additionalData": {}
     },
     {
       "id": "bs-cordl",
-      "versionRange": "^4030.0.0",
+      "versionRange": "^4004.0.0",
       "additionalData": {}
     },
     {
