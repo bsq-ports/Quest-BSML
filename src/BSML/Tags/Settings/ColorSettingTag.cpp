@@ -16,7 +16,16 @@
 #include "UnityEngine/Vector2.hpp"
 #include "HMUI/AnimatedSwitchView.hpp"
 #include "GlobalNamespace/FormattedFloatListSettingsController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
+#include "GlobalNamespace/ColorsOverrideSettingsPanelController.hpp"
+#include "GlobalNamespace/ColorSchemeDropdown.hpp"
+#include "GlobalNamespace/ColorSchemeView.hpp"
+#include "GlobalNamespace/ColorSchemeTableCell.hpp"
+#include "GlobalNamespace/PreviousColorPanelController.hpp"
+#include "GlobalNamespace/MainSettingsMenuViewController.hpp"
+#include "GlobalNamespace/SettingsSubMenuInfo.hpp"
 #include "BGLib/Polyglot/LocalizedTextMeshProUGUI.hpp"
+#include "Helpers/getters.hpp"
 
 #include "TMPro/TextMeshProUGUI.hpp"
 
@@ -36,13 +45,14 @@ namespace BSML {
 
     Image* get_colorImage() {
         static SafePtrUnity<Image> colorImage;
-        if (!colorImage)
-            colorImage = Resources::FindObjectsOfTypeAll<Image*>()->FirstOrDefault([](auto x) {
-                if (x->get_name() != "ColorImage") return false;
-                auto sprite = x->get_sprite();
-                if (!sprite) return false;
-                return sprite->get_name() == "NoteCircle";
-            });
+
+        if (!colorImage) {
+            colorImage = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_colorsOverrideSettingsPanelController->_colorSchemeDropDown->_cellPrefab->_colorSchemeView->_saberAColorImage;
+            if (!colorImage) {
+                return nullptr;
+            }
+        }
+
         return colorImage.ptr();
     }
 

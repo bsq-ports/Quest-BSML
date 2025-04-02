@@ -20,6 +20,8 @@
 #include "HMUI/CurvedTextMeshPro.hpp"
 #include "BGLib/Polyglot/LocalizedTextMeshProUGUI.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
+#include "GlobalNamespace/EnvironmentOverrideSettingsPanelController.hpp"
 
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -30,11 +32,11 @@ namespace BSML {
     GameObject* get_dropdownTemplate() {
         static SafePtrUnity<GameObject> dropdownTemplate;
         if (!dropdownTemplate) {
-            dropdownTemplate = Resources::FindObjectsOfTypeAll<HMUI::SimpleTextDropdown*>()->First([](auto x){
-                auto parent = x->get_transform()->get_parent();
-                if (!parent) return false;
-                return parent->get_name() == "NormalLevels";
-            })->get_transform()->get_parent()->get_gameObject();
+            dropdownTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_environmentOverrideSettingsPanelController->_elementsGO->transform->Find("NormalLevels")->get_gameObject();
+        }
+        if (!dropdownTemplate) {
+            ERROR("No dropdown template found!");
+            return nullptr;
         }
         return dropdownTemplate.ptr();
     }

@@ -7,6 +7,7 @@
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/Vector2.hpp"
+#include "UnityEngine/UI/Selectable.hpp"
 
 DEFINE_TYPE(BSML, SliderSettingBase);
 
@@ -16,12 +17,12 @@ namespace BSML {
     }
 
     bool SliderSettingBase::get_interactable() {
-        return slider ? slider->get_interactable() : false;
+        return slider ? static_cast<UnityEngine::UI::Selectable*>(slider)->get_interactable() : false;
     }
 
     void SliderSettingBase::set_interactable(bool value) {
         if (slider) {
-            slider->set_interactable(value);
+            static_cast<UnityEngine::UI::Selectable*>(slider)->set_interactable(value);
 
             if (showButtons) {
                 set_enableInc(value);

@@ -3,6 +3,7 @@
 
 #include "BSML/Components/Settings/SliderSetting.hpp"
 #include "BSML/Components/ExternalComponents.hpp"
+#include "Helpers/getters.hpp"
 
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/Resources.hpp"
@@ -14,6 +15,9 @@
 #include "UnityEngine/Color.hpp"
 #include "HMUI/CustomFormatRangeValuesSlider.hpp"
 #include "BGLib/Polyglot/LocalizedTextMeshProUGUI.hpp"
+#include "GlobalNamespace/MainSettingsMenuViewController.hpp"
+#include "BeatSaber/GameSettings/ControllerProfilesSettingsViewController.hpp"
+#include "GlobalNamespace/SettingsSubMenuInfo.hpp"
 
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -21,8 +25,18 @@ using namespace UnityEngine::UI;
 namespace BSML {
     LayoutElement* get_controllersTransformTemplate() {
         static SafePtrUnity<LayoutElement> controllersTransformTemplate;
-        if (!controllersTransformTemplate)
-                controllersTransformTemplate = Resources::FindObjectsOfTypeAll<LayoutElement*>()->First([](auto x){ return x->get_name() == "PositionX"; });
+        if (!controllersTransformTemplate) {
+            controllersTransformTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::MainSettingsMenuViewController*>()->
+                _settingsSubMenuInfos->First([](auto x){
+                    return il2cpp_utils::try_cast<BeatSaber::GameSettings::ControllerProfilesSettingsViewController>(x->viewController.ptr());
+                })->viewController->transform->
+                Find("Content/MainContent/Sliders/PositionX")->
+                GetComponent<LayoutElement*>();
+            if (!controllersTransformTemplate) {
+                ERROR("No controllersTransformTemplate found!");
+                return nullptr;
+            }
+        }
         return controllersTransformTemplate.ptr();
     }
 

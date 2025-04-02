@@ -8,6 +8,9 @@
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "Zenject/DiContainer.hpp"
+#include "GlobalNamespace/PlayerStatisticsViewController.hpp"
+
+#include "Helpers/getters.hpp"
 
 using namespace UnityEngine;
 
@@ -17,13 +20,11 @@ namespace BSML {
     HMUI::TextSegmentedControl* get_tabSelectorTagTemplate() {
         static SafePtrUnity<HMUI::TextSegmentedControl> tabSelectorTagTemplate;
         if (!tabSelectorTagTemplate) {
-            tabSelectorTagTemplate = Resources::FindObjectsOfTypeAll<HMUI::TextSegmentedControl*>()->FirstOrDefault(
-                [](auto x) {
-                    auto parent = x->get_transform()->get_parent();
-                    if (!parent) return false;
-                    if (parent->get_name() != "PlayerStatisticsViewController") return false;
-                    return x->_container != nullptr;
-                });
+            tabSelectorTagTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PlayerStatisticsViewController*>()->_statsScopeSegmentedControl;
+        }
+        if (!tabSelectorTagTemplate) {
+            ERROR("No tabSelectorTagTemplate found!");
+            return nullptr;
         }
         return tabSelectorTagTemplate.ptr();
     }
