@@ -42,6 +42,10 @@ namespace BSML {
         INFO("Enter");
         set_isHighlighted(true);
         if (onEnter) onEnter();
+        if (!vrPointer || !vrPointer->m_CachedPtr.m_value || !vrPointer->lastSelectedVrController) {
+            ERROR("VRPointer or lastSelectedVrController is null in ClickableText::OnPointerEnter");
+            return;
+        }
         Vibrate(vrPointer->lastSelectedVrController->node == UnityEngine::XR::XRNode::LeftHand);
     }
 
