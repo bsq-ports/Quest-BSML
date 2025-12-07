@@ -431,7 +431,7 @@ namespace BSML::Utilities {
 
     UnityEngine::Texture2D* LoadTextureRaw(ArrayW<uint8_t> data) {
         if (data.size() > 0) {
-            auto texture = Texture2D::New_ctor(0, 0, TextureFormat::RGBA32, false, false);
+            auto texture = Texture2D::New_ctor(1, 1, TextureFormat::RGBA32, false, false);
             if (ImageConversion::LoadImage(texture, data, false))
                 return texture;
         }

@@ -82,7 +82,7 @@ namespace BSML {
             m->OnDisable();
         }
         auto mainFc = BSML::Helpers::GetMainFlowCoordinator();
-        mainFc->_providedLeftScreenViewController = menuButtonsViewController;
+        mainFc->____providedLeftScreenViewController = menuButtonsViewController;
         mainFc->SetLeftScreenViewController(menuButtonsViewController, HMUI::ViewController::AnimationType::None);
     }
 
