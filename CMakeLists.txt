@@ -64,7 +64,6 @@ endif()
 add_compile_definitions(VERSION=\"${MOD_VERSION}\")
 add_compile_definitions(MOD_ID=\"${MOD_ID}\")
 add_compile_definitions(MAKE_DOCS=${MAKE_DOCS})
-add_compile_definitions(UNITY_2021)
 add_compile_definitions(CORDL_RUNTIME_FIELD_NULL_CHECKS)
 
 # recursively get all src files
