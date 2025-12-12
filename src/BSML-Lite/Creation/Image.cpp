@@ -79,7 +79,7 @@ namespace BSML::Lite {
     }
 
     UnityEngine::Sprite* ArrayToSprite(ArrayW<uint8_t> bytes) {
-        UnityEngine::Texture2D* texture = UnityEngine::Texture2D::New_ctor(0, 0, UnityEngine::TextureFormat::RGBA32, false, false);
+        UnityEngine::Texture2D* texture = UnityEngine::Texture2D::New_ctor(1, 1, UnityEngine::TextureFormat::RGBA32, false, false);
         if (UnityEngine::ImageConversion::LoadImage(texture, bytes, false)) {
             return TextureToSprite(texture);
         }
