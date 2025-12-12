@@ -7,7 +7,7 @@
     "info": {
       "name": "BSML",
       "id": "bsml",
-      "version": "0.6.0",
+      "version": "0.5.0",
       "url": "https://github.com/bsq-ports/Quest-BSML",
       "additionalData": {
         "overrideSoName": "libbsml.so",
@@ -99,7 +99,7 @@
       },
       {
         "id": "flamingo",
-        "versionRange": "=1.1.2",
+        "versionRange": "^1.1.2",
         "additionalData": {}
       }
     ]
