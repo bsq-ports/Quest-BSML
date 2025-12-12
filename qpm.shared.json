@@ -110,7 +110,11 @@
         "id": "custom-types",
         "versionRange": "=0.19.0",
         "additionalData": {
+          "soLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.19.0/libcustom-types.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.19.0/debug_libcustom-types.so",
           "overrideSoName": "libcustom-types.so",
+          "modLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.19.0/CustomTypes.qmod",
+          "branchName": "version/v0_19_0",
           "compileOptions": {
             "cppFlags": [
               "-Wno-invalid-offsetof"
