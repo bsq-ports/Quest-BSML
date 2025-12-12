@@ -22,7 +22,7 @@ namespace BSML {
     GlobalNamespace::GameplayModifierToggle* get_gameplayModifierToggleTemplate() {
         static SafePtrUnity<GlobalNamespace::GameplayModifierToggle> gameplayModifierToggleTemplate;
         if (!gameplayModifierToggleTemplate)
-            gameplayModifierToggleTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::GameplayModifierToggle*>()->FirstOrDefault();
+            gameplayModifierToggleTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::GameplayModifierToggle*>()->First( [](GlobalNamespace::GameplayModifierToggle* x) { return x->get_name() == "InstaFail"; });
         return gameplayModifierToggleTemplate.ptr();
     }
 
