@@ -10,6 +10,7 @@
 #include "assets.hpp"
 #include "config.hpp"
 #include "custom-types/shared/register.hpp"
+#include "SSL10n.hpp"
 
 #include "BSML/MainThreadScheduler.hpp"
 #include "BSML/SharedCoroutineStarter.hpp"
@@ -62,6 +63,8 @@ BSML_EXPORT_FUNC void late_load() {
     UnityEngine::Object::DontDestroyOnLoad(scs);
     scs->hideFlags = UnityEngine::HideFlags::DontUnloadUnusedAsset | UnityEngine::HideFlags::HideAndDontSave;
     scs->AddComponent<BSML::SharedCoroutineStarter*>();
+
+    SSL10n::Database::PolyglotFormat::AddCSVContent((const char *)Assets::localize_csv.dataStart, Assets::localize_csv.data_length);
 }
 
 BSML_DATACACHE(settings_about) {

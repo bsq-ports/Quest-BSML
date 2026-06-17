@@ -1,5 +1,6 @@
 #include "BSML/Settings/BSMLSettings.hpp"
 #include "BSML/Settings/SettingsMenu.hpp"
+#include "SSL10n.hpp"
 #include "logging.hpp"
 
 #include "Helpers/creation.hpp"
@@ -170,7 +171,7 @@ namespace BSML {
         }
 
         button = UnityEngine::Object::Instantiate(optionsViewController->_settingsButton, optionsViewController->get_transform()->Find("Wrapper"));
-        button->GetComponentInChildren<BGLib::Polyglot::LocalizedTextMeshProUGUI*>()->set_Key("Mod Settings");
+        button->GetComponentInChildren<BGLib::Polyglot::LocalizedTextMeshProUGUI*>()->set_Key(SSL10n::Get("BSML_MOD_SETTINGS_BUTTON"));
         auto onClick = UnityEngine::UI::Button::ButtonClickedEvent::New_ctor();
         button->set_onClick(onClick);
         onClick->AddListener(MakeUnityAction(this, ___PresentSettings_MethodRegistrator.get()));

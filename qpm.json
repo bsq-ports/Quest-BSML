@@ -95,6 +95,11 @@
       "additionalData": {
         "private": true
       }
+    },
+    {
+      "id": "sslocalization",
+      "versionRange": "^0.7.0",
+      "additionalData": {}
     }
   ]
 }

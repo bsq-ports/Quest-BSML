@@ -6,6 +6,7 @@
 #include "BSML.hpp"
 #include "Helpers/creation.hpp"
 #include "Helpers/getters.hpp"
+#include "SSL10n.hpp"
 
 #include "UnityEngine/Resources.hpp"
 #include "GlobalNamespace/MenuTransitionsHelper.hpp"
@@ -22,7 +23,7 @@ namespace BSML {
     void ModSettingsFlowCoordinator::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
         if (!firstActivation) return;
         DEBUG("DidActivate");
-        SetTitle("Mod Settings", HMUI::ViewController::AnimationType::In);
+        SetTitle(SSL10n::Get("BSML_MOD_SETTINGS_TITLE"), HMUI::ViewController::AnimationType::In);
         set_showBackButton(true);
         navigationController = Helpers::CreateViewController<HMUI::NavigationController*>();
         auto parser = parse_and_construct(Assets::Settings::Buttons_bsml, navigationController->get_transform(), this);
