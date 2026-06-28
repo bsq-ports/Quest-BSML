@@ -1,4 +1,5 @@
 #include "BSML/Components/CustomCellTableCell.hpp"
+#include "beatsaber-hook/shared/listw.hpp"
 
 DEFINE_TYPE(BSML, CustomCellTableCell);
 
@@ -14,17 +15,17 @@ namespace BSML {
         parserParams = nullptr;
         this->~CustomCellTableCell();
 
-        auto objectFinalize = il2cpp_utils::il2cpp_type_check::MetadataGetter<&System::Object::Finalize>::methodInfo();
-        il2cpp_utils::RunMethodRethrow<void, false>(this, objectFinalize);
+        auto objectFinalize = i2c::metadata_getter<&System::Object::Finalize>::method_info();
+        i2c::run_method(this, objectFinalize);
     }
 
     void CustomCellTableCell::Reused() {
-        if (dataObject) il2cpp_utils::RunMethod(dataObject, "Reused", this);
+        if (dataObject) i2c::run_method(dataObject, "Reused", this);
     }
 
     void CustomCellTableCell::SelectionDidChange(HMUI::SelectableCell::TransitionType transitionType) {
         if (get_selected() && dataObject) {
-            il2cpp_utils::RunMethod(dataObject, "Select", this);
+            i2c::run_method(dataObject, "Select", this);
         }
 
         RefreshVisuals();
@@ -55,6 +56,6 @@ namespace BSML {
         neitherTags->EnsureCapacity(neither.size());
         for (auto go : neither) neitherTags->Add(go);
 
-        if (dataObject) il2cpp_utils::RunMethod(dataObject, "Setup", this);
+        if (dataObject) i2c::run_method(dataObject, "Setup", this);
     }
 }

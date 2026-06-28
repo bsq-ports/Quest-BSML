@@ -30,21 +30,21 @@ namespace BSML {
     };
 
     GlobalNamespace::RGBPanelController* get_rgbTemplate() {
-        static SafePtrUnity<GlobalNamespace::RGBPanelController> rgbTemplate;
+        static safe_ptr<GlobalNamespace::RGBPanelController*> rgbTemplate;
         if (!rgbTemplate)
-            rgbTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::RGBPanelController*>()->FirstOrDefault([](auto x){ return x->get_name() == "RGBColorPicker"; });
+            rgbTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::RGBPanelController*>().front_or_default([](auto x){ return x->get_name() == "RGBColorPicker"; });
         return rgbTemplate.ptr();
     }
     GlobalNamespace::HSVPanelController* get_hsvTemplate() {
-        static SafePtrUnity<GlobalNamespace::HSVPanelController> hsvTemplate;
+        static safe_ptr<GlobalNamespace::HSVPanelController*> hsvTemplate;
         if (!hsvTemplate)
-            hsvTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::HSVPanelController*>()->FirstOrDefault([](auto x){ return x->get_name() == "HSVColorPicker"; });
+            hsvTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::HSVPanelController*>().front_or_default([](auto x){ return x->get_name() == "HSVColorPicker"; });
         return hsvTemplate.ptr();
     }
     HMUI::ImageView* get_currentColorTemplate() {
-        static SafePtrUnity<HMUI::ImageView> currentColorTemplate;
+        static safe_ptr<HMUI::ImageView*> currentColorTemplate;
         if (!currentColorTemplate) {
-            currentColorTemplate = Resources::FindObjectsOfTypeAll<HMUI::ImageView*>()->FirstOrDefault([](auto x){
+            currentColorTemplate = Resources::FindObjectsOfTypeAll<HMUI::ImageView*>().front_or_default([](auto x){
                 if (x->get_name() != "SaberColorA") return false;
                 auto parent = x->get_transform()->get_parent();
                 if (!parent) return false;
@@ -68,7 +68,7 @@ namespace BSML {
 
 
 
-        auto onChangeInfo = il2cpp_functions::class_get_method_from_name(colorPicker->klass, "OnChange", 2);
+        auto onChangeInfo = i2c::functions::class_get_method_from_name(colorPicker->klass, "OnChange", 2);
         auto delegate = MakeSystemAction<UnityEngine::Color, GlobalNamespace::ColorChangeUIEventType>(colorPicker, onChangeInfo);
         auto rgbController = Object::Instantiate(get_rgbTemplate(), gameObject->get_transform(), false);
         rgbController->set_name("BSMLRGBPanel");

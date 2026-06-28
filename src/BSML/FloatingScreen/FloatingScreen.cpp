@@ -23,19 +23,20 @@ static inline UnityEngine::AdditionalCanvasShaderChannels operator |(UnityEngine
 }
 
 namespace BSML {
-    SafePtrUnity<UnityEngine::Material> FloatingScreen::_fogMaterial;
+    safe_ptr<UnityEngine::Material*> FloatingScreen::_fogMaterial;
     FloatingScreen* FloatingScreen::CreateFloatingScreen(UnityEngine::Vector2 screenSize, bool createHandle, UnityEngine::Vector3 position, UnityEngine::Quaternion rotation, float curvatureRadius, bool hasBackground) {
         auto components = ArrayW<System::Type*>(static_cast<il2cpp_array_size_t>(5));
-        components[0] = csTypeOf(BSML::FloatingScreen*);
-        components[1] = csTypeOf(UnityEngine::UI::CanvasScaler*);
-        components[2] = csTypeOf(UnityEngine::UI::RectMask2D*);
-        components[3] = csTypeOf(VRUIControls::VRGraphicRaycaster*);
-        components[4] = csTypeOf(HMUI::CurvedCanvasSettings*);
+        components[0] = i2c::cs_type_of<BSML::FloatingScreen*>();
+        components[1] = i2c::cs_type_of<UnityEngine::UI::CanvasScaler*>();
+        components[2] = i2c::cs_type_of<UnityEngine::UI::RectMask2D*>();
+        components[3] = i2c::cs_type_of<VRUIControls::VRGraphicRaycaster*>();
+        components[4] = i2c::cs_type_of<HMUI::CurvedCanvasSettings*>();
 
         auto screenGO = UnityEngine::GameObject::New_ctor("BSMLFloatingScreen", components);
         screenGO->set_layer(5);
         auto screen = screenGO->GetComponent<FloatingScreen*>();
 
+        screen->OnDestroy();
         screen->GetComponent<VRUIControls::VRGraphicRaycaster*>()->_physicsRaycaster = Helpers::GetPhysicsRaycasterWithCache();
 
         auto curvedCanvasSettings = screen->GetComponent<HMUI::CurvedCanvasSettings*>();
@@ -52,8 +53,8 @@ namespace BSML {
         if (hasBackground)
         {
             auto components = ArrayW<System::Type*>(static_cast<il2cpp_array_size_t>(2));
-            components[0] = csTypeOf(UnityEngine::RectTransform*);
-            components[1] = csTypeOf(HMUI::ImageView*);
+            components[0] = i2c::cs_type_of<UnityEngine::RectTransform*>();
+            components[1] = i2c::cs_type_of<HMUI::ImageView*>();
 
             auto backGroundGo = UnityEngine::GameObject::New_ctor("bg", components);
             backGroundGo->set_layer(5);
@@ -70,7 +71,7 @@ namespace BSML {
             background->set_type(UnityEngine::UI::Image::Type::Sliced);
             background->set_color({0.7450981f, 0.7450981f, 0.7450981f, 1.0f});
             if (!_fogMaterial)
-                _fogMaterial = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Material*>()->FirstOrDefault([](auto x){ return x->get_name() == "UIFogBG"; });
+                _fogMaterial = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Material*>().front_or_default([](auto x){ return x->get_name() == "UIFogBG"; });
             background->set_material(_fogMaterial.ptr());
             background->set_preserveAspect(true);
         }

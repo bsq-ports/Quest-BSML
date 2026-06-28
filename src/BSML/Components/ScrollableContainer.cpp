@@ -63,12 +63,12 @@ namespace BSML {
         _buttonBinder->ClearBindings();
         if (_pageUpButton) {
             if (!upButtonAction)
-                upButtonAction = MakeSystemAction(this, il2cpp_functions::class_get_method_from_name(klass, "PageUpButtonPressed", 0));
+                upButtonAction = MakeSystemAction(this, i2c::functions::class_get_method_from_name(klass, "PageUpButtonPressed", 0));
             _buttonBinder->AddBinding(_pageUpButton, upButtonAction);
         }
         if (_pageDownButton) {
             if (!downButtonAction)
-                downButtonAction = MakeSystemAction(this, il2cpp_functions::class_get_method_from_name(klass, "PageDownButtonPressed", 0));
+                downButtonAction = MakeSystemAction(this, i2c::functions::class_get_method_from_name(klass, "PageDownButtonPressed", 0));
             _buttonBinder->AddBinding(_pageDownButton, downButtonAction);
         }
     }
@@ -123,7 +123,7 @@ namespace BSML {
             i++;
         }
 
-        std::sort(_scrollFocusPositions->begin(), _scrollFocusPositions->end(), [](float a, float b) {
+        std::sort(_scrollFocusPositions.begin(), _scrollFocusPositions.end(), [](float a, float b) {
             return a < b;
         });
     }

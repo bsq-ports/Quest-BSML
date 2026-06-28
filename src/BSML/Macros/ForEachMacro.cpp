@@ -3,6 +3,7 @@
 #include "BSML/Parsing/BSMLParser.hpp"
 #include "StringParseHelper.hpp"
 #include "logging.hpp"
+#include "beatsaber-hook/shared/listw.hpp"
 
 namespace BSML {
     static BSMLNodeParser<ForEachMacro> foreachMacroParser({"macro.for-each"});
@@ -20,7 +21,7 @@ namespace BSML {
         if (hostsItr != data.end()) {
             auto value = parserParams.TryGetValue(hostsItr->second);
             if (value) {
-                ListW<System::Object*> hosts = value->GetValue<List<System::Object*>*>();
+                ListW<System::Object*> hosts = value->GetValue<System::Collections::Generic::List_1<System::Object*>*>();
                 if (hosts) {
                     bool passTags = false;
                     auto passTagsItr = data.find("passTags");

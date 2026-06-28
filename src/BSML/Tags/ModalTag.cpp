@@ -16,6 +16,8 @@
 #include "HMUI/EventSystemListener.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace HMUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
@@ -25,9 +27,9 @@ namespace BSML {
     static BSMLNodeParser<ModalTag> modalTagParser({"modal"});
 
     HMUI::ModalView* get_modalViewTemplate() {
-        static SafePtrUnity<HMUI::ModalView> modalViewTemplate;
+        static safe_ptr<HMUI::ModalView*> modalViewTemplate;
         if (!modalViewTemplate) {
-            modalViewTemplate = Resources::FindObjectsOfTypeAll<HMUI::ModalView*>()->FirstOrDefault([](auto x){ return x->get_gameObject()->get_name() == "DropdownTableView"; });
+            modalViewTemplate = Resources::FindObjectsOfTypeAll<HMUI::ModalView*>().front_or_default([](auto x){ return x->get_gameObject()->get_name() == "DropdownTableView"; });
         }
         return modalViewTemplate.ptr();
     }

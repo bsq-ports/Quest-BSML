@@ -7,13 +7,13 @@
 #include "UnityEngine/Vector4.hpp"
 
 float lastCurvedUIRadius = 0.0f;
-MAKE_AUTO_HOOK_ORIG_MATCH(ImageView_GenerateFilledSprite, &HMUI::ImageView::GenerateFilledSprite, void, HMUI::ImageView* self, UnityEngine::UI::VertexHelper* vertexHelper, bool preserveAspect, float curvedUIRadius) {
+MAKE_AUTO_ORIG_HOOK_MATCH(ImageView_GenerateFilledSprite, &HMUI::ImageView::GenerateFilledSprite, void, HMUI::ImageView* self, UnityEngine::UI::VertexHelper* vertexHelper, bool preserveAspect, float curvedUIRadius) {
     lastCurvedUIRadius = curvedUIRadius;
     ImageView_GenerateFilledSprite(self, vertexHelper, preserveAspect, curvedUIRadius);
 }
 
 // apparently beatgames doesn't take the curved radius into account in this method so we override it with our own
-MAKE_AUTO_HOOK_ORIG_MATCH(ImageView_AddQuad, static_cast<void (*)(UnityEngine::UI::VertexHelper*, ArrayW<::UnityEngine::Vector3>, UnityEngine::Color32, ArrayW<::UnityEngine::Vector3>)>(&HMUI::ImageView::AddQuad), void, UnityEngine::UI::VertexHelper* vertexHelper, ArrayW<UnityEngine::Vector3> quadPositions, UnityEngine::Color32 color, ArrayW<UnityEngine::Vector3> quadUVs) {
+MAKE_AUTO_ORIG_HOOK_MATCH(ImageView_AddQuad, static_cast<void (*)(UnityEngine::UI::VertexHelper*, ArrayW<::UnityEngine::Vector3>, UnityEngine::Color32, ArrayW<::UnityEngine::Vector3>)>(&HMUI::ImageView::AddQuad), void, UnityEngine::UI::VertexHelper* vertexHelper, ArrayW<UnityEngine::Vector3> quadPositions, UnityEngine::Color32 color, ArrayW<UnityEngine::Vector3> quadUVs) {
     int currentVertCount = vertexHelper->get_currentVertCount();
     auto uv = UnityEngine::Vector2(lastCurvedUIRadius, 0.0f);
 

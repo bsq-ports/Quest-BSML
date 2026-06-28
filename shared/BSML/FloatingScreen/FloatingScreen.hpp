@@ -1,5 +1,7 @@
 #pragma once
 
+#include "beatsaber-hook/shared/callback.hpp"
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include "custom-types/shared/macros.hpp"
 
 #include "HMUI/Screen.hpp"
@@ -20,7 +22,7 @@ DECLARE_CLASS_CODEGEN(BSML, FloatingScreen, HMUI::Screen) {
     DECLARE_INSTANCE_METHOD(UnityEngine::RectTransform*, get_rectTransform);
     DECLARE_INSTANCE_METHOD(void, OnHandleReleased, VRUIControls::VRPointer* pointer);
     DECLARE_INSTANCE_METHOD(void, OnHandleGrab, VRUIControls::VRPointer* pointer);
-    
+
     DECLARE_INSTANCE_METHOD(UnityEngine::Vector2, get_ScreenSize);
     DECLARE_INSTANCE_METHOD(void, set_ScreenSize, UnityEngine::Vector2 value);
 
@@ -46,17 +48,17 @@ DECLARE_CLASS_CODEGEN(BSML, FloatingScreen, HMUI::Screen) {
     DECLARE_INSTANCE_METHOD(void, UpdateHandle);
     DECLARE_DEFAULT_CTOR();
     public:
-        UnorderedEventCallback<FloatingScreen*, const FloatingScreenHandleEventArgs&> HandleReleased;
-        UnorderedEventCallback<FloatingScreen*, const FloatingScreenHandleEventArgs&> HandleGrabbed;
-        
+        unordered_event_callback<FloatingScreen*, const FloatingScreenHandleEventArgs&> HandleReleased;
+        unordered_event_callback<FloatingScreen*, const FloatingScreenHandleEventArgs&> HandleGrabbed;
+
         template<typename T>
         requires(std::is_convertible_v<T, HMUI::ViewController*>)
         static FloatingScreen* CreateFloatingScreenWithViewcontroller(UnityEngine::Vector2 screenSize, bool createHandle, UnityEngine::Vector3 position, UnityEngine::Quaternion rotation, float curvatureRadius = 0.0f, bool hasBackground = false) {
-            return CreateFloatingScreenWithViewcontroller(csTypeOf(T), screenSize, createHandle, position, rotation, curvatureRadius, hasBackground);
+            return CreateFloatingScreenWithViewcontroller(i2c::cs_type_of<T>(), screenSize, createHandle, position, rotation, curvatureRadius, hasBackground);
         }
         static FloatingScreen* CreateFloatingScreen(UnityEngine::Vector2 screenSize, bool createHandle, UnityEngine::Vector3 position, UnityEngine::Quaternion rotation, float curvatureRadius = 0.0f, bool hasBackground = false);
     private:
         void CreateHandle(VRUIControls::VRPointer* pointer = nullptr);
         static FloatingScreen* CreateFloatingScreenWithViewcontroller(Il2CppReflectionType* vcType, UnityEngine::Vector2 screenSize, bool createHandle, UnityEngine::Vector3 position, UnityEngine::Quaternion rotation, float curvatureRadius = 0.0f, bool hasBackground = false);
-        static SafePtrUnity<UnityEngine::Material> _fogMaterial;
+        static safe_ptr<UnityEngine::Material*> _fogMaterial;
 };

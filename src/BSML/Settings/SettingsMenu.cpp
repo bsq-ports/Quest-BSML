@@ -17,8 +17,8 @@ namespace BSML {
         // clear parser params
         parserParams = nullptr;
 
-        auto objectFinalize = il2cpp_utils::il2cpp_type_check::MetadataGetter<&System::Object::Finalize>::methodInfo();
-        il2cpp_utils::RunMethodRethrow<void, false>(this, objectFinalize);
+        auto objectFinalize = i2c::metadata_getter<&System::Object::Finalize>::method_info();
+        i2c::run_method(this, objectFinalize);
 
         this->~SettingsMenu();
     }
@@ -66,7 +66,7 @@ namespace BSML {
         }
 
         auto data = entry->get_data();
-        return std::string_view(reinterpret_cast<char*>(data->begin()), size_t(data.size()));
+        return std::string_view(reinterpret_cast<char*>(data.begin()), size_t(data.size()));
     }
 
     void SettingsMenu::SetupViewControllerTransform(HMUI::ViewController* viewController) {

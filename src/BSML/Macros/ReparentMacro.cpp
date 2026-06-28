@@ -3,6 +3,7 @@
 #include "BSML/Parsing/BSMLParser.hpp"
 #include "StringParseHelper.hpp"
 #include "logging.hpp"
+#include "beatsaber-hook/shared/listw.hpp"
 
 namespace BSML {
     static BSMLNodeParser<ReparentMacro> reparentMacroParser({"macro.reparent"});
@@ -31,7 +32,7 @@ namespace BSML {
         if (transformsItr != data.end()) {
             auto value = parserParams.TryGetValue(transformsItr->second);
             if (value) {
-                ListW<UnityEngine::Transform*> transforms = value->GetValue<List<UnityEngine::Transform*>*>();
+                ListW<UnityEngine::Transform*> transforms = value->GetValue<System::Collections::Generic::List_1<UnityEngine::Transform*>*>();
                 if (transforms) {
                     for (auto t : transforms) {
                         t->SetParent(parent, false);

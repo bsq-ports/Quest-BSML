@@ -2,7 +2,7 @@
 
 #include "./_config.h"
 #include <string>
-#include "beatsaber-hook/shared/utils/typedefs.h"
+#include "beatsaber-hook/shared/arrayw.hpp"
 
 namespace BSML::DataCache {
     class Entry;

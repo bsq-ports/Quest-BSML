@@ -9,7 +9,7 @@ namespace BSML {
     bool MenuButtonsViewController::get_anyButtons() {
         return buttons ? buttons.size() > 0 : false;
     }
-    
+
     void MenuButtonsViewController::RefreshView() {
         if (!root || !root->m_CachedPtr.m_value) {
             return;

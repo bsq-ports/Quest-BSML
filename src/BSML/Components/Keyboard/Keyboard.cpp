@@ -4,6 +4,7 @@
 #include "Helpers/extension.hpp"
 
 #include "System/Single.hpp"
+#include "System/String.hpp"
 #include "System/Int32.hpp"
 
 #include "UnityEngine/UI/Image.hpp"
@@ -73,7 +74,7 @@ namespace BSML {
         void Keyboard::SetButtonType(std::string_view buttonName) {
             auto allButtons = Resources::FindObjectsOfTypeAll<Button*>();
             Button* q;
-            baseButton = allButtons->First([&](auto x){
+            baseButton = allButtons.front([&](auto x){
                 if (x->get_name() == "Q") q = x;
                 return x->get_name() == buttonName;
             });
@@ -99,7 +100,7 @@ namespace BSML {
 
         Keyboard* Keyboard::AddKeys(std::string_view keyboard_view, float scale) {
             StringW keyboard{keyboard_view};
-            int keyboardLength = keyboard->get_Length();
+            int keyboardLength = keyboard.size();
             this->scale = scale;
             bool space = true;
             float spacing = padding;
@@ -238,7 +239,7 @@ namespace BSML {
 
         void Keyboard::Backspace(Key* key) {
             auto text = key->kb->keyboardText->get_text();
-            int length = text ? text->get_Length() : 0;
+            int length = text ? text.size() : 0;
             if (length > 0) {
                 key->kb->keyboardText->set_text(text->Remove(length -1));
             }
@@ -355,11 +356,11 @@ namespace BSML {
         }
 
         bool Keyboard::ReadFloat(StringW data, int& position, float& result) {
-            if (position >= data->get_Length())
+            if (position >= data.size())
                 return false;
 
             int start = position;
-            while (position < data->get_Length())
+            while (position < data.size())
             {
                 char c = data[position];
                 if (!((c >= '0' && c <= '9') || c == '+' || c == '-' || c == '.'))
@@ -368,7 +369,7 @@ namespace BSML {
                 position++;
             }
 
-            if (System::Single::TryParse(data->Substring(start, position - start), byref(result)))
+            if (System::Single::TryParse(data->Substring(start, position - start), by_ref(result)))
                 return true;
 
             position = start;

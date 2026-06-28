@@ -13,7 +13,7 @@
 #include "HMUI/ImageView.hpp"
 #include "VRUIControls/VRPointer.hpp"
 
-#include "beatsaber-hook/shared/utils/typedefs-wrappers.hpp"
+#include "beatsaber-hook/shared/callback.hpp"
 
 DECLARE_CLASS_CODEGEN_INTERFACES(BSML, ClickableImage, HMUI::ImageView, UnityEngine::EventSystems::IPointerClickHandler*, UnityEngine::EventSystems::IPointerEnterHandler*, UnityEngine::EventSystems::IPointerExitHandler*, UnityEngine::EventSystems::IEventSystemHandler*) {
     DECLARE_INSTANCE_METHOD(void, set_highlightColor, UnityEngine::Color color);
@@ -45,7 +45,7 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, ClickableImage, HMUI::ImageView, UnityEng
     DECLARE_CTOR(ctor);
 
     public:
-        UnorderedEventCallback<> onClick;
+        unordered_event_callback<> onClick;
         std::function<void()> onEnter;
         std::function<void()> onExit;
 

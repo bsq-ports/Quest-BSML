@@ -1,5 +1,7 @@
 #pragma once
 
+#include "beatsaber-hook/shared/listw.hpp"
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/UI/LayoutGroup.hpp"
@@ -56,5 +58,5 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, GameplaySetup, System::Object, HMUI::Tabl
 
         HMUI::TableView::IDataSource* i_DataSource();
     private:
-        static SafePtr<GameplaySetup> instance;
+        static safe_ptr<GameplaySetup*, false> instance;
 };

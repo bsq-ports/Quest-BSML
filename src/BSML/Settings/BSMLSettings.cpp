@@ -23,7 +23,7 @@
 DEFINE_TYPE(BSML, BSMLSettings);
 
 namespace BSML {
-    SafePtr<BSMLSettings> BSMLSettings::instance;
+    safe_ptr<BSMLSettings*> BSMLSettings::instance;
     BSMLSettings* BSMLSettings::get_instance() {
         if (!instance) {
             instance.emplace(BSMLSettings::New_ctor());
@@ -165,7 +165,7 @@ namespace BSML {
         GlobalNamespace::OptionsViewController* optionsViewController = nullptr;
         auto wait = UnityEngine::WaitForFixedUpdate::New_ctor();
         while (!optionsViewController) {
-            optionsViewController = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::OptionsViewController*>()->FirstOrDefault();
+            optionsViewController = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::OptionsViewController*>().front_or_default();
             co_yield reinterpret_cast<System::Collections::IEnumerator*>(wait);
         }
 

@@ -24,12 +24,14 @@
 
 #include "Helpers/getters.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 namespace BSML {
     static BSMLNodeParser<ScrollViewTag> scrollViewTagParser({"scroll-view"});
     HMUI::TextPageScrollView* get_scrollViewTemplate() {
-        static SafePtrUnity<HMUI::TextPageScrollView> scrollViewTemplate;
+        static safe_ptr<HMUI::TextPageScrollView*> scrollViewTemplate;
         if (!scrollViewTemplate) {
-            scrollViewTemplate =  UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::EulaDisplayViewController*>()->First()->_textPageScrollView;
+            scrollViewTemplate =  UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::EulaDisplayViewController*>().front()->_textPageScrollView;
         }
         return scrollViewTemplate.ptr();
     }

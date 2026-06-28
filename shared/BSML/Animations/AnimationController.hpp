@@ -1,5 +1,6 @@
 #pragma once
 
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "AnimationControllerData.hpp"
 
@@ -25,5 +26,5 @@ DECLARE_CLASS_CODEGEN(BSML, AnimationController, UnityEngine::MonoBehaviour) {
         static AnimationController* get_instance();
         DECLARE_CTOR(ctor);
     protected:
-        static SafePtrUnity<AnimationController> instance;
+        static safe_ptr<AnimationController*, true> instance;
 };

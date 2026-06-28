@@ -10,6 +10,7 @@
 #include "UnityEngine/Color.hpp"
 
 #include "System/Collections/Generic/Dictionary_2.hpp"
+#include "beatsaber-hook/shared/safeptr.hpp"
 
 DEFINE_TYPE(BSML, Backgroundable);
 
@@ -40,7 +41,7 @@ std::map<std::string, std::string> objectParentNames = {
 template<typename T, typename U>
 using Dictionary = System::Collections::Generic::Dictionary_2<T, U>;
 
-SafePtr<Dictionary<StringW, HMUI::ImageView*>> backgroundCache;
+safe_ptr<Dictionary<StringW, HMUI::ImageView*>*> backgroundCache;
 
 using namespace UnityEngine;
 
@@ -61,7 +62,7 @@ namespace BSML {
             backgroundCache.emplace(Dictionary<StringW, HMUI::ImageView*>::New_ctor());
 
         HMUI::ImageView* bgTemplate = nullptr;
-        if (!backgroundCache->TryGetValue(name, byref(bgTemplate)) || (!bgTemplate || !bgTemplate->m_CachedPtr.m_value)) {
+        if (!backgroundCache->TryGetValue(name, by_ref(bgTemplate)) || (!bgTemplate || !bgTemplate->m_CachedPtr.m_value)) {
             if (!bgTemplate || !bgTemplate->m_CachedPtr.m_value) {
                 backgroundCache->Remove(name);
             }

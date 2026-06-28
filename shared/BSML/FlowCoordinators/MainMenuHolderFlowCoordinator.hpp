@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../_config.h"
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "custom-types/shared/coroutine.hpp"
 #include "HMUI/FlowCoordinator.hpp"
@@ -52,7 +53,7 @@ DECLARE_CLASS_CODEGEN(BSML, MainMenuHolderFlowCoordinator, HMUI::FlowCoordinator
     DECLARE_OVERRIDE_METHOD_MATCH(void, BackButtonWasPressed, &HMUI::FlowCoordinator::BackButtonWasPressed, HMUI::ViewController* topViewController);
     private:
         custom_types::Helpers::Coroutine EndOfFramePresentVC();
-        static SafePtrUnity<MainMenuHolderFlowCoordinator> instance;
+        static safe_ptr<MainMenuHolderFlowCoordinator*, true> instance;
         static MainMenuHolderFlowCoordinator* get_instance();
 
         friend class MainMenuRegistration;

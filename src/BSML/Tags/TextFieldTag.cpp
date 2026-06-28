@@ -8,15 +8,18 @@
 #include "UnityEngine/Vector3.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
+
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 
 namespace BSML {
     BSMLNodeParser<TextFieldTag> textFieldTagParser({"text-field"});
 
     HMUI::InputFieldView* TextFieldTag::get_fieldViewPrefab() const {
-        static SafePtrUnity<HMUI::InputFieldView> fieldViewPrefab;
+        static safe_ptr<HMUI::InputFieldView*> fieldViewPrefab;
         if (!fieldViewPrefab) {
-            fieldViewPrefab = Resources::FindObjectsOfTypeAll<HMUI::InputFieldView*>()->FirstOrDefault([](auto x){ return x->get_name() == "GuestNameInputField"; });
+            fieldViewPrefab = Resources::FindObjectsOfTypeAll<HMUI::InputFieldView*>().front_or_default([](auto x){ return x->get_name() == "GuestNameInputField"; });
         }
         return fieldViewPrefab.ptr();
     }

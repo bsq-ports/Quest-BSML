@@ -1,5 +1,6 @@
 #pragma once
 
+#include "beatsaber-hook/shared/listw.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/Component.hpp"
@@ -17,6 +18,6 @@ DECLARE_CLASS_CODEGEN(BSML, ExternalComponents, UnityEngine::MonoBehaviour) {
         template<typename T>
         requires(std::is_convertible_v<T, UnityEngine::Component*>)
         T Get() const {
-            return reinterpret_cast<T>(GetByType(static_cast<Il2CppReflectionType*>(csTypeOf(T))));
+            return reinterpret_cast<T>(GetByType(static_cast<Il2CppReflectionType*>(i2c::cs_type_of<T>())));
         }
 };

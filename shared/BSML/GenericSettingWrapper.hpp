@@ -29,12 +29,12 @@ DECLARE_CLASS_CODEGEN(BSML, GenericSettingWrapper, System::Object) {
 
         template<typename T>
         void SetField(T value) {
-            il2cpp_utils::SetFieldValue(get_host(), valueInfo, value);
+            i2c::set_field(get_host(), valueInfo, value);
         }
 
         template<typename T>
         void SetProperty(T value) {
-            il2cpp_utils::RunMethod(get_host(), setterInfo, value);
+            i2c::run_method(get_host(), setterInfo, value);
         }
 
         template<typename T>
@@ -53,13 +53,13 @@ DECLARE_CLASS_CODEGEN(BSML, GenericSettingWrapper, System::Object) {
         template<typename T>
         requires(std::is_default_constructible_v<T>)
         T GetField() {
-            return valueInfo ? il2cpp_utils::GetFieldValue<T>(get_host(), valueInfo).value_or(T{}) : T{};
+            return valueInfo ? i2c::get_field<i2c::result<T>>(get_host(), valueInfo).value_or(T{}) : T{};
         }
 
         template<typename T>
         requires(std::is_default_constructible_v<T>)
         T GetProperty()  {
-            return getterInfo ? il2cpp_utils::RunMethodRethrow<T>(get_host(), getterInfo) : T{};
+            return getterInfo ? i2c::run_method<T>(get_host(), getterInfo) : T{};
         }
 
         template<typename T>
@@ -75,16 +75,24 @@ DECLARE_CLASS_CODEGEN(BSML, GenericSettingWrapper, System::Object) {
 
         template<typename T>
         std::optional<T> GetFieldOpt() {
-            return valueInfo ? il2cpp_utils::GetFieldValue<T>(get_host(), valueInfo) : std::nullopt;
+            if (valueInfo) {
+                if (auto value = i2c::get_field<i2c::result<T>>(get_host(), valueInfo))
+                    return *value;
+            }
+            return std::nullopt;
         }
 
         template<typename T>
         std::optional<T> GetPropertyOpt()  {
-            return getterInfo ? il2cpp_utils::RunMethodOpt<T>(get_host(), getterInfo) : std::nullopt;
+            if (getterInfo) {
+                if (auto value = i2c::run_method<i2c::result<T>>(get_host(), getterInfo))
+                    return *value;
+            }
+            return std::nullopt;
         }
 
         void OnChange() {
-            if (onChangeInfo) il2cpp_utils::RunMethod(get_onChangeHost(), onChangeInfo);
+            if (onChangeInfo) i2c::run_method(get_onChangeHost(), onChangeInfo);
         }
 
         template<typename T>
@@ -94,7 +102,7 @@ DECLARE_CLASS_CODEGEN(BSML, GenericSettingWrapper, System::Object) {
                 OnChange();
                 return;
             } else if (onChangeInfo){
-                il2cpp_utils::RunMethod(get_onChangeHost(), onChangeInfo, value);
+                i2c::run_method(get_onChangeHost(), onChangeInfo, value);
             }
         }
 };

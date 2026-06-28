@@ -20,6 +20,8 @@
 #include "HMUI/ImageView.hpp"
 #include "GlobalNamespace/LocalizedHoverHint.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
@@ -27,9 +29,9 @@ namespace BSML {
     static BSMLNodeParser<ButtonWithIconTag> buttonWithIconTagParser({"button-with-icon", "icon-button"});
 
     Button* get_buttonWithIconTemplate() {
-        static SafePtrUnity<Button> buttonWithIconTemplate;
+        static safe_ptr<Button*> buttonWithIconTemplate;
         if (!buttonWithIconTemplate) {
-            buttonWithIconTemplate = Resources::FindObjectsOfTypeAll<Button*>()->LastOrDefault([&](auto x){ return x->get_name() == "PracticeButton"; });
+            buttonWithIconTemplate = Resources::FindObjectsOfTypeAll<Button*>().back_or_default([&](auto x){ return x->get_name() == "PracticeButton"; });
         }
         return buttonWithIconTemplate.ptr();
     }

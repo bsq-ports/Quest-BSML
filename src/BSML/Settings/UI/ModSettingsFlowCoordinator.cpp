@@ -14,7 +14,7 @@ DEFINE_TYPE(BSML, ModSettingsFlowCoordinator);
 
 namespace BSML {
     void ModSettingsFlowCoordinator::ctor() {
-        static auto baseKlass = classof(HMUI::FlowCoordinator*);
+        static auto baseKlass = i2c::class_of<HMUI::FlowCoordinator*>();
         custom_types::InvokeBaseCtor(baseKlass, this);
         submenuStack = Stack<HMUI::ViewController*>::New_ctor();
     }
@@ -100,7 +100,7 @@ namespace BSML {
     void ModSettingsFlowCoordinator::Ok() {
         EmitEventToAll("apply");
         // make ur mods not crash on soft restart lul
-        UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuTransitionsHelper*>()->First()->RestartGame(nullptr);
+        UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuTransitionsHelper*>().front()->RestartGame(nullptr);
     }
 
     void ModSettingsFlowCoordinator::Cancel() {

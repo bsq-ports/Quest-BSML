@@ -3,6 +3,7 @@
 #include "custom-types/shared/macros.hpp"
 
 #include "UnityEngine/MonoBehaviour.hpp"
+#include <future>
 #include <queue>
 #include <tuple>
 #include <type_traits>

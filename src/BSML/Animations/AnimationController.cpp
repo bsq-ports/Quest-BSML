@@ -11,7 +11,7 @@
 DEFINE_TYPE(BSML, AnimationController);
 
 namespace BSML {
-    SafePtrUnity<AnimationController> AnimationController::instance;
+    safe_ptr<AnimationController*, true> AnimationController::instance;
     AnimationController* AnimationController::get_instance() {
         if (!instance) {
             instance = UnityEngine::GameObject::New_ctor()->AddComponent<AnimationController*>();
@@ -53,7 +53,7 @@ namespace BSML {
             AnimationControllerData* animationData;
         };
 
-        if (registeredAnimations->TryGetValue(key, byref(data))) {
+        if (registeredAnimations->TryGetValue(key, by_ref(data))) {
             out = animationData;
             return true;
         }

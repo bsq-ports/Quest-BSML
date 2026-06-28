@@ -16,6 +16,8 @@
 #include "GlobalNamespace/HapticFeedbackManager.hpp"
 #include "Libraries/HM/HMLib/VR/HapticPresetSO.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using HapticPresetSO = Libraries::HM::HMLib::VR::HapticPresetSO;
 
@@ -23,16 +25,16 @@ namespace BSML {
     static BSMLNodeParser<ClickableTextTag> clickableTextTagParser({"clickable-text"});
 
     GlobalNamespace::Signal* get_textClickedSignal() {
-        static SafePtrUnity<GlobalNamespace::Signal> textClickedSignal;
+        static safe_ptr<GlobalNamespace::Signal*> textClickedSignal;
         if (!textClickedSignal) {
-            auto menuShockWave = Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>()->FirstOrDefault();
-            textClickedSignal = menuShockWave ? menuShockWave->_buttonClickEvents->LastOrDefault() : nullptr;
+            auto menuShockWave = Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>().front_or_default();
+            textClickedSignal = menuShockWave ? menuShockWave->_buttonClickEvents.back_or_default() : nullptr;
         }
         return textClickedSignal.ptr();
     }
 
     HapticPresetSO* get_textHapticPreset() {
-        static SafePtrUnity<HapticPresetSO> textHapticPreset;
+        static safe_ptr<HapticPresetSO*> textHapticPreset;
         if (!textHapticPreset) {
             textHapticPreset = UnityEngine::ScriptableObject::CreateInstance<HapticPresetSO*>();
             textHapticPreset->_duration = 0.02f;
@@ -44,9 +46,9 @@ namespace BSML {
     }
 
     GlobalNamespace::HapticFeedbackManager* get_textHapticFeedbackManager() {
-        static SafePtrUnity<GlobalNamespace::HapticFeedbackManager> textHapticFeedbackManager;
+        static safe_ptr<GlobalNamespace::HapticFeedbackManager*> textHapticFeedbackManager;
         if (!textHapticFeedbackManager) {
-            textHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::HapticFeedbackManager*>()->First();
+            textHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::HapticFeedbackManager*>().front();
         }
         return textHapticFeedbackManager.ptr();
     }

@@ -23,6 +23,8 @@
 #include "GlobalNamespace/GameplaySetupViewController.hpp"
 #include "GlobalNamespace/EnvironmentOverrideSettingsPanelController.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
@@ -30,7 +32,7 @@ namespace BSML {
     static BSMLNodeParser<DropdownListSettingTag> dropdownListSettingTagParser({"dropdown-list-setting"});
 
     GameObject* get_dropdownTemplate() {
-        static SafePtrUnity<GameObject> dropdownTemplate;
+        static safe_ptr<GameObject*> dropdownTemplate;
         if (!dropdownTemplate) {
             dropdownTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_environmentOverrideSettingsPanelController->_elementsGO->transform->Find("NormalLevels")->get_gameObject();
         }
@@ -72,7 +74,7 @@ namespace BSML {
         dropdownListSetting->dropdown = dropdown;
         externalComponents->Add(dropdownListSetting);
 
-        dropdown->_tableView->_preallocatedCells = Array<HMUI::TableView::CellsGroup*>::NewLength(0);
+        dropdown->_tableView->_preallocatedCells = ArrayW<HMUI::TableView::CellsGroup*>::New();
         dropdown->_tableView->_visibleCells->Clear();
 
         auto cont = dropdown->get_transform()->Find("DropdownTableView/Viewport/Content");

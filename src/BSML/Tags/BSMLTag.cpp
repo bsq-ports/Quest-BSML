@@ -57,10 +57,10 @@ namespace BSML {
         auto host = parserParams.host;
         if (host && !id.empty()) {
             // set the host field if we can
-            auto fieldInfo = il2cpp_functions::class_get_field_from_name(parserParams.host->klass, id.c_str());
+            auto fieldInfo = i2c::functions::class_get_field_from_name(parserParams.host->klass, id.c_str());
             if (fieldInfo) {
-                auto fieldSystemType = reinterpret_cast<System::Type*>(il2cpp_utils::GetSystemType(il2cpp_functions::field_get_type(fieldInfo)));
-                static auto gameObjectSystemType = csTypeOf(UnityEngine::GameObject*);
+                auto fieldSystemType = reinterpret_cast<System::Type*>(i2c::get_system_type(i2c::functions::field_get_type(fieldInfo)));
+                static auto gameObjectSystemType = i2c::cs_type_of<UnityEngine::GameObject*>();
                 if (gameObjectSystemType == fieldSystemType) {
                     // if the field is of type GameObject, set the field to the current object value
                     SetHostField(parserParams.host, currentObject);
@@ -98,12 +98,12 @@ namespace BSML {
         if (!host || id.empty()) return;
 
         // get the field info with il2cpp reflection
-        auto fieldInfo = il2cpp_functions::class_get_field_from_name(host->klass, id.c_str());
+        auto fieldInfo = i2c::functions::class_get_field_from_name(host->klass, id.c_str());
 
         if (fieldInfo) {
             // if value type is convertible to as field type, assign
-            if (il2cpp_utils::IsConvertibleFrom(fieldInfo->type, &value->klass->byval_arg))
-                il2cpp_functions::field_set_value(host, fieldInfo, value);
+            if (i2c::is_convertible_from(fieldInfo->type, &value->klass->byval_arg))
+                i2c::functions::field_set_value(host, fieldInfo, value);
         }
     }
 

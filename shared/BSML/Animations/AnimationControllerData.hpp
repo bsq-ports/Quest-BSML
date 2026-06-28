@@ -1,10 +1,14 @@
 #pragma once
 
+#include "beatsaber-hook/shared/arrayw.hpp"
+#include "beatsaber-hook/shared/listw.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "UnityEngine/Sprite.hpp"
 #include "UnityEngine/Rect.hpp"
 #include "UnityEngine/Material.hpp"
 #include "UnityEngine/UI/Image.hpp"
+
+#include <set>
 
 namespace BSML {
     class AnimationStateUpdater;

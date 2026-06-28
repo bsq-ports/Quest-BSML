@@ -12,6 +12,7 @@
 #include "UnityEngine/AdditionalCanvasShaderChannels.hpp"
 #include "System/Action_2.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
+#include "beatsaber-hook/shared/listw.hpp"
 
 namespace BSML::Lite {
     HMUI::HoverHint* AddHoverHint(const GameObjectWrapper& parent, StringW text) {

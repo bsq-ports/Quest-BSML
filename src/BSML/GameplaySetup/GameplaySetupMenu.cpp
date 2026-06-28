@@ -95,7 +95,7 @@ namespace BSML {
             return false;
         }
         auto data = entry->get_data();
-        content = std::string_view((const char*)data->begin(), data.size());
+        content = std::string_view((const char*)data.begin(), data.size());
         return true;
     }
 

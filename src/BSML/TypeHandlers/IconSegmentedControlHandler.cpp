@@ -1,6 +1,6 @@
 #include "BSML/TypeHandlers/IconSegmentedControlHandler.hpp"
 #include "Helpers/delegates.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "System/Collections/Generic/List_1.hpp"
 
 namespace BSML {
     static IconSegmentedControlHandler textSegmentedControlHandler{};
@@ -24,10 +24,10 @@ namespace BSML {
         if (dataItr != data.end() && !dataItr->second.empty()) {
             auto val = parserParams.TryGetValue(dataItr->second);
             auto iconData = val ? val->GetValue<::System::Collections::Generic::List_1<HMUI::IconSegmentedControl::DataItem*>*>() : nullptr;
-            static auto dataKlass = classof(List<HMUI::IconSegmentedControl::DataItem*>*);
-            if (iconData && il2cpp_functions::class_is_assignable_from(iconData->klass, dataKlass) && iconData->get_Count() > 0) {
+            static auto dataKlass = i2c::class_of<System::Collections::Generic::List_1<HMUI::IconSegmentedControl::DataItem*>*>();
+            if (iconData && i2c::functions::class_is_assignable_from(iconData->klass, dataKlass) && iconData->get_Count() > 0) {
                 textControl->SetData(iconData->ToArray());
-            } else if (iconData && !il2cpp_functions::class_is_assignable_from(iconData->klass, dataKlass)) {
+            } else if (iconData && !i2c::functions::class_is_assignable_from(iconData->klass, dataKlass)) {
                 ERROR("{}::{} is not assignable from {}::{}", iconData->klass->namespaze, iconData->klass->name, dataKlass->namespaze, dataKlass->name);
             } else {
                 ERROR("IconSegmentedControl needs to have at least 1 value!");

@@ -30,8 +30,8 @@ namespace BSML {
         auto idItr = data.find("id");
         if (idItr != data.end() && !idItr->second.empty()) {
             std::string id = idItr->second;
-            auto pageUpMinfo = il2cpp_utils::FindMethodUnsafe(scrollView, "PageUpButtonPressed", 0);
-            auto pageDownMinfo = il2cpp_utils::FindMethodUnsafe(scrollView, "PageDownButtonPressed", 0);
+            auto pageUpMinfo = i2c::find_method(scrollView, {"PageUpButtonPressed", 0});
+            auto pageDownMinfo = i2c::find_method(scrollView, {"PageDownButtonPressed", 0});
 
             if (pageUpMinfo) parserParams.AddAction(id + "#PageUp", new BSMLAction(scrollView, pageUpMinfo));
             if (pageDownMinfo) parserParams.AddAction(id + "#PageDown", new BSMLAction(scrollView, pageDownMinfo));
@@ -69,9 +69,9 @@ namespace BSML {
                 scrollView->_verticalScrollIndicator = scrollIndicator->GetComponent<HMUI::VerticalScrollIndicator*>();
                 if (scrollView->_verticalScrollIndicator) break;
             }
-            INFO("upButton: {}", fmt::ptr(scrollView->_pageUpButton.unsafePtr()));
-            INFO("downButton: {}", fmt::ptr(scrollView->_pageDownButton.unsafePtr()));
-            INFO("scrollIndicator: {}", fmt::ptr(scrollView->_verticalScrollIndicator.unsafePtr()));
+            INFO("upButton: {}", fmt::ptr(scrollView->_pageUpButton.unsafe_ptr()));
+            INFO("downButton: {}", fmt::ptr(scrollView->_pageDownButton.unsafe_ptr()));
+            INFO("scrollIndicator: {}", fmt::ptr(scrollView->_verticalScrollIndicator.unsafe_ptr()));
         }
 
         scrollView->RefreshContent();

@@ -37,8 +37,8 @@ namespace BSML {
     void ColorSetting::Setup() {
         if (modalColorPicker) {
             modalColorPicker->host = this;
-            modalColorPicker->onDoneInfo = il2cpp_functions::class_get_method_from_name(this->klass, "DonePressed", 1);
-            modalColorPicker->onCancelInfo = il2cpp_functions::class_get_method_from_name(this->klass, "CancelPressed", 0);
+            modalColorPicker->onDoneInfo = i2c::functions::class_get_method_from_name(this->klass, "DonePressed", 1);
+            modalColorPicker->onCancelInfo = i2c::functions::class_get_method_from_name(this->klass, "CancelPressed", 0);
         } else {
             ERROR("No modalColorPicker found!");
         }

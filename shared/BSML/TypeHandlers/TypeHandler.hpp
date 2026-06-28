@@ -70,14 +70,14 @@ namespace BSML {
 
             virtual System::Type* get_type() override {
                 if (cachedType) return cachedType;
-                return (cachedType = csTypeOf(T));
+                return (cachedType = i2c::cs_type_of<T>());
             };
 
             virtual SetterMap get_setters() const = 0;
 
             virtual void HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) override {
-                auto klass = classof(T);
-                if (il2cpp_functions::class_is_assignable_from(klass, componentType.component->klass)) {
+                auto klass = i2c::class_of<T>();
+                if (i2c::functions::class_is_assignable_from(klass, componentType.component->klass)) {
                     auto& cachedSetters = get_cachedSetters();
                     auto& cachedProps = get_cachedProps();
                     // for each key value pair

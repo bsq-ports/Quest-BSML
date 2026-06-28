@@ -3,6 +3,7 @@
 #include "Helpers/getters.hpp"
 #include "Helpers/delegates.hpp"
 
+#include "System/String.hpp"
 #include "System/StringComparison.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
 #include "UnityEngine/UI/Image.hpp"
@@ -102,7 +103,7 @@ namespace BSML {
 
     bool Key::Enter() {
         if (!value->EndsWith("\%CR\%", System::StringComparison::Ordinal)) return false;
-        kb->add_text(value->Substring(0, value->get_Length() - 4));
+        kb->add_text(value->Substring(0, value.size() - 4));
         kb->Enter(this);
         return true;
     }

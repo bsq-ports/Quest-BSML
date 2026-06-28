@@ -1,5 +1,6 @@
 #pragma once
 
+#include "beatsaber-hook/shared/listw.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "CustomCellTableCell.hpp"
 #include "HMUI/TableView.hpp"

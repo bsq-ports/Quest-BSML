@@ -16,7 +16,7 @@
 DEFINE_TYPE(BSML, MenuButtons)
 
 namespace BSML {
-    SafePtr<MenuButtons> MenuButtons::instance;
+    safe_ptr<MenuButtons*> MenuButtons::instance;
     MenuButtons* MenuButtons::get_instance() {
         if (!instance) {
             instance.emplace(MenuButtons::New_ctor());
@@ -33,8 +33,7 @@ namespace BSML {
     bool MenuButtons::Registerbutton(MenuButton* button) {
         if (!button) return false;
         auto btns = get_buttons();
-        auto btnItr = std::find_if(btns.begin(), btns.end(), [button](auto b){ return b && (reinterpret_cast<MenuButton*>(b)->text == button->text); });
-        if (btnItr != btns.end()) {
+        if (btns.find_if([button](auto b){ return b && (reinterpret_cast<MenuButton*>(b)->text == button->text); }) != btns.end()) {
             ERROR("can't register a button with the same text ('{}') as an existing one!", button->text);
             return false;
         }
@@ -74,7 +73,7 @@ namespace BSML {
 
     void MenuButtons::ShowView(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
         if (!leftScreen || !leftScreen->m_CachedPtr.m_value) {
-            leftScreen = UnityEngine::Resources::FindObjectsOfTypeAll<HMUI::Screen*>()->FirstOrDefault([](auto x){ return x->get_gameObject()->get_name() == "LeftScreen"; });
+            leftScreen = UnityEngine::Resources::FindObjectsOfTypeAll<HMUI::Screen*>().front_or_default([](auto x){ return x->get_gameObject()->get_name() == "LeftScreen"; });
         }
 
         auto modals = leftScreen->GetComponentsInChildren<HMUI::ModalView*>();
@@ -92,7 +91,7 @@ namespace BSML {
         GlobalNamespace::MainFlowCoordinator* mainFlowCoordinator = BSML::Helpers::GetMainFlowCoordinator();
 
         ShowView(false, false, false);
-        auto vc = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MainMenuViewController*>()->FirstOrDefault();
+        auto vc = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MainMenuViewController*>().front_or_default();
         std::function<void(bool, bool, bool)> fun = std::bind(&MenuButtons::ShowView, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
         vc->add_didActivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidActivateDelegate*>(fun));
 

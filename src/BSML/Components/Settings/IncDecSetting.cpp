@@ -15,14 +15,14 @@ namespace BSML {
 
     void IncDecSetting::BaseSetup() {
         // we use reflection since we can't do proper virtual methods
-        auto increaseInfo = il2cpp_functions::class_get_method_from_name(this->klass, "IncButtonPressed", 0);
+        auto increaseInfo = i2c::functions::class_get_method_from_name(this->klass, "IncButtonPressed", 0);
         if (increaseInfo) {
             auto onClick = incButton->get_onClick();
             auto delegate = MakeUnityAction(this, increaseInfo);
             onClick->AddListener(delegate);
         }
 
-        auto decreaseInfo = il2cpp_functions::class_get_method_from_name(this->klass, "DecButtonPressed", 0);
+        auto decreaseInfo = i2c::functions::class_get_method_from_name(this->klass, "DecButtonPressed", 0);
         if (decreaseInfo) {
             auto onClick = decButton->get_onClick();
             auto delegate = MakeUnityAction(this, decreaseInfo);

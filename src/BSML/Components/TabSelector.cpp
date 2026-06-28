@@ -2,6 +2,7 @@
 #include "logging.hpp"
 
 #include "Helpers/delegates.hpp"
+#include "System/String.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
 
@@ -73,7 +74,7 @@ namespace BSML {
         DEBUG("left button: {}, right button: {}", leftButton != nullptr, rightButton != nullptr);
         Refresh();
 
-        auto tabSelectedInfo = il2cpp_functions::class_get_method_from_name(this->klass, "TabSelected", 2);
+        auto tabSelectedInfo = i2c::functions::class_get_method_from_name(this->klass, "TabSelected", 2);
         auto delegate = MakeSystemAction<UnityW<HMUI::SegmentedControl>, int>(this, tabSelectedInfo);
         textSegmentedControl->add_didSelectCellEvent(delegate);
         textSegmentedControl->SelectCellWithNumber(0);

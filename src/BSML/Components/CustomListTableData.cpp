@@ -75,11 +75,11 @@ namespace BSML {
     }
 
     GlobalNamespace::LevelListTableCell* CustomListTableData::GetTableCell() {
-        auto tableCell = tableView->DequeueReusableCellForIdentifier(reuseIdentifier).try_cast<GlobalNamespace::LevelListTableCell>().value_or(nullptr);
+        auto tableCell = tableView->DequeueReusableCellForIdentifier(reuseIdentifier).try_cast<GlobalNamespace::LevelListTableCell>();
 
         if (!tableCell) {
             if (!levelListTableCell || !levelListTableCell->m_CachedPtr.m_value) {
-                levelListTableCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelListTableCell*>()->FirstOrDefault([](auto x){ return x->get_name() == "LevelListTableCell"; });
+                levelListTableCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelListTableCell*>().front_or_default([](auto x){ return x->get_name() == "LevelListTableCell"; });
             }
 
             tableCell = Object::Instantiate(levelListTableCell);
@@ -91,11 +91,11 @@ namespace BSML {
     }
 
     GlobalNamespace::SimpleTextTableCell* CustomListTableData::GetSimpleTextTableCell() {
-        auto tableCell = tableView->DequeueReusableCellForIdentifier(reuseIdentifier).try_cast<GlobalNamespace::SimpleTextTableCell>().value_or(nullptr);
+        auto tableCell = tableView->DequeueReusableCellForIdentifier(reuseIdentifier).try_cast<GlobalNamespace::SimpleTextTableCell>();
 
         if (!tableCell) {
             if (!simpleTextTableCell || !simpleTextTableCell->m_CachedPtr.m_value) {
-                simpleTextTableCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::SimpleTextTableCell*>()->FirstOrDefault([](auto x){ return x->get_name() == "SimpleTextTableCell"; });
+                simpleTextTableCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::SimpleTextTableCell*>().front_or_default([](auto x){ return x->get_name() == "SimpleTextTableCell"; });
             }
 
             tableCell = Object::Instantiate(simpleTextTableCell);
@@ -106,11 +106,11 @@ namespace BSML {
     }
 
     BSML::BoxTableCell* CustomListTableData::GetBoxTableCell() {
-        auto tableCell = tableView->DequeueReusableCellForIdentifier(reuseIdentifier).try_cast<BSML::BoxTableCell>().value_or(nullptr);
+        auto tableCell = tableView->DequeueReusableCellForIdentifier(reuseIdentifier).try_cast<BSML::BoxTableCell>();
 
         if (!tableCell) {
             if (!levelPackCell || !levelPackCell->m_CachedPtr.m_value) {
-                levelPackCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelPackCell*>()->FirstOrDefault([](auto x){ return x->get_name() == "AnnotatedBeatmapLevelCollectionCell"; });
+                levelPackCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelPackCell*>().front_or_default([](auto x){ return x->get_name() == "AnnotatedBeatmapLevelCollectionCell"; });
             }
             tableCell = BSML::BoxTableCell::Create(levelPackCell);
         }

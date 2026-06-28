@@ -11,8 +11,8 @@ namespace BSML {
                 break;
             case MenuSource::Component:
                 if (mb) {
-                    auto* didActivate = il2cpp_functions::class_get_method_from_name(il2cpp_utils::ExtractClass (mb), "DidActivate", 1);
-                    if (didActivate) il2cpp_utils::RunMethod(mb, didActivate, !_activatedBefore);
+                    auto* didActivate = i2c::functions::class_get_method_from_name(mb->klass, "DidActivate", 1);
+                    if (didActivate) i2c::run_method(mb, didActivate, !_activatedBefore);
                     else ERROR("Class '{}::{}' did not implement 'void DidActivate(bool)' so it could not be called!", mb->klass->namespaze, mb->klass->name);
                 }
                 break;
@@ -26,8 +26,8 @@ namespace BSML {
 
     void GameplaySetupTabActivator::OnDisable() {
         if (mb && mb->m_CachedPtr.m_value && menuSource == MenuSource::Component) {
-            auto* didDeactivate = il2cpp_functions::class_get_method_from_name(il2cpp_utils::ExtractClass (mb), "DidDeactivate", 0);
-            if (didDeactivate) il2cpp_utils::RunMethod(mb, didDeactivate);
+            auto* didDeactivate = i2c::functions::class_get_method_from_name(mb->klass, "DidDeactivate", 0);
+            if (didDeactivate) i2c::run_method(mb, didDeactivate);
         }
     }
 }

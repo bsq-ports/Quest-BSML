@@ -12,13 +12,15 @@
 
 #include "Helpers/getters.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 
 namespace BSML {
     static BSMLNodeParser<TabSelectorTag> tabSelectorTagParser({"tab-select", "tab-selector"});
 
     HMUI::TextSegmentedControl* get_tabSelectorTagTemplate() {
-        static SafePtrUnity<HMUI::TextSegmentedControl> tabSelectorTagTemplate;
+        static safe_ptr<HMUI::TextSegmentedControl*> tabSelectorTagTemplate;
         if (!tabSelectorTagTemplate) {
             tabSelectorTagTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PlayerStatisticsViewController*>()->_statsScopeSegmentedControl;
         }

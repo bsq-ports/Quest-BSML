@@ -15,6 +15,8 @@
 #include "BGLib/Polyglot/LocalizedTextMeshProUGUI.hpp"
 #include "GlobalNamespace/SwitchSettingsController.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
@@ -22,9 +24,9 @@ namespace BSML {
     static BSMLNodeParser<ToggleSettingTag> toggleSettingTagParser({"toggle-setting", "bool-setting", "checkbox-setting", "checkbox"});
 
     GameObject* get_toggleTemplate() {
-        static SafePtrUnity<GameObject> toggleTemplate;
+        static safe_ptr<GameObject*> toggleTemplate;
         if (!toggleTemplate) {
-            auto foundToggle = Resources::FindObjectsOfTypeAll<Toggle*>()->FirstOrDefault([](auto x){
+            auto foundToggle = Resources::FindObjectsOfTypeAll<Toggle*>().front_or_default([](auto x){
                 if (!x) return false;
                 auto parent = x->get_transform()->get_parent();
                 if (!parent) return false;
@@ -45,7 +47,7 @@ namespace BSML {
         auto nameText = transform->Find("NameText")->get_gameObject();
         auto switchView = transform->Find("SwitchView")->get_gameObject();
         Object::Destroy(go->GetComponent<GlobalNamespace::SwitchSettingsController*>());
-        
+
         go->set_name("BSMLToggle");
         auto toggleSetting = go->AddComponent<ToggleSetting*>();
         HMUI::AnimatedSwitchView* animatedSwitchView = switchView->GetComponent<HMUI::AnimatedSwitchView*>();

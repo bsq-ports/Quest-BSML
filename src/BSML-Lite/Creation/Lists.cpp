@@ -14,6 +14,8 @@
 #include "UnityEngine/Sprite.hpp"
 #include "UnityEngine/RectTransform.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 namespace BSML::Lite {
     BSML::CustomListTableData* CreateList(const TransformWrapper& parent, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::function<void(int)> onCellWithIdxClicked) {
         auto go = BSML::ListTag{}.CreateObject(parent);
@@ -51,7 +53,7 @@ namespace BSML::Lite {
     }
 
     UnityEngine::Sprite* get_carat_down() {
-        static SafePtrUnity<UnityEngine::Sprite> carat_down;
+        static safe_ptr<UnityEngine::Sprite*> carat_down;
         if (!carat_down) {
             auto sprite = BSML::Utilities::LoadSpriteRaw(Assets::carat_down_png);
             UnityEngine::Object::DontDestroyOnLoad(sprite);
@@ -61,7 +63,7 @@ namespace BSML::Lite {
     }
 
     UnityEngine::Sprite* get_carat_up() {
-        static SafePtrUnity<UnityEngine::Sprite> carat_up;
+        static safe_ptr<UnityEngine::Sprite*> carat_up;
         if (!carat_up) {
             auto sprite = BSML::Utilities::LoadSpriteRaw(Assets::carat_up_png);
             UnityEngine::Object::DontDestroyOnLoad(sprite);
@@ -86,13 +88,13 @@ namespace BSML::Lite {
         layout->preferredWidth = sizeDelta.x;
 
         auto list = CreateList(rect, {0, 0}, {sizeDelta.x, sizeDelta.y - 16}, onCellWithIdxClicked);
-        auto pageUp = CreateClickableImage(vertical, get_carat_up(), [scrollView = list->tableView->scrollView.unsafePtr()](){
+        auto pageUp = CreateClickableImage(vertical, get_carat_up(), [scrollView = list->tableView->scrollView.unsafe_ptr()](){
             if (scrollView && scrollView->m_CachedPtr.m_value) scrollView->PageUpButtonPressed();
         });
         pageUp->preserveAspect = true;
         pageUp->highlightColor = {1.0, 1.0, 1.0, 0.5};
         pageUp->transform->SetAsFirstSibling();
-        auto pageDown = CreateClickableImage(vertical, get_carat_down(), [scrollView = list->tableView->scrollView.unsafePtr()](){
+        auto pageDown = CreateClickableImage(vertical, get_carat_down(), [scrollView = list->tableView->scrollView.unsafe_ptr()](){
             if (scrollView && scrollView->m_CachedPtr.m_value) scrollView->PageDownButtonPressed();
         });
         pageDown->preserveAspect = true;
@@ -115,11 +117,11 @@ namespace BSML::Lite {
         UnityEngine::Object::DestroyImmediate(list);
 
         auto dataSource = go->AddComponent(type);
-        auto iDataSource = dataSource.cast<HMUI::TableView::IDataSource>();
+        auto iDataSource = i2c::cast<HMUI::TableView::IDataSource*>(dataSource.ptr());
 
-        auto finfo = il2cpp_functions::class_get_field_from_name(dataSource->klass, "tableView");
+        auto finfo = i2c::functions::class_get_field_from_name(dataSource->klass, "tableView");
         if (finfo) // there is a field named tableView
-            il2cpp_utils::SetFieldValue(dataSource, finfo, tableView);
+            i2c::set_field(dataSource, finfo, tableView);
         tableView->SetDataSource(iDataSource, false);
 
         return iDataSource;
@@ -134,10 +136,10 @@ namespace BSML::Lite {
         UnityEngine::Object::DestroyImmediate(list);
 
         auto dataSource = go->AddComponent(type);
-        auto iDataSource = reinterpret_cast<HMUI::TableView::IDataSource*>(dataSource.unsafePtr());
-        auto finfo = il2cpp_functions::class_get_field_from_name(dataSource->klass, "tableView");
+        auto iDataSource = reinterpret_cast<HMUI::TableView::IDataSource*>(dataSource.unsafe_ptr());
+        auto finfo = i2c::functions::class_get_field_from_name(dataSource->klass, "tableView");
         if (finfo) // there is a field named tableView
-            il2cpp_utils::SetFieldValue(dataSource, finfo, tableView);
+            i2c::set_field(dataSource, finfo, tableView);
         tableView->SetDataSource(iDataSource, false);
 
         return iDataSource;

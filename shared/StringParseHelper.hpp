@@ -2,7 +2,6 @@
 
 #include "./_config.h"
 #include <string>
-#include "beatsaber-hook/shared/utils/typedefs.h"
 #include "UnityEngine/Color.hpp"
 #include "UnityEngine/Color32.hpp"
 #include "UnityEngine/Vector2.hpp"

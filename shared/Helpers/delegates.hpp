@@ -100,8 +100,8 @@ namespace BSML {
             strm << "Argcount mismatch between methodInfo and Targs: " << methodInfo->parameters_count << "!=" << sizeof...(Targs);
             throw std::runtime_error(strm.str());
         }
-        return MakeSystemAction<Targs...>(std::function<void(Targs...)>([instance, methodInfo](Targs... args){
-            il2cpp_utils::RunMethod(instance, methodInfo, args...);
+        return MakeSystemAction<Targs...>(std::function<void(Targs...)>([instance, methodInfo](Targs... args) mutable {
+            i2c::run_method(instance, methodInfo, args...);
         }));
     }
 
@@ -145,8 +145,8 @@ namespace BSML {
             strm << "Argcount mismatch between methodInfo and Targs: " << methodInfo->parameters_count << "!=" << sizeof...(Targs);
             throw std::runtime_error(strm.str());
         }
-        return MakeUnityAction<Targs...>(std::function<void(Targs...)>([instance, methodInfo](Targs... args){
-            il2cpp_utils::RunMethod(instance, methodInfo, args...);
+        return MakeUnityAction<Targs...>(std::function<void(Targs...)>([instance, methodInfo](Targs... args) mutable {
+            i2c::run_method(instance, methodInfo, args...);
         }));
     }
 }

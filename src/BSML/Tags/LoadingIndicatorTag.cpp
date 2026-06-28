@@ -11,13 +11,15 @@
 
 #include "Helpers/getters.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 
 namespace BSML {
     static BSMLNodeParser<LoadingIndicatorTag> loadingIndicatorTagParser({"loading", "loading-indicator"});
 
     UnityEngine::GameObject* get_loadingTemplate() {
-        static SafePtrUnity<UnityEngine::GameObject> loadingTemplate;
+        static safe_ptr<UnityEngine::GameObject*> loadingTemplate;
         if (!loadingTemplate) {
             loadingTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::LevelCollectionNavigationController*>()->_loadingControl->_loadingContainer->transform->Find("LoadingIndicator")->get_gameObject();
         }

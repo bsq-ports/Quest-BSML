@@ -24,7 +24,7 @@ namespace BSML {
         auto component = componentType.component;
         auto& data = componentType.data;
 
-        auto genericSettings = il2cpp_utils::GetFieldValue<GenericSettingWrapper*>(component, "genericSetting").value_or(nullptr);
+        auto genericSettings = i2c::get_field<i2c::result<GenericSettingWrapper*>>(component, "genericSetting").value_or(nullptr);
         if (!genericSettings) {
             ERROR("Type {}::{} did not have a 'genericSetting' field", component->klass->namespaze, component->klass->name);
             return;
@@ -56,8 +56,8 @@ namespace BSML {
             } else ERROR("Action '{}' could not be found", onChangeItr->second);
         }
 
-        auto applyMinfo = il2cpp_utils::FindMethodUnsafe(component, "ApplyValue", 0);
-        auto receiveMinfo = il2cpp_utils::FindMethodUnsafe(component, "ReceiveValue", 0);
+        auto applyMinfo = i2c::find_method(component, {"ApplyValue", 0});
+        auto receiveMinfo = i2c::find_method(component, {"ReceiveValue", 0});
 
         auto idItr = data.find("id");
         if (idItr != data.end()) {
@@ -74,8 +74,8 @@ namespace BSML {
                 setEventName = setEventItr->second;
             }
             parserParams.AddEvent(setEventName,
-                [component, applyMinfo]{
-                    il2cpp_utils::RunMethod(component, applyMinfo);
+                [component, applyMinfo] mutable {
+                    i2c::run_method(component, applyMinfo);
                 }
             );
         }
@@ -87,8 +87,8 @@ namespace BSML {
                 getEventName = getEventItr->second;
             }
             parserParams.AddEvent(getEventName,
-                [component, receiveMinfo]{
-                    il2cpp_utils::RunMethod(component, receiveMinfo);
+                [component, receiveMinfo] mutable {
+                    i2c::run_method(component, receiveMinfo);
                 }
             );
         }
@@ -98,10 +98,10 @@ namespace BSML {
 
     void BaseSettingHandler::HandleTypeAfterChildren(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
         auto baseSetupMethodInfo = StringParseHelper("BaseSetup").asMethodInfo(componentType.component, 0);
-        if (baseSetupMethodInfo) il2cpp_utils::RunMethodRethrow<void, false>(componentType.component, baseSetupMethodInfo);
+        if (baseSetupMethodInfo) i2c::run_method(const_cast<UnityEngine::Component*>(componentType.component), baseSetupMethodInfo);
 
         auto setupMethodInfo = StringParseHelper("Setup").asMethodInfo(componentType.component, 0);
-        if (setupMethodInfo) il2cpp_utils::RunMethodRethrow<void, false>(componentType.component, setupMethodInfo);
+        if (setupMethodInfo) i2c::run_method(const_cast<UnityEngine::Component*>(componentType.component), setupMethodInfo);
 
         Base::HandleTypeAfterChildren(componentType, parserParams);
     }

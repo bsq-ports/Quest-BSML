@@ -26,13 +26,15 @@
 #include "GlobalNamespace/NoteJumpStartBeatOffsetDropdown.hpp"
 #include "HMUI/SimpleTextDropdown.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 namespace BSML {
     static BSMLNodeParser<CustomListTag> customListTagParser({"custom-list"});
 
     Canvas* get_customListCanvasTemplate() {
-        static SafePtrUnity<Canvas> customListCanvasTemplate;
+        static safe_ptr<Canvas*> customListCanvasTemplate;
         if (!customListCanvasTemplate) {
             customListCanvasTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_playerSettingsPanelController->_noteJumpStartBeatOffsetDropdown->_simpleTextDropdown->_tableView->GetComponent<Canvas*>();
         }

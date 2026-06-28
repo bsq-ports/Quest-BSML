@@ -29,7 +29,7 @@ namespace BSML::Helpers {
     template<typename T = HMUI::CurvedTextMeshPro*>
     requires(std::is_convertible_v<T, TMPro::TMP_Text*>)
     T CreateText(UnityEngine::Transform* parent, StringW text, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta = {60.0f, 10.0f}) {
-        return reinterpret_cast<T>(CreateText(csTypeOf(T), parent, text, anchoredPosition, sizeDelta));
+        return reinterpret_cast<T>(CreateText(i2c::cs_type_of<T>(), parent, text, anchoredPosition, sizeDelta));
     }
 
     /// @brief creates view controller with type
@@ -43,7 +43,7 @@ namespace BSML::Helpers {
     template<typename T = HMUI::ViewController*>
     requires(std::is_convertible_v<T, HMUI::ViewController*>)
     T CreateViewController() {
-        return reinterpret_cast<T>(CreateViewController(csTypeOf(T)));
+        return reinterpret_cast<T>(CreateViewController(i2c::cs_type_of<T>()));
     }
 
     /// @brief creates flow coordinator with type
@@ -57,7 +57,7 @@ namespace BSML::Helpers {
     template<typename T = HMUI::FlowCoordinator*>
     requires(std::is_convertible_v<T, HMUI::FlowCoordinator*>)
     T CreateFlowCoordinator() {
-        return reinterpret_cast<T>(CreateFlowCoordinator(csTypeOf(T)));
+        return reinterpret_cast<T>(CreateFlowCoordinator(i2c::cs_type_of<T>()));
     }
 
     /// @brief adds hoverhint to given gameObject

@@ -79,7 +79,7 @@ namespace BSML {
         template<typename T>
         requires(std::is_convertible_v<T, HMUI::ViewController*>)
         static inline bool RegisterSettingsMenu(std::string_view name, bool enableExtraButtons = false) {
-            return RegisterSettingsMenu(name, csTypeOf(T), MenuSource::ViewController, enableExtraButtons);
+            return RegisterSettingsMenu(name, i2c::cs_type_of<T>(), MenuSource::ViewController, enableExtraButtons);
         }
 
         /// @brief register a menu for the settings menu
@@ -89,7 +89,7 @@ namespace BSML {
         template<typename T>
         requires(std::is_convertible_v<T, HMUI::FlowCoordinator*>)
         static inline bool RegisterSettingsMenu(std::string_view name) {
-            return RegisterSettingsMenu(name, csTypeOf(T), MenuSource::FlowCoordinator, false);
+            return RegisterSettingsMenu(name, i2c::cs_type_of<T>(), MenuSource::FlowCoordinator, false);
         }
 
         /// @brief register a menu for the settings menu
@@ -134,7 +134,7 @@ namespace BSML {
         template<WithDidActivate T>
         requires(std::is_convertible_v<T, UnityEngine::MonoBehaviour*>)
         static inline bool RegisterGameplaySetupTab(std::string_view name, MenuType menuType = MenuType::All) {
-            return RegisterGameplaySetupTab(csTypeOf(T), name, menuType);
+            return RegisterGameplaySetupTab(i2c::cs_type_of<T>(), name, menuType);
         }
 
         /// @brief register a tab for the gameplay setup menu
@@ -177,7 +177,7 @@ namespace BSML {
         template<typename T>
         requires(std::is_convertible_v<T, HMUI::ViewController*>)
         static inline void RegisterMainMenu(const std::string_view& title, const std::string_view& buttonText, const std::string_view& hoverhint) {
-            return RegisterMainMenuViewController(title, buttonText, hoverhint, csTypeOf(T));
+            return RegisterMainMenuViewController(title, buttonText, hoverhint, i2c::cs_type_of<T>());
         }
 
         /// @brief Register a flow coordinator type to be displayed when clicking a main menu button
@@ -187,7 +187,7 @@ namespace BSML {
         template<typename T>
         requires(std::is_convertible_v<T, HMUI::FlowCoordinator*>)
         static inline void RegisterMainMenu(const std::string_view& buttonText, const std::string_view& hoverhint) {
-            return RegisterMainMenuFlowCoordinator(buttonText, hoverhint, csTypeOf(T));
+            return RegisterMainMenuFlowCoordinator(buttonText, hoverhint, i2c::cs_type_of<T>());
         }
 
         /// @brief Register a callback to run on a view controller when clicking a main menu button
@@ -205,6 +205,6 @@ namespace BSML {
 
     namespace Events {
         /// @brief Event that gets invoked right before MenuTransitionsHelper::RestartGame ( Game Restart )
-        BSML_EXPORT extern UnorderedEventCallback<> onGameDidRestart;
+        BSML_EXPORT extern unordered_event_callback<> onGameDidRestart;
     }
 }

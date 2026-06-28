@@ -13,6 +13,8 @@
 #include "HMUI/HoverTextSetter.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
@@ -20,9 +22,9 @@ namespace BSML {
     static BSMLNodeParser<ModifierTag> modifierTagParser({"modifier", "modifier-toggle"});
 
     GlobalNamespace::GameplayModifierToggle* get_gameplayModifierToggleTemplate() {
-        static SafePtrUnity<GlobalNamespace::GameplayModifierToggle> gameplayModifierToggleTemplate;
+        static safe_ptr<GlobalNamespace::GameplayModifierToggle*> gameplayModifierToggleTemplate;
         if (!gameplayModifierToggleTemplate)
-            gameplayModifierToggleTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::GameplayModifierToggle*>()->First( [](GlobalNamespace::GameplayModifierToggle* x) { return x->get_name() == "InstaFail"; });
+            gameplayModifierToggleTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::GameplayModifierToggle*>().front_or_default([](GlobalNamespace::GameplayModifierToggle* x) { return x->get_name() == "InstaFail"; });
         return gameplayModifierToggleTemplate.ptr();
     }
 

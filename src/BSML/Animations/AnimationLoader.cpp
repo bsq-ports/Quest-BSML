@@ -14,6 +14,8 @@
 
 #include "Helpers/delegates.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+#include "beatsaber-hook/shared/arrayw.hpp"
 #include "BSML/SharedCoroutineStarter.hpp"
 #include "System/Func_1.hpp"
 #include <mutex>
@@ -22,8 +24,7 @@ DEFINE_TYPE(BSML, AnimationLoader);
 
 namespace BSML {
     int get_atlasSizeLimit() {
-        using GetMaxTextureSize = function_ptr_t<int>;
-        static auto getMaxTextureSize = reinterpret_cast<GetMaxTextureSize>(il2cpp_functions::resolve_icall("UnityEngine.SystemInfo::GetMaxTextureSize"));
+        static auto getMaxTextureSize = i2c::resolve_icall<int>("UnityEngine.SystemInfo::GetMaxTextureSize");
         static int maxSize = getMaxTextureSize();
         return maxSize >= 4096 ? 4096 : maxSize;
     }
@@ -42,9 +43,9 @@ namespace BSML {
                 sharedStarter->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(
                     GifDecoder::Process(
                         data,
-                        [sharedStarter, onProcessed](auto animationInfo){
+                        [sharedStarter, onProcessed,onError](auto animationInfo){
                             DEBUG("Processed Data, processing animation info");
-                            sharedStarter->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(ProcessAnimationInfo(animationInfo, onProcessed)));
+                            sharedStarter->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(ProcessAnimationInfo(animationInfo, onProcessed, onError)));
                         },
                         onError
                     )));
@@ -58,12 +59,12 @@ namespace BSML {
         }
     }
 
-    custom_types::Helpers::Coroutine AnimationLoader::ProcessAnimationInfo(AnimationInfo* animationInfo, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed) {
+    custom_types::Helpers::Coroutine AnimationLoader::ProcessAnimationInfo(AnimationInfo* animationInfo, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError) {
         DEBUG("ProcessAnimInfo");
         int textureSize = get_atlasSizeLimit(), width = 0, height = 0;
-        SafePtr<Array<UnityEngine::Texture2D*>> textureListSafe = Array<UnityEngine::Texture2D*>::NewLength(animationInfo->frameCount);
+        safe_ptr<ArrayW<UnityEngine::Texture2D*>> textureListSafe = ArrayW<UnityEngine::Texture2D*>(animationInfo->frameCount);
         ArrayW<UnityEngine::Texture2D*> textureList(textureListSafe.ptr());
-        SafePtr<Array<float>> delaysSafe = Array<float>::NewLength(animationInfo->frameCount);
+        safe_ptr<ArrayW<float>> delaysSafe = ArrayW<float>(animationInfo->frameCount);
         ArrayW<float> delays(delaysSafe.ptr());
         float lastThrottleTime = UnityEngine::Time::get_realtimeSinceStartup();
 
@@ -100,16 +101,14 @@ namespace BSML {
                 lastThrottleTime = UnityEngine::Time::get_realtimeSinceStartup();
             }
         }
-
-        SafePtrUnity<UnityEngine::Texture2D> resultTexture = UnityEngine::Texture2D::New_ctor(gifWidth, gifHeight);
+        safe_ptr<UnityEngine::Texture2D*> resultTexture = UnityEngine::Texture2D::New_ctor(gifWidth, gifHeight);
 
         // note to self, no longer readable = true means you can't encode the texture to png!
         // Warning: If this will ever crash, it means that one of the
         // textures in the array has been garbage collected and we need to attach
         // them to a gameobject to prevent that
         DEBUG("Packing gif textures");
-        SafePtr<Array<::UnityEngine::Rect>> atlasSafe = static_cast<Array<::UnityEngine::Rect>*>(resultTexture->PackTextures(textureList, 2, textureSize, true));
-        ArrayW<::UnityEngine::Rect> atlas(atlasSafe.ptr());
+        safe_ptr<ArrayW<::UnityEngine::Rect>> atlasSafe = resultTexture->PackTextures(textureList, 2, textureSize, true);
         // cleanup
         for (auto t : textureList) {
             if (t && t->m_CachedPtr.m_value)
@@ -117,7 +116,7 @@ namespace BSML {
         }
 
         if (onProcessed)
-            onProcessed(resultTexture.ptr(), atlas, delays);
+            onProcessed(resultTexture.ptr(), atlasSafe.ptr(), delays);
 
         // we are now done with the animation info
         delete animationInfo;

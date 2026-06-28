@@ -3,7 +3,7 @@
 namespace BSML {
     void BSMLStringValue::SetValue(System::Object* val) {
         if (val) {
-            static auto stringKlass = classof(StringW);
+            static auto stringKlass = i2c::class_of<StringW>();
             if (val->klass == stringKlass) {
                 value = static_cast<std::string>(StringW(val));
             } else {

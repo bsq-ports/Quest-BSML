@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../_config.h"
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "beatsaber-hook/shared/types.hpp"
 
 namespace BSML {
     enum class BSML_EXPORT Side {
@@ -15,9 +15,9 @@ namespace BSML {
 
 // il2cpp class definition to use the enum as an int to C# stuff
 template<>
-struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<BSML::Side> {
+struct ::i2c::type_check::no_arg_class<BSML::Side> {
     static inline Il2CppClass* get() {
-        return classof(int);
+        return i2c::class_of<int>();
     }
 };
 static_assert(sizeof(BSML::Side) == sizeof(int));

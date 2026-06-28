@@ -7,7 +7,7 @@
 #include "System/Collections/Generic/Dictionary_2.hpp"
 
 
-MAKE_AUTO_HOOK_ORIG_MATCH(SegmentedControl_HandleCellSelectionDidChange, &HMUI::SegmentedControl::HandleCellSelectionDidChange, void, HMUI::SegmentedControl* self, HMUI::SelectableCell* selectableCell, HMUI::SelectableCell::TransitionType transitionType, System::Object* changeOwner) {
+MAKE_AUTO_ORIG_HOOK_MATCH(SegmentedControl_HandleCellSelectionDidChange, &HMUI::SegmentedControl::HandleCellSelectionDidChange, void, HMUI::SegmentedControl* self, HMUI::SelectableCell* selectableCell, HMUI::SelectableCell::TransitionType transitionType, System::Object* changeOwner) {
     if (self->selectedCellNumber == -1) {
         auto segmentedCell = reinterpret_cast<HMUI::SegmentedControlCell*>(selectableCell);
         self->_selectedCellNumber = segmentedCell->cellNumber;
@@ -16,7 +16,7 @@ MAKE_AUTO_HOOK_ORIG_MATCH(SegmentedControl_HandleCellSelectionDidChange, &HMUI::
         }
 
         System::Action_1<int>* value = nullptr;
-        if (self->_callbacks->TryGetValue(segmentedCell->cellNumber, byref(value))) {
+        if (self->_callbacks->TryGetValue(segmentedCell->cellNumber, by_ref(value))) {
             if (value) value->Invoke(segmentedCell->cellNumber);
         }
 

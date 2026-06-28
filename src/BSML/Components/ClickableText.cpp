@@ -22,9 +22,7 @@ namespace BSML {
         hapticFeedbackManager = nullptr;
         hapticFeedbackPresetSO = nullptr;
 
-        static auto base_ctor = il2cpp_functions::class_get_method_from_name(classof(HMUI::CurvedTextMeshPro*), ".ctor", 0);
-        if (base_ctor) { il2cpp_utils::RunMethod(this, base_ctor); }
-        else { ERROR("Could not run base ctor for ClickableText"); }
+        INVOKE_BASE_CTOR(i2c::class_of<HMUI::CurvedTextMeshPro*>());
     }
 
     void ClickableText::UpdateHighlight() {
@@ -95,7 +93,7 @@ namespace BSML {
             _vrPointer = nullptr;
         }
 
-        _vrPointer = UnityEngine::Resources::FindObjectsOfTypeAll<VRUIControls::VRPointer*>()->FirstOrDefault();
+        _vrPointer = UnityEngine::Resources::FindObjectsOfTypeAll<VRUIControls::VRPointer*>().front_or_default();
         return _vrPointer;
     }
 }

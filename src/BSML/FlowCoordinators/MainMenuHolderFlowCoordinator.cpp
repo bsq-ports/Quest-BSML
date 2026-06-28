@@ -10,7 +10,7 @@
 DEFINE_TYPE(BSML, MainMenuHolderFlowCoordinator);
 
 namespace BSML {
-    SafePtrUnity<MainMenuHolderFlowCoordinator> MainMenuHolderFlowCoordinator::instance;
+    safe_ptr<MainMenuHolderFlowCoordinator*> MainMenuHolderFlowCoordinator::instance;
     MainMenuHolderFlowCoordinator* MainMenuHolderFlowCoordinator::get_instance() {
         if (!instance) {
             instance = BSML::Helpers::CreateFlowCoordinator<MainMenuHolderFlowCoordinator*>();
@@ -72,7 +72,7 @@ namespace BSML {
         title(title),
         buttonText(buttonText),
         hoverHint(hoverHint),
-        csType(csTypeOf(HMUI::ViewController*)),
+        csType(i2c::cs_type_of<HMUI::ViewController*>()),
         setupFunc(setupFunc),
         registrationType(MenuSource::Method),
         viewController(nullptr) {

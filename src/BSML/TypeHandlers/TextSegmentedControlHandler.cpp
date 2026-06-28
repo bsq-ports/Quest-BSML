@@ -1,5 +1,5 @@
 #include "BSML/TypeHandlers/TextSegmentedControlHandler.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
+#include "beatsaber-hook/shared/listw.hpp"
 #include "Helpers/delegates.hpp"
 
 namespace BSML {
@@ -24,22 +24,22 @@ namespace BSML {
         if (dataItr != data.end() && !dataItr->second.empty()) {
             auto val = parserParams.TryGetValue(dataItr->second);
             auto texts = ListW<StringW>::New();
-            static auto dataKlass = classof(List<System::Object*>*);
-            static auto stringDataKlass = classof(List<Il2CppString*>*);
+            static auto dataKlass = i2c::class_of<System::Collections::Generic::List_1<System::Object*>*>();
+            static auto stringDataKlass = i2c::class_of<System::Collections::Generic::List_1<Il2CppString*>*>();
 
-            List<System::Object*>* data = val ? val->GetValue<List<System::Object*>*>() : nullptr;
+            System::Collections::Generic::List_1<System::Object*>* data = val ? val->GetValue<System::Collections::Generic::List_1<System::Object*>*>() : nullptr;
 
             if (data) {
-                if (il2cpp_functions::class_is_assignable_from(data->klass, stringDataKlass)) {
+                if (i2c::functions::class_is_assignable_from(data->klass, stringDataKlass)) {
                     // it's already a list of strings :)
-                    ListW<StringW> strings = reinterpret_cast<List<StringW>*>(data);
+                    ListW<StringW> strings = reinterpret_cast<System::Collections::Generic::List_1<StringW>*>(data);
                     for (auto str : strings) texts->Add(str);
-                } else if (il2cpp_functions::class_is_assignable_from(data->klass, dataKlass)) {
+                } else if (i2c::functions::class_is_assignable_from(data->klass, dataKlass)) {
                     // it's a list of objects, use ToString
                     ListW<System::Object*> objects = data;
                     for (auto obj : objects) texts->Add(obj ? obj->ToString() : StringW(""));
                 }
-            } else if (data && !il2cpp_functions::class_is_assignable_from(data->klass, dataKlass)) {
+            } else if (data && !i2c::functions::class_is_assignable_from(data->klass, dataKlass)) {
                 ERROR("klass {}::{} is not assignable from {}::{}", data->klass->namespaze, data->klass->name, dataKlass->namespaze, dataKlass->name);
             } else {
                 ERROR("Could not find value {}", dataItr->second);
