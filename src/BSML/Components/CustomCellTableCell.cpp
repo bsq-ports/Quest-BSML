@@ -20,12 +20,12 @@ namespace BSML {
     }
 
     void CustomCellTableCell::Reused() {
-        if (dataObject) i2c::run_method(dataObject, "Reused", this);
+        if (dataObject) i2c::run_method((Il2CppObject*) dataObject, "Reused", this);
     }
 
     void CustomCellTableCell::SelectionDidChange(HMUI::SelectableCell::TransitionType transitionType) {
         if (get_selected() && dataObject) {
-            i2c::run_method(dataObject, "Select", this);
+            i2c::run_method((Il2CppObject*) dataObject, "Select", this);
         }
 
         RefreshVisuals();
@@ -56,6 +56,6 @@ namespace BSML {
         neitherTags->EnsureCapacity(neither.size());
         for (auto go : neither) neitherTags->Add(go);
 
-        if (dataObject) i2c::run_method(dataObject, "Setup", this);
+        if (dataObject) i2c::run_method((Il2CppObject*) dataObject, "Setup", this);
     }
 }

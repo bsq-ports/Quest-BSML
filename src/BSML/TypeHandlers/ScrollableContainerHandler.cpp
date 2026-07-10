@@ -30,8 +30,8 @@ namespace BSML {
         auto idItr = data.find("id");
         if (idItr != data.end() && !idItr->second.empty()) {
             std::string id = idItr->second;
-            auto pageUpMinfo = i2c::find_method(scrollView, {"PageUpButtonPressed", 0});
-            auto pageDownMinfo = i2c::find_method(scrollView, {"PageDownButtonPressed", 0});
+            auto pageUpMinfo = i2c::find_method((Il2CppObject*) scrollView, {"PageUpButtonPressed", 0});
+            auto pageDownMinfo = i2c::find_method((Il2CppObject*) scrollView, {"PageDownButtonPressed", 0});
 
             if (pageUpMinfo) parserParams.AddAction(id + "#PageUp", new BSMLAction(scrollView, pageUpMinfo));
             if (pageDownMinfo) parserParams.AddAction(id + "#PageDown", new BSMLAction(scrollView, pageDownMinfo));

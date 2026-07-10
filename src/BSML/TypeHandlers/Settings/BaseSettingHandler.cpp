@@ -56,8 +56,8 @@ namespace BSML {
             } else ERROR("Action '{}' could not be found", onChangeItr->second);
         }
 
-        auto applyMinfo = i2c::find_method(component, {"ApplyValue", 0});
-        auto receiveMinfo = i2c::find_method(component, {"ReceiveValue", 0});
+        auto applyMinfo = i2c::find_method((Il2CppObject*) component, {"ApplyValue", 0});
+        auto receiveMinfo = i2c::find_method((Il2CppObject*) component, {"ReceiveValue", 0});
 
         auto idItr = data.find("id");
         if (idItr != data.end()) {

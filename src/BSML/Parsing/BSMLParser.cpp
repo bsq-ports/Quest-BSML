@@ -80,7 +80,7 @@ namespace BSML {
         components.clear();
 
         if (host) {
-            i2c::run_method<i2c::result<>>(host, "PostParse");
+            i2c::run_method<i2c::result<>>((Il2CppObject*) host, "PostParse");
         }
     }
 
@@ -113,7 +113,7 @@ namespace BSML {
         components.clear();
 
         if (host) {
-            i2c::run_method<i2c::result<>>(host, "PostParse");
+            i2c::run_method<i2c::result<>>((Il2CppObject*) host, "PostParse");
         }
 
         return parserParams;
