@@ -50,7 +50,7 @@
       },
       {
         "id": "bs-cordl",
-        "versionRange": "^4203.0.0",
+        "versionRange": "^4401.1.0",
         "additionalData": {}
       },
       {
@@ -105,7 +105,11 @@
         "id": "custom-types",
         "versionRange": "=0.20.0",
         "additionalData": {
+          "soLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.0/libcustom-types.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.0/debug_libcustom-types.so",
           "overrideSoName": "libcustom-types.so",
+          "modLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.0/CustomTypes.qmod",
+          "branchName": "version/v0_20_0",
           "compileOptions": {
             "cppFlags": [
               "-Wno-invalid-offsetof"
@@ -136,16 +140,16 @@
     {
       "dependency": {
         "id": "bs-cordl",
-        "versionRange": "=4203.0.0",
+        "versionRange": "=4401.1.0",
         "additionalData": {
           "headersOnly": true,
+          "branchName": "version/v4401_1_0",
           "compileOptions": {
             "includePaths": [
               "include"
             ],
             "cppFeatures": [],
             "cppFlags": [
-              "-DNEED_UNSAFE_CSHARP",
               "-fdeclspec",
               "-DUNITY_6",
               "-DHAS_CODEGEN",
@@ -154,7 +158,7 @@
           }
         }
       },
-      "version": "4203.0.0"
+      "version": "4401.1.0"
     },
     {
       "dependency": {
@@ -189,18 +193,6 @@
         }
       },
       "version": "10.0.0"
-    },
-    {
-      "dependency": {
-        "id": "mod-scripts",
-        "versionRange": "=1.0.1",
-        "additionalData": {
-          "headersOnly": true,
-          "branchName": "version/v1_0_1",
-          "cmake": false
-        }
-      },
-      "version": "1.0.1"
     },
     {
       "dependency": {
@@ -240,10 +232,11 @@
         "id": "beatsaber-hook",
         "versionRange": "=8.0.0",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/debug_libbeatsaber-hook.so",
+          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.0.0/libbeatsaber-hook.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.0.0/debug_libbeatsaber-hook.so",
           "overrideSoName": "libbeatsaber-hook.so",
-          "branchName": "master",
+          "modLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.0.0/beatsaber-hook.qmod",
+          "branchName": "version/v8_0_0",
           "compileOptions": {
             "cppFlags": [
               "-Wno-extra-qualification"
