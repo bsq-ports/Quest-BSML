@@ -33,7 +33,7 @@ namespace BSML {
                 fieldView->onValueChanged->AddListener(
                     custom_types::MakeDelegate<UnityEngine::Events::UnityAction_1<UnityW<HMUI::InputFieldView>>*>(
                         std::function<void(HMUI::InputFieldView*)>(
-                            [onValueChange = action->GetFunction<StringW>()](auto fieldView){
+                            [onValueChange = action->GetFunction<StringW>()](auto fieldView) mutable {
                                 onValueChange(fieldView->get_text());
                             }
                         )

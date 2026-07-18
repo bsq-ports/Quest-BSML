@@ -1,5 +1,6 @@
 #pragma once
 
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "custom-types/shared/coroutine.hpp"
 #include "UnityEngine/Coroutine.hpp"
@@ -10,7 +11,7 @@
 DECLARE_CLASS_CODEGEN(BSML, SharedCoroutineStarter, UnityEngine::MonoBehaviour) {
         DECLARE_INSTANCE_METHOD(void, Awake);
     private:
-        static SafePtrUnity<UnityEngine::MonoBehaviour> instance;
+        static safe_ptr<UnityEngine::MonoBehaviour*> instance;
     public:
         static UnityEngine::MonoBehaviour* get_instance();
 

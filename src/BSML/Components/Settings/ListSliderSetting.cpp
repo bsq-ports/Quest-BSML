@@ -33,7 +33,7 @@ namespace BSML {
             text = slider->get_gameObject()->GetComponentInChildren<TMPro::TextMeshProUGUI*>();
             ReceiveValue();
 
-            auto onChangeInfo = il2cpp_functions::class_get_method_from_name(this->klass, "OnChange", 2);
+            auto onChangeInfo = i2c::functions::class_get_method_from_name(this->klass, "OnChange", 2);
             auto delegate = MakeSystemAction<UnityW<HMUI::RangeValuesTextSlider>, float>(this, onChangeInfo);
             slider->add_valueDidChangeEvent(delegate);
         }

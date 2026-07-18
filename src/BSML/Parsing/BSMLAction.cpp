@@ -9,10 +9,10 @@ namespace BSML {
         const MethodInfo* minfo = nullptr;
         auto klass = host->klass;
         while (klass && !minfo) {
-            minfo = il2cpp_functions::class_get_method_from_name(klass, methodName.c_str(), argc);
+            minfo = i2c::functions::class_get_method_from_name(klass, methodName.c_str(), argc);
             klass = klass->parent;
         }
-        
+
         return new BSMLAction(host, minfo);
     }
 

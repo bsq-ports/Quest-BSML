@@ -10,13 +10,15 @@
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "GlobalNamespace/EulaDisplayViewController.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 namespace BSML {
     static BSMLNodeParser<TextPageScrollViewTag> textPageScrollViewTagParser({"text-page", "page"});
 
     HMUI::TextPageScrollView* get_textPageTemplate() {
-        static SafePtrUnity<HMUI::TextPageScrollView> textPageTemplate;
+        static safe_ptr<HMUI::TextPageScrollView*> textPageTemplate;
         if (!textPageTemplate) {
-            textPageTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::EulaDisplayViewController*>()->First()->_textPageScrollView;
+            textPageTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::EulaDisplayViewController*>().front()->_textPageScrollView;
         }
         return textPageTemplate.ptr();
     }

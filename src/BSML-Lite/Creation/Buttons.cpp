@@ -22,6 +22,8 @@
 
 #include "BSML/Components/ExternalComponents.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 namespace BSML::Lite {
     UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, const std::string_view& buttonTemplate, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::function<void()> onClick) {
         UnityEngine::UI::Button* button = nullptr;
@@ -32,10 +34,10 @@ namespace BSML::Lite {
             auto go = BSML::PrimaryButtonTag{}.CreateObject(parent);
             button = go->GetComponent<UnityEngine::UI::Button*>();
         } else {
-            static std::unordered_map<std::string, SafePtrUnity<UnityEngine::UI::Button>> buttonCopyMap;
+            static std::unordered_map<std::string, safe_ptr<UnityEngine::UI::Button*>> buttonCopyMap;
             auto& buttonCopy = buttonCopyMap[std::string(buttonTemplate)];
             if (!buttonCopy) {
-                buttonCopy = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::UI::Button*>()->LastOrDefault([&buttonTemplate](auto* x) { return x->get_name() == buttonTemplate; });
+                buttonCopy = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::UI::Button*>().back_or_default([&buttonTemplate](auto* x) { return x->get_name() == buttonTemplate; });
             }
 
             if (!buttonCopy) {
@@ -156,12 +158,12 @@ namespace BSML::Lite {
     }
 
     void SetButtonIcon(UnityEngine::UI::Button* button, UnityEngine::Sprite* icon) {
-        auto iconImage = button->GetComponentsInChildren<UnityEngine::UI::Image*>()->FirstOrDefault([](auto x){ return x->get_name() == "Icon"; });
+        auto iconImage = button->GetComponentsInChildren<UnityEngine::UI::Image*>().front_or_default([](auto x){ return x->get_name() == "Icon"; });
         if (iconImage) iconImage->set_sprite(icon);
     }
 
     void SetButtonBackground(UnityEngine::UI::Button* button, UnityEngine::Sprite* background) {
-        auto iconImage = button->GetComponentsInChildren<UnityEngine::UI::Image*>()->FirstOrDefault([](auto x){ return x->get_name() == "Background"; });
+        auto iconImage = button->GetComponentsInChildren<UnityEngine::UI::Image*>().front_or_default([](auto x){ return x->get_name() == "Background"; });
         if (iconImage) iconImage->set_sprite(background);
     }
 

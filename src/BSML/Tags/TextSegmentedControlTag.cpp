@@ -10,15 +10,17 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "GlobalNamespace/BeatmapDifficultySegmentedControlController.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 
 namespace BSML {
     static BSMLNodeParser<TextSegmentedControlTag> textSegmentedControlTag({"text-segments"});
 
     HMUI::TextSegmentedControl* get_textSegmentedControlTemplate() {
-        SafePtrUnity<HMUI::TextSegmentedControl> textSegmentedControlTemplate;
+        static safe_ptr<HMUI::TextSegmentedControl*> textSegmentedControlTemplate;
         if (!textSegmentedControlTemplate) {
-            textSegmentedControlTemplate = Resources::FindObjectsOfTypeAll<HMUI::TextSegmentedControl*>()->FirstOrDefault(
+            textSegmentedControlTemplate = Resources::FindObjectsOfTypeAll<HMUI::TextSegmentedControl*>().front_or_default(
                 [](auto x) {
                     auto name = x->get_name();
                     if (name != "BeatmapDifficultySegmentedControl") return false;

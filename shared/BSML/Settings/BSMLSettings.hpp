@@ -1,5 +1,7 @@
 #pragma once
 
+#include "beatsaber-hook/shared/listw.hpp"
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "custom-types/shared/coroutine.hpp"
 #include "../Components/CustomListTableData.hpp"
@@ -34,5 +36,5 @@ DECLARE_CLASS_CODEGEN(BSML, BSMLSettings, System::Object) {
     protected:
         void TryAddBSMLMenu();
         custom_types::Helpers::Coroutine AddButtonToMainScreen();
-        static SafePtr<BSMLSettings> instance;
+        static safe_ptr<BSMLSettings*, false> instance;
 };

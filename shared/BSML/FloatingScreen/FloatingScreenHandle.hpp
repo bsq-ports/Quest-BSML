@@ -1,5 +1,6 @@
 #pragma once
 
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/Material.hpp"
@@ -37,14 +38,14 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, FloatingScreenHandle, UnityEngine::MonoBe
 
     DECLARE_INSTANCE_METHOD(void, UpdateMaterial);
 
-    DECLARE_INSTANCE_METHOD(void, Update); 
+    DECLARE_INSTANCE_METHOD(void, Update);
     DECLARE_INSTANCE_METHOD(void, OnDestroy);
 
     public:
         void Init(FloatingScreen* floatingScreen);
-    
+
     private:
-        static SafePtrUnity<UnityEngine::Shader> shader;
+        static safe_ptr<UnityEngine::Shader*> shader;
         static int ColorId;
         bool _isHovering = false;
         static inline UnityEngine::Color DefaultColor = UnityEngine::Color(1.0f, 1.0f, 1.0f, 0.0f);

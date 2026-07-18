@@ -49,6 +49,6 @@ namespace BSML {
     }
 
     UnityEngine::RectTransform* ScrollViewContent::get_rectTransform() {
-        return transform.try_cast<UnityEngine::RectTransform>().value_or(nullptr);
+        return transform.try_cast<UnityEngine::RectTransform>();
     }
 }

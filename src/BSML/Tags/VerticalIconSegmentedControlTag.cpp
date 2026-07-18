@@ -10,15 +10,17 @@
 #include "GlobalNamespace/BeatmapCharacteristicSegmentedControlController.hpp"
 #include "GlobalNamespace/PlatformLeaderboardViewController.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 
 namespace BSML {
     static BSMLNodeParser<VerticalIconSegmentedControlTag> vericalIconSegmentedControlTag({"vertical-icon-segments"});
 
     HMUI::IconSegmentedControl* get_verticalIconSegmentedControlTemplate() {
-        static SafePtrUnity<HMUI::IconSegmentedControl> verticalIconSegmentedControlTemplate;
+        static safe_ptr<HMUI::IconSegmentedControl*> verticalIconSegmentedControlTemplate;
         if (!verticalIconSegmentedControlTemplate) {
-            auto vc = Resources::FindObjectsOfTypeAll<GlobalNamespace::PlatformLeaderboardViewController*>()->FirstOrDefault();
+            auto vc = Resources::FindObjectsOfTypeAll<GlobalNamespace::PlatformLeaderboardViewController*>().front_or_default();
             verticalIconSegmentedControlTemplate = vc->_scopeSegmentedControl;
         }
         return verticalIconSegmentedControlTemplate.ptr();

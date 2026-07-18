@@ -24,10 +24,10 @@ namespace BSML {
         if (!static_cast<const void*>(this)) throw cordl_internals::NullException("Retrieving component on nullptr external components!");
         if (!type) return nullptr;
 
-        auto klass = il2cpp_functions::class_from_system_type(type);
+        auto klass = i2c::functions::class_from_system_type(type);
         INFO("Getting {}::{}", klass->namespaze, klass->name);
         for (auto component : components) {
-            if (il2cpp_functions::class_is_assignable_from(klass, component->klass)) {
+            if (i2c::functions::class_is_assignable_from(klass, component->klass)) {
                 return component;
             }
         }

@@ -21,6 +21,8 @@
 #include "HMUI/ImageView.hpp"
 #include "GlobalNamespace/LocalizedHoverHint.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
@@ -28,9 +30,9 @@ namespace BSML {
     static BSMLNodeParser<PageButtonTag> pageButtonTagParser({"page-button", "pg-button"});
 
     Button* get_pageButtonTemplate() {
-        static SafePtrUnity<Button> pageButtonTemplate;
+        static safe_ptr<Button*> pageButtonTemplate;
         if (!pageButtonTemplate) {
-            pageButtonTemplate = Resources::FindObjectsOfTypeAll<Button*>()->LastOrDefault([&](auto x){ return x->get_name() == "UpButton"; });
+            pageButtonTemplate = Resources::FindObjectsOfTypeAll<Button*>().back_or_default([&](auto x){ return x->get_name() == "UpButton"; });
         }
         return pageButtonTemplate.ptr();
     }
@@ -53,7 +55,7 @@ namespace BSML {
         externalComponents->Add(pageButton);
 
         auto btnIcon = gameObject->AddComponent<ButtonIconImage*>();
-        btnIcon->image = gameObject->GetComponentsInChildren<Image*>(true)->FirstOrDefault([&](auto x){ return x->get_name() == "Icon"; });
+        btnIcon->image = gameObject->GetComponentsInChildren<Image*>(true).front_or_default([&](auto x){ return x->get_name() == "Icon"; });
         externalComponents->Add(btnIcon);
 
         auto buttonSizeFitter = gameObject->AddComponent<ContentSizeFitter*>();

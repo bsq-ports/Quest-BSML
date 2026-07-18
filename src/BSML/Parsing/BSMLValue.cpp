@@ -4,24 +4,24 @@ void collect_finfos(Il2CppClass* klass, std::vector<FieldInfo*>& finfos) {
     if (!klass) return;
     void* iter = nullptr;
     FieldInfo* finfo = nullptr;
-    while ((finfo = il2cpp_functions::class_get_fields(klass, &iter))) finfos.push_back(finfo);
-    collect_finfos(il2cpp_functions::class_get_parent(klass), finfos);
+    while ((finfo = i2c::functions::class_get_fields(klass, &iter))) finfos.push_back(finfo);
+    collect_finfos(i2c::functions::class_get_parent(klass), finfos);
 }
 
 void collect_pinfos(Il2CppClass* klass, std::vector<const PropertyInfo*>& pinfos) {
     if (!klass) return;
     void* iter = nullptr;
     const PropertyInfo* pinfo = nullptr;
-    while ((pinfo = il2cpp_functions::class_get_properties(klass, &iter))) pinfos.push_back(pinfo);
-    collect_pinfos(il2cpp_functions::class_get_parent(klass), pinfos);
+    while ((pinfo = i2c::functions::class_get_properties(klass, &iter))) pinfos.push_back(pinfo);
+    collect_pinfos(i2c::functions::class_get_parent(klass), pinfos);
 }
 
 void collect_minfos(Il2CppClass* klass, std::vector<const MethodInfo*>& minfos) {
     if (!klass) return;
     void* iter = nullptr;
     const MethodInfo* minfo = nullptr;
-    while ((minfo = il2cpp_functions::class_get_methods(klass, &iter))) minfos.push_back(minfo);
-    collect_minfos(il2cpp_functions::class_get_parent(klass), minfos);
+    while ((minfo = i2c::functions::class_get_methods(klass, &iter))) minfos.push_back(minfo);
+    collect_minfos(i2c::functions::class_get_parent(klass), minfos);
 }
 
 namespace BSML {
@@ -31,9 +31,9 @@ namespace BSML {
         std::vector<const MethodInfo*> minfos{};
 
         // collect fields, props and methods
-        collect_finfos(il2cpp_functions::object_get_class(host), finfos);
-        collect_pinfos(il2cpp_functions::object_get_class(host), pinfos);
-        collect_minfos(il2cpp_functions::object_get_class(host), minfos);
+        collect_finfos(i2c::functions::object_get_class(host), finfos);
+        collect_pinfos(i2c::functions::object_get_class(host), pinfos);
+        collect_minfos(i2c::functions::object_get_class(host), minfos);
 
         std::map<std::string, BSMLValue*> values{};
         // every field is a new Value
@@ -51,14 +51,14 @@ namespace BSML {
             auto itr = values.find(pinfo->name);
             if (itr != values.end()) { // if the value existed
                 auto val = itr->second;
-                val->setterInfo = il2cpp_functions::property_get_set_method(pinfo);
-                val->getterInfo = il2cpp_functions::property_get_set_method(pinfo);
+                val->setterInfo = i2c::functions::property_get_set_method(pinfo);
+                val->getterInfo = i2c::functions::property_get_set_method(pinfo);
             } else { // if the value did not yet exist
                 auto val = new BSMLValue();
                 val->host = host;
                 val->name = pinfo->name;
-                val->setterInfo = il2cpp_functions::property_get_set_method(pinfo);
-                val->getterInfo = il2cpp_functions::property_get_set_method(pinfo);
+                val->setterInfo = i2c::functions::property_get_set_method(pinfo);
+                val->getterInfo = i2c::functions::property_get_set_method(pinfo);
                 values.emplace(pinfo->name, val);
             }
         }
@@ -90,19 +90,17 @@ namespace BSML {
 
     void BSMLValue::SetValue(System::Object* val) {
         if (fieldInfo) {
-            il2cpp_functions::field_set_value(host, fieldInfo, &val);
+            i2c::set_field(host, fieldInfo, val);
         } else if (setterInfo) {
-            il2cpp_utils::RunMethod(host, setterInfo, val);
+            i2c::run_method(host, setterInfo, val);
         }
     }
 
     System::Object* BSMLValue::GetValue() {
         if (fieldInfo) {
-            System::Object* val;
-            il2cpp_functions::field_get_value(host, fieldInfo, &val);
-            return val;
+            return i2c::get_field<System::Object*>(host, fieldInfo);
         } else if (getterInfo) {
-            return il2cpp_utils::RunMethodOpt<System::Object*>(host, getterInfo).value_or(nullptr);
+            return i2c::run_method<i2c::result<System::Object*>>(host, getterInfo).value_or(nullptr);
         }
         return nullptr;
     }

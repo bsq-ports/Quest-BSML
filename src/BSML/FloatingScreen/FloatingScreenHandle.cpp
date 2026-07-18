@@ -43,13 +43,13 @@ static Vector3 operator*(float_t a, Vector3 b) {
 
 
 namespace BSML {
-    SafePtrUnity<UnityEngine::Shader> FloatingScreenHandle::shader;
+    safe_ptr<UnityEngine::Shader*> FloatingScreenHandle::shader;
     int FloatingScreenHandle::ColorId = 0;
 
     void FloatingScreenHandle::Awake() {
         if (!shader) {
             using namespace std::string_view_literals;
-            shader = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Shader*>()->First([](auto x){ return x->name == "Custom/Glowing"sv; });
+            shader = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::Shader*>().front([](auto x){ return x->name == "Custom/Glowing"sv; });
             if (!shader) {
                 ERROR("Failed to find shader for FloatingScreenHandle!");
             }
@@ -76,7 +76,7 @@ namespace BSML {
     void FloatingScreenHandle::OnPointerUp(UnityEngine::EventSystems::PointerEventData* eventData) {
         auto currentEventSystem = EventSystems::EventSystem::get_current();
         if (!currentEventSystem) return;
-        auto vrInputModule = currentEventSystem->get_currentInputModule().try_cast<VRUIControls::VRInputModule>().value_or(nullptr);
+        auto vrInputModule = currentEventSystem->get_currentInputModule().try_cast<VRUIControls::VRInputModule>();
         if (!vrInputModule) return;
 
         _grabbingController = nullptr;
@@ -94,7 +94,7 @@ namespace BSML {
 
         auto currentEventSystem = EventSystems::EventSystem::get_current();
         if (!currentEventSystem) return;
-        auto vrInputModule = currentEventSystem->get_currentInputModule().try_cast<VRUIControls::VRInputModule>().value_or(nullptr);
+        auto vrInputModule = currentEventSystem->get_currentInputModule().try_cast<VRUIControls::VRInputModule>();
         if (!vrInputModule) return;
 
         auto vrPointer = vrInputModule->_vrPointer;

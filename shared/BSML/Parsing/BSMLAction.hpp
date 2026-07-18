@@ -15,13 +15,13 @@ namespace BSML {
 
             template<typename T = System::Object*, typename... Targs>
             std::optional<T> Invoke(Targs&&... args) const {
-                return il2cpp_utils::RunMethod<T>(host, methodInfo, args...);
+                return i2c::run_method<i2c::result<T>>(host, methodInfo, args...);
             }
 
             template<typename... Targs>
             std::function<void(Targs...)> GetFunction() const {
-                return [host = this->host, methodInfo = this->methodInfo](Targs... args) {
-                    il2cpp_utils::RunMethod(host, methodInfo, args...);
+                return [host = this->host, methodInfo = this->methodInfo](Targs... args) mutable {
+                    i2c::run_method<i2c::result<>>(host, methodInfo, args...);
                 };
             }
 

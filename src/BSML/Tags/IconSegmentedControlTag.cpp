@@ -10,15 +10,17 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "GlobalNamespace/BeatmapCharacteristicSegmentedControlController.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 
 namespace BSML {
     static BSMLNodeParser<IconSegmentedControlTag> iconSegmentedControlTag({"icon-segments"});
 
     HMUI::IconSegmentedControl* get_iconSegmentedControlTemplate() {
-        static SafePtrUnity<HMUI::IconSegmentedControl> iconSegmentedControlTemplate;
+        static safe_ptr<HMUI::IconSegmentedControl*> iconSegmentedControlTemplate;
         if (!iconSegmentedControlTemplate) {
-            iconSegmentedControlTemplate = Resources::FindObjectsOfTypeAll<HMUI::IconSegmentedControl*>()->FirstOrDefault(
+            iconSegmentedControlTemplate = Resources::FindObjectsOfTypeAll<HMUI::IconSegmentedControl*>().front_or_default(
                 [](auto x) {
                     auto name = x->get_name();
                     if (name != "BeatmapCharacteristicSegmentedControl") return false;

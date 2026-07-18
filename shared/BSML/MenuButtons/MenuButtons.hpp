@@ -1,5 +1,7 @@
 #pragma once
 
+#include "beatsaber-hook/shared/listw.hpp"
+#include "beatsaber-hook/shared/safeptr.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "custom-types/shared/coroutine.hpp"
 #include "HMUI/Screen.hpp"
@@ -25,5 +27,5 @@ DECLARE_CLASS_CODEGEN(BSML, MenuButtons, System::Object) {
         static MenuButtons* get_instance();
         custom_types::Helpers::Coroutine PresentView();
     protected:
-        static SafePtr<MenuButtons> instance;
+        static safe_ptr<MenuButtons*, false> instance;
 };

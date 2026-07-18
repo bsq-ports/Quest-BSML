@@ -17,7 +17,7 @@ namespace BSML {
 
     bool MainThreadScheduler::CurrentThreadIsMainThread() {
         // unity icall for whether this is the main thread
-        static auto currentThreadIsMainThread = il2cpp_utils::resolve_icall<bool>("UnityEngine.Object::CurrentThreadIsMainThread");
+        static auto currentThreadIsMainThread = i2c::resolve_icall<bool>("UnityEngine.Object::CurrentThreadIsMainThread");
         return currentThreadIsMainThread();
     }
 

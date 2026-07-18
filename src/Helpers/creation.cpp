@@ -13,6 +13,8 @@
 #include "UnityEngine/Color.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace TMPro;
 
@@ -39,10 +41,10 @@ namespace BSML::Helpers {
         return textComponent;
     }
 
-    SafePtrUnity<Canvas> canvasTemplate;
+    safe_ptr<Canvas*> canvasTemplate;
     HMUI::ViewController* CreateViewController(System::Type* type) {
         if (!canvasTemplate)
-            canvasTemplate = Resources::FindObjectsOfTypeAll<Canvas*>()->FirstOrDefault([](auto x) { return x->get_name() == "DropdownTableView"; });
+            canvasTemplate = Resources::FindObjectsOfTypeAll<Canvas*>().front_or_default([](auto x) { return x->get_name() == "DropdownTableView"; });
 
         auto go = GameObject::New_ctor(type->NameOrDefault);
         auto cv = go->AddComponent<Canvas*>();

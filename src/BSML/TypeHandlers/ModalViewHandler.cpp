@@ -37,8 +37,8 @@ namespace BSML {
         auto idItr = data.find("id");
         if (idItr != data.end()) {
             std::string id = idItr->second;
-            auto showMinfo = il2cpp_utils::FindMethodUnsafe(modalView, "Show", 0);
-            auto hideMinfo = il2cpp_utils::FindMethodUnsafe(modalView, "Hide", 0);
+            auto showMinfo = i2c::find_method((Il2CppObject*) modalView, {"Show", 0});
+            auto hideMinfo = i2c::find_method((Il2CppObject*) modalView, {"Hide", 0});
 
             if (showMinfo) parserParams.AddAction(id + "#Show", new BSMLAction(modalView, showMinfo));
             if (hideMinfo) parserParams.AddAction(id + "#Hide", new BSMLAction(modalView, hideMinfo));

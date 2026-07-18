@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../_config.h"
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
 #include "System/Object.hpp"
 #include <map>
 
@@ -21,9 +20,9 @@ namespace BSML {
         requires(!std::is_same_v<System::Object*, T>)
         void SetValue(T val) {
             if (fieldInfo) {
-                il2cpp_functions::field_set_value(host, fieldInfo, &val);
+                i2c::set_field(host, fieldInfo, val);
             } else if (setterInfo) {
-                il2cpp_utils::RunMethod(host, setterInfo, val);
+                i2c::run_method(host, setterInfo, val);
             }
         }
 
@@ -31,11 +30,9 @@ namespace BSML {
         requires(std::is_default_constructible_v<T> && !std::is_same_v<System::Object*, T>)
         T GetValue() {
             if (fieldInfo) {
-                T val;
-                il2cpp_functions::field_get_value(host, fieldInfo, &val);
-                return val;
+                return i2c::get_field<T>(host, fieldInfo);
             } else if (getterInfo) {
-                return il2cpp_utils::RunMethod<T>(host, getterInfo).get_result();
+                return i2c::run_method<T>(host, getterInfo);
             }
             return T{};
         }
@@ -44,9 +41,11 @@ namespace BSML {
         requires(!std::is_same_v<System::Object*, T>)
         std::optional<T> GetValueOpt() {
             if (fieldInfo) {
-                return il2cpp_utils::GetFieldValue<T>(host, fieldInfo);
+                if (auto value = i2c::get_field<i2c::result<T>>(host, fieldInfo))
+                    return *value;
             } else if (getterInfo) {
-                return il2cpp_utils::RunMethodOpt<T>(host, getterInfo);
+                if (auto value = i2c::run_method<i2c::result<T>>(host, getterInfo))
+                    return *value;
             }
             return std::nullopt;
         }

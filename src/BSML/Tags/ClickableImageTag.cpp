@@ -17,6 +17,8 @@
 #include "GlobalNamespace/HapticFeedbackManager.hpp"
 #include "Libraries/HM/HMLib/VR/HapticPresetSO.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using HapticPresetSO = Libraries::HM::HMLib::VR::HapticPresetSO;
 
@@ -24,16 +26,16 @@ namespace BSML {
     static BSMLNodeParser<ClickableImageTag> imageTagParser({"clickable-image", "clickable-img"});
 
     GlobalNamespace::Signal* get_imageClickedSignal() {
-        static SafePtrUnity<GlobalNamespace::Signal> imageClickedSignal;
+        static safe_ptr<GlobalNamespace::Signal*> imageClickedSignal;
         if (!imageClickedSignal) {
-            auto menuShockWave = Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>()->FirstOrDefault();
-            imageClickedSignal = menuShockWave ? menuShockWave->_buttonClickEvents->LastOrDefault() : nullptr;
+            auto menuShockWave = Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>().front_or_default();
+            imageClickedSignal = menuShockWave ? menuShockWave->_buttonClickEvents.back_or_default() : nullptr;
         }
         return imageClickedSignal.ptr();
     }
 
     HapticPresetSO* get_imageHapticPreset() {
-        static SafePtrUnity<HapticPresetSO> imageHapticPreset;
+        static safe_ptr<HapticPresetSO*> imageHapticPreset;
         if (!imageHapticPreset) {
             imageHapticPreset = UnityEngine::ScriptableObject::CreateInstance<HapticPresetSO*>();
             imageHapticPreset->_duration = 0.02f;
@@ -45,9 +47,9 @@ namespace BSML {
     }
 
     GlobalNamespace::HapticFeedbackManager* get_imageHapticFeedbackManager() {
-        static SafePtrUnity<GlobalNamespace::HapticFeedbackManager> imageHapticFeedbackManager;
+        static safe_ptr<GlobalNamespace::HapticFeedbackManager*> imageHapticFeedbackManager;
         if (!imageHapticFeedbackManager) {
-            imageHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::HapticFeedbackManager*>()->First();
+            imageHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::HapticFeedbackManager*>().front();
         }
         return imageHapticFeedbackManager.ptr();
     }

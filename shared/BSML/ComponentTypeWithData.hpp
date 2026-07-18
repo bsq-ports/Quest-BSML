@@ -1,6 +1,5 @@
 #pragma once
 
-#include "beatsaber-hook/shared/utils/typedefs.h"
 #include "UnityEngine/Component.hpp"
 #include "Parsing/BSMLParserParams.hpp"
 #include <string>

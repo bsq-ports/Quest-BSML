@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../../_config.h"
-// this is just included because otherwise the SafePtr complains about conversion to unity object
-#include "beatsaber-hook/shared/utils/typedefs.h"
-#include "UnityEngine/Object.hpp"
+#include "beatsaber-hook/shared/safeptr.hpp"
+#include "beatsaber-hook/shared/arrayw.hpp"
 
 #include <memory>
+#include <mutex>
 #include <queue>
 
 namespace BSML {
@@ -48,7 +48,7 @@ namespace BSML {
     class BSML_EXPORT FrameInfo {
         public:
             int width, height, bpp;
-            SafePtr<Array<uint8_t>> colors;
+            safe_ptr<ArrayW<uint8_t>> colors;
             int delay;
             FrameInfo(int width, int height, int bpp = 4);
     };

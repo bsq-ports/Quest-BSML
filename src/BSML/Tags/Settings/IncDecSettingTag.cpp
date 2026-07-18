@@ -13,14 +13,16 @@
 #include "GlobalNamespace/FormattedFloatListSettingsController.hpp"
 #include "UnityEngine/UI/Button.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
 namespace BSML {
     GlobalNamespace::FormattedFloatListSettingsController* get_incdecValueControllerTemplate() {
-        static SafePtrUnity<GlobalNamespace::FormattedFloatListSettingsController> incdecValueControllerTemplate;
+        static safe_ptr<GlobalNamespace::FormattedFloatListSettingsController*> incdecValueControllerTemplate;
         if (!incdecValueControllerTemplate) {
-            incdecValueControllerTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::FormattedFloatListSettingsController*>()->First([](auto x){ return x->get_name() == "VRRenderingScale";});
+            incdecValueControllerTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::FormattedFloatListSettingsController*>().front([](auto x){ return x->get_name() == "VRRenderingScale";});
         }
         return incdecValueControllerTemplate.ptr();
     }
@@ -41,13 +43,13 @@ namespace BSML {
         IncDecSetting* setting = gameObject->AddComponent(get_type()).cast<IncDecSetting>();
         auto firstChild = transform->GetChild(1)->get_gameObject();
 
-        setting->text = firstChild->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()->First();
+        setting->text = firstChild->GetComponentsInChildren<TMPro::TextMeshProUGUI*>().front();
         setting->text->set_richText(true);
         setting->text->set_overflowMode(TMPro::TextOverflowModes::Ellipsis);
 
         auto buttons = firstChild->GetComponentsInChildren<Button*>();
-        setting->decButton = buttons->First();
-        setting->incButton = buttons->Last();
+        setting->decButton = buttons.front();
+        setting->incButton = buttons.back();
         firstChild->transform.cast<RectTransform>()->set_sizeDelta({40, 0});
 
         // text stuff

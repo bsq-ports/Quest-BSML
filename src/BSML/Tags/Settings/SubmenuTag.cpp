@@ -15,7 +15,7 @@
 using HapticPresetSO = Libraries::HM::HMLib::VR::HapticPresetSO;
 
 namespace BSML {
-    
+
     static BSMLNodeParser<SubmenuTag> submenuTagParser({"settings-submenu"});
 
     extern GlobalNamespace::Signal* get_textClickedSignal();
@@ -23,9 +23,9 @@ namespace BSML {
     extern GlobalNamespace::HapticFeedbackManager* get_textHapticFeedbackManager();
 
     ModSettingsFlowCoordinator* get_flow() {
-        static SafePtrUnity<ModSettingsFlowCoordinator> flow;
+        static safe_ptr<ModSettingsFlowCoordinator*> flow;
         if (!flow) {
-            flow = UnityEngine::Resources::FindObjectsOfTypeAll<ModSettingsFlowCoordinator*>()->FirstOrDefault();
+            flow = UnityEngine::Resources::FindObjectsOfTypeAll<ModSettingsFlowCoordinator*>().front_or_default();
         }
         return flow.ptr();
     }

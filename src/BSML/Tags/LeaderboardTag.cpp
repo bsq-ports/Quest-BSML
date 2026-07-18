@@ -9,13 +9,15 @@
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "GlobalNamespace/PlatformLeaderboardViewController.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 
 namespace BSML {
     static BSMLNodeParser<LeaderboardTag> leaderboardTagParser({"leaderboard", "custom-leaderboard"});
 
     GlobalNamespace::LeaderboardTableView* get_leaderboardTemplate() {
-        static SafePtrUnity<GlobalNamespace::LeaderboardTableView> leaderboardTemplate;
+        static safe_ptr<GlobalNamespace::LeaderboardTableView*> leaderboardTemplate;
         if (!leaderboardTemplate) {
             leaderboardTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PlatformLeaderboardViewController*>()->_leaderboardTableView;
         }

@@ -19,19 +19,19 @@
 #include "BeatSaber/GameSettings/ControllerProfilesSettingsViewController.hpp"
 #include "GlobalNamespace/SettingsSubMenuInfo.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
 namespace BSML {
     LayoutElement* get_controllersTransformTemplate() {
-        static SafePtrUnity<LayoutElement> controllersTransformTemplate;
+        static safe_ptr<LayoutElement*> controllersTransformTemplate;
         if (!controllersTransformTemplate) {
             controllersTransformTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::MainSettingsMenuViewController*>()->
-                _settingsSubMenuInfos->First([](auto x){
-                    return il2cpp_utils::try_cast<BeatSaber::GameSettings::ControllerProfilesSettingsViewController>(x->viewController.ptr());
-                })->viewController->transform->
-                Find("Content/MainContent/Sliders/PositionX")->
-                GetComponent<LayoutElement*>();
+                _settingsSubMenuInfos.front([](auto x){
+                    return i2c::try_cast<BeatSaber::GameSettings::ControllerProfilesSettingsViewController*>(x->viewController.ptr());
+                })->viewController->transform->Find("Content/MainContent/Sliders/PositionX")->GetComponent<LayoutElement*>();
             if (!controllersTransformTemplate) {
                 ERROR("No controllersTransformTemplate found!");
                 return nullptr;

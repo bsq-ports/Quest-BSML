@@ -1,22 +1,15 @@
 #include "config.hpp"
 #include "logging.hpp"
-#include "beatsaber-hook/shared/config/config-utils.hpp"
-#include "git_info.h"
-
+#include "beatsaber-hook/shared/rapidjson.hpp"
+#include "beatsaber-hook/shared/utils.hpp"
 
 config_t config;
-
-Configuration& get_config() {
-    static Configuration config({MOD_ID, VERSION, GIT_COMMIT});
-    config.Load();
-    return config;
-}
+rapidjson::Document doc{rapidjson::kNullType};
 
 #define Save(identifier) doc.AddMember(#identifier, config.identifier, allocator)
 
 void SaveConfig() {
     INFO("Saving Configuration...");
-    rapidjson::Document& doc = get_config().config;
     doc.RemoveAllMembers();
     doc.SetObject();
 
@@ -29,13 +22,30 @@ void SaveConfig() {
 
     doc.AddMember("hiddenTabs", hiddenTabs, allocator);
 
-    get_config().Write();
+    rapidjson::StringBuffer buf;
+    rapidjson::PrettyWriter writer(buf);
+    doc.Accept(writer);
+    writefile(get_config_path(MOD_ID), buf.GetString());
+
     INFO("Saved Configuration!");
 }
 
 bool LoadConfig() {
+    if (doc.IsNull()) {
+        auto path = get_config_path(MOD_ID);
+        if (!fileexists(path)) {
+            writefile(path, "{}");
+            doc.SetObject();
+        } else {
+            doc.Parse(readfile(path));
+            if (doc.HasParseError() || !doc.IsObject()) {
+                WARNING("Config was invalid! Clearing.");
+                doc.SetObject();
+            }
+        }
+    }
+
     bool foundEverything = true;
-    rapidjson::Document& doc = get_config().config;
 
     auto hiddenTabsItr = doc.FindMember("hiddenTabs");
     if (hiddenTabsItr != doc.MemberEnd()) {

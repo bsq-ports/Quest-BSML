@@ -110,12 +110,12 @@ namespace BSML {
         auto dataItr = data.find("data");
         if (dataItr != data.end() && !dataItr->second.empty()) {
             auto val = parserParams.TryGetValue(dataItr->second);
-            List<BSML::CustomCellInfo*>* cellInfos = val ? val->GetValue<List<BSML::CustomCellInfo*>*>() : nullptr;
-            static auto dataKlass = classof(List<BSML::CustomCellInfo*>*);
-            if (cellInfos && il2cpp_functions::class_is_assignable_from(cellInfos->klass, dataKlass)) {
+            System::Collections::Generic::List_1<BSML::CustomCellInfo*>* cellInfos = val ? val->GetValue<System::Collections::Generic::List_1<BSML::CustomCellInfo*>*>() : nullptr;
+            static auto dataKlass = i2c::class_of<System::Collections::Generic::List_1<BSML::CustomCellInfo*>*>();
+            if (cellInfos && i2c::functions::class_is_assignable_from(cellInfos->klass, dataKlass)) {
                 tableData->data = cellInfos;
                 tableView->ReloadData();
-            } else if (cellInfos && !il2cpp_functions::class_is_assignable_from(cellInfos->klass, dataKlass)){
+            } else if (cellInfos && !i2c::functions::class_is_assignable_from(cellInfos->klass, dataKlass)){
                 ERROR("The class of the data field was not Correct! this should be a 'List<BSML::CustomCellInfo*>*' or equivalent!");
             } else {
                 ERROR("IconSegmentedControl needs to have at least 1 value!");
@@ -166,8 +166,8 @@ namespace BSML {
         auto idItr = data.find("id");
         if (idItr != data.end() && !idItr->second.empty()) {
             std::string id = idItr->second;
-            auto pageUpMinfo = il2cpp_utils::FindMethodUnsafe(scrollView, "PageUpButtonPressed", 0);
-            auto pageDownMinfo = il2cpp_utils::FindMethodUnsafe(scrollView, "PageDownButtonPressed", 0);
+            auto pageUpMinfo = i2c::find_method((Il2CppObject*) scrollView, {"PageUpButtonPressed", 0});
+            auto pageDownMinfo = i2c::find_method((Il2CppObject*) scrollView, {"PageDownButtonPressed", 0});
 
             if (pageUpMinfo) parserParams.AddAction(id + "#PageUp", new BSMLAction(scrollView, pageUpMinfo));
             if (pageDownMinfo) parserParams.AddAction(id + "#PageDown", new BSMLAction(scrollView, pageDownMinfo));

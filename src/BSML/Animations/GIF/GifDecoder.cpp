@@ -1,5 +1,6 @@
 #include "BSML/Animations/GIF/GifDecoder.hpp"
 #include "logging.hpp"
+#include "beatsaber-hook/shared/threading.hpp"
 
 #include "Helpers/delegates.hpp"
 
@@ -44,7 +45,7 @@ namespace BSML {
     custom_types::Helpers::Coroutine GifDecoder::Process(ArrayW<uint8_t> data, std::function<void(AnimationInfo*)> onFinished, std::function<void()> onError) {
         auto animationInfo = new AnimationInfo();
 
-        il2cpp_utils::il2cpp_aware_thread(
+        il2cpp_thread(
             static_cast<void(*)(ArrayW<uint8_t>, AnimationInfo*, std::function<void()>)>(&GifDecoder::ProcessingThread),
             data, animationInfo, onError
         ).detach();
@@ -81,7 +82,7 @@ namespace BSML {
 
                 const uint8_t* pixels = (const uint8_t*)gifFrame.pixels();
                 // get end of the data
-                uint8_t* colorData = outputFrameInfo->colors.ptr()->_values + outputFrameInfo->colors->get_Length();
+                uint8_t* colorData = outputFrameInfo->colors.ptr().begin() + outputFrameInfo->colors.ptr().size();
                 int height = gifFrame.height();
                 int rowSize = sizeof(uint32_t) * gifFrame.width();
                 // we need to iterate the given data in reverse due to unity's texture system

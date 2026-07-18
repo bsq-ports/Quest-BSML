@@ -1,8 +1,7 @@
 #pragma once
 
 #include "../_config.h"
-#include "beatsaber-hook/shared/utils/typedefs.h"
-#include "beatsaber-hook/shared/utils/type-concepts.hpp"
+#include "beatsaber-hook/shared/types.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Component.hpp"
 #include "UnityEngine/RectTransform.hpp"
@@ -37,9 +36,9 @@ namespace BSML::Lite {
 MARK_REF_T(BSML::Lite::GameObjectWrapper);
 
 template<>
-struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<BSML::Lite::GameObjectWrapper> {
+struct ::i2c::type_check::no_arg_class<BSML::Lite::GameObjectWrapper> {
     static inline Il2CppClass* get() {
-        return classof(UnityEngine::GameObject*);
+        return i2c::class_of<UnityEngine::GameObject*>();
     }
 };
 static_assert(sizeof(BSML::Lite::GameObjectWrapper) == sizeof(UnityEngine::GameObject*));

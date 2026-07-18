@@ -80,8 +80,7 @@ namespace BSML {
         components.clear();
 
         if (host) {
-            auto postParseMinfo = il2cpp_functions::class_get_method_from_name(host->klass, "PostParse", 0);
-            if (postParseMinfo) il2cpp_utils::RunMethod(host, postParseMinfo);
+            i2c::run_method<i2c::result<>>((Il2CppObject*) host, "PostParse");
         }
     }
 
@@ -114,8 +113,7 @@ namespace BSML {
         components.clear();
 
         if (host) {
-            auto postParseMinfo = il2cpp_functions::class_get_method_from_name(host->klass, "PostParse", 0);
-            if (postParseMinfo) il2cpp_utils::RunMethod(host, postParseMinfo);
+            i2c::run_method<i2c::result<>>((Il2CppObject*) host, "PostParse");
         }
 
         return parserParams;

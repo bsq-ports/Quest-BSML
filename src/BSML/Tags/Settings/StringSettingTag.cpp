@@ -15,15 +15,17 @@
 #include "GlobalNamespace/FormattedFloatListSettingsController.hpp"
 #include "GlobalNamespace/StepValuePicker.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
 namespace BSML {
     static BSMLNodeParser<StringSettingTag> stringSettingTagParser({"string-setting"});
     GlobalNamespace::FormattedFloatListSettingsController* get_stringValueControllerTemplate() {
-        static SafePtrUnity<GlobalNamespace::FormattedFloatListSettingsController> stringValueControllerTemplate;
+        static safe_ptr<GlobalNamespace::FormattedFloatListSettingsController*> stringValueControllerTemplate;
         if (!stringValueControllerTemplate) {
-            stringValueControllerTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::FormattedFloatListSettingsController*>()->FirstOrDefault([](auto x){ return x->get_gameObject()->get_name() == "VRRenderingScale"; });
+            stringValueControllerTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::FormattedFloatListSettingsController*>().front_or_default([](auto x){ return x->get_gameObject()->get_name() == "VRRenderingScale"; });
         }
         return stringValueControllerTemplate.ptr();
     }
@@ -42,14 +44,14 @@ namespace BSML {
         Object::Destroy(valuePick->GetComponent<GlobalNamespace::StepValuePicker*>());
 
         auto buttons = valuePick->GetComponentsInChildren<Button*>();
-        auto decButton = buttons->FirstOrDefault();
+        auto decButton = buttons.front_or_default();
         decButton->set_enabled(false);
         decButton->set_interactable(true);
         Object::Destroy(decButton->get_transform()->Find("Icon")->get_gameObject());
-        stringSetting->text = valuePick->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()->FirstOrDefault();
+        stringSetting->text = valuePick->GetComponentsInChildren<TMPro::TextMeshProUGUI*>().front_or_default();
         stringSetting->text->set_richText(true);
         stringSetting->text->set_text("");
-        stringSetting->editButton = buttons->LastOrDefault();
+        stringSetting->editButton = buttons.back_or_default();
         stringSetting->boundingBox = valuePick.cast<RectTransform>();
 
         auto nameText = gameObject->get_transform()->Find("NameText")->get_gameObject();

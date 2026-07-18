@@ -52,7 +52,7 @@ namespace BSML::Lite {
     }
 
     UnityEngine::Sprite* FileToSprite(const std::string_view& filePath) {
-        std::ifstream instream(filePath, std::ios::in | std::ios::binary | std::ios::ate);
+        std::ifstream instream(filePath.data(), std::ios::in | std::ios::binary | std::ios::ate);
         il2cpp_array_size_t size = instream.tellg();
         instream.seekg(0, instream.beg);
         ArrayW<uint8_t> bytes(size);
@@ -68,7 +68,7 @@ namespace BSML::Lite {
         using base64 = cppcodec::base64_rfc4648;
 
         ArrayW<uint8_t> bytes(base64::decoded_max_size(base64Str.size()));
-        base64::decode(bytes->begin(), bytes.size(), base64Str.data(), base64Str.size());
+        base64::decode(bytes.begin(), bytes.size(), base64Str.data(), base64Str.size());
         return ArrayToSprite(bytes);
     }
 

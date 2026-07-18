@@ -3,7 +3,7 @@
 #include "../../../_config.h"
 
 #include "../AnimationInfo.hpp"
-#include "beatsaber-hook/shared/utils/typedefs.h"
+#include "beatsaber-hook/shared/arrayw.hpp"
 #include "custom-types/shared/coroutine.hpp"
 
 namespace BSML {

@@ -14,6 +14,8 @@
 #include "HMUI/ScrollView.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace TMPro;
 using namespace HMUI;
 using namespace UnityEngine;
@@ -24,7 +26,7 @@ using namespace GlobalNamespace;
 #define CacheNotFoundWarningLog(type) WARNING("Can't find '{}'! (This shouldn't happen and can cause unexpected behaviour)", #type)
 
 namespace BSML::Helpers {
-    SafePtrUnity<UnityEngine::UI::Button> soloButton;
+    safe_ptr<UnityEngine::UI::Button*> soloButton;
     bool TryGetSoloButton(UnityEngine::UI::Button*& button) {
         auto container = GetDiContainer();
 
@@ -57,7 +59,7 @@ namespace BSML::Helpers {
         return textMesh;
     }
 
-    SafePtr<PhysicsRaycasterWithCache> physicsRaycaster;
+    safe_ptr<PhysicsRaycasterWithCache*> physicsRaycaster;
     PhysicsRaycasterWithCache* GetPhysicsRaycasterWithCache()
     {
         if(!physicsRaycaster) {
@@ -70,7 +72,7 @@ namespace BSML::Helpers {
         return physicsRaycaster.ptr();
     }
 
-    SafePtr<DiContainer> diContainer;
+    safe_ptr<DiContainer*> diContainer;
     DiContainer* GetDiContainer() {
         if(!diContainer) {
             ERROR("Tried getting DiContainer too early!");
@@ -79,7 +81,7 @@ namespace BSML::Helpers {
         return diContainer.ptr();
     }
 
-    SafePtrUnity<HoverHintController> hoverHintController;
+    safe_ptr<HoverHintController*> hoverHintController;
     HoverHintController* GetHoverHintController() {
         if(!hoverHintController)
             hoverHintController = GetDiContainer()->Resolve<HoverHintController*>();
@@ -90,7 +92,7 @@ namespace BSML::Helpers {
         return hoverHintController.ptr();
     }
 
-    SafePtr<IVRPlatformHelper> platformHelper;
+    safe_ptr<IVRPlatformHelper*> platformHelper;
     IVRPlatformHelper* GetIVRPlatformHelper() {
         if (!platformHelper)
             platformHelper = GetDiContainer()->Resolve<IVRPlatformHelper*>();
@@ -101,7 +103,7 @@ namespace BSML::Helpers {
         return platformHelper.ptr();
     }
 
-    SafePtrUnity<TMP_FontAsset> mainTextFont;
+    safe_ptr<TMP_FontAsset*> mainTextFont;
     TMP_FontAsset* GetMainTextFont() {
         TMPro::TextMeshProUGUI* textMesh;
         if (!mainTextFont && TryGetUITextTemplate(textMesh)) {
@@ -115,7 +117,7 @@ namespace BSML::Helpers {
         return mainTextFont.ptr();
     }
 
-    SafePtrUnity<Material> mainUIFontMaterial;
+    safe_ptr<Material*> mainUIFontMaterial;
     Material* GetMainUIFontMaterial() {
         TMPro::TextMeshProUGUI* textMesh;
         if (!mainUIFontMaterial && TryGetUITextTemplate(textMesh)) {
@@ -128,7 +130,7 @@ namespace BSML::Helpers {
         return mainUIFontMaterial.ptr();
     }
 
-    SafePtrUnity<Material> noGlowUIMat;
+    safe_ptr<Material*> noGlowUIMat;
     Material* GetUINoGlowMat() {
         if (!noGlowUIMat) {
             UnityEngine::UI::Button* soloButton;
@@ -143,7 +145,7 @@ namespace BSML::Helpers {
         return noGlowUIMat.ptr();
     }
 
-    SafePtrUnity<MainFlowCoordinator> mainFlowCoordinator;
+    safe_ptr<MainFlowCoordinator*> mainFlowCoordinator;
     MainFlowCoordinator* GetMainFlowCoordinator() {
         if (!mainFlowCoordinator)
             mainFlowCoordinator = GetDiContainer()->Resolve<MainFlowCoordinator*>();

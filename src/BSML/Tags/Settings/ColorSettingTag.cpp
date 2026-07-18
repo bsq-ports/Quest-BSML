@@ -29,6 +29,8 @@
 
 #include "TMPro/TextMeshProUGUI.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
@@ -36,15 +38,15 @@ namespace BSML {
     static BSMLNodeParser<ColorSettingTag> colorSettingTagParser({"color-setting"});
 
     GlobalNamespace::FormattedFloatListSettingsController* get_baseSettings() {
-        static SafePtrUnity<GlobalNamespace::FormattedFloatListSettingsController> baseSettings;
+        static safe_ptr<GlobalNamespace::FormattedFloatListSettingsController*> baseSettings;
         if (!baseSettings) {
-            baseSettings = Resources::FindObjectsOfTypeAll<GlobalNamespace::FormattedFloatListSettingsController*>()->FirstOrDefault([](auto x){ return x->get_name() == "VRRenderingScale"; });
+            baseSettings = Resources::FindObjectsOfTypeAll<GlobalNamespace::FormattedFloatListSettingsController*>().front_or_default([](auto x){ return x->get_name() == "VRRenderingScale"; });
         }
         return baseSettings.ptr();
     }
 
     Image* get_colorImage() {
-        static SafePtrUnity<Image> colorImage;
+        static safe_ptr<Image*> colorImage;
 
         if (!colorImage) {
             colorImage = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_colorsOverrideSettingsPanelController->_colorSchemeDropDown->_cellPrefab->_colorSchemeView->_saberAColorImage;
@@ -74,12 +76,12 @@ namespace BSML {
         valuePick->transform.cast<RectTransform>()->set_sizeDelta({13, 0});
 
         auto buttons = valuePick->GetComponentsInChildren<Button*>();
-        auto decButton = buttons->FirstOrDefault();
+        auto decButton = buttons.front_or_default();
         decButton->set_enabled(false);
         decButton->set_interactable(true);
         Object::Destroy(decButton->get_transform()->Find("Icon")->get_gameObject());
-        Object::Destroy(valuePick->GetComponentsInChildren<TMPro::TextMeshProUGUI*>()->FirstOrDefault()->get_gameObject());
-        colorSetting->editButton = buttons->LastOrDefault();
+        Object::Destroy(valuePick->GetComponentsInChildren<TMPro::TextMeshProUGUI*>().front_or_default()->get_gameObject());
+        colorSetting->editButton = buttons.back_or_default();
 
         auto nameText = gameObject->get_transform()->Find("NameText")->get_gameObject();
         Object::Destroy(nameText->GetComponent<BGLib::Polyglot::LocalizedTextMeshProUGUI*>());

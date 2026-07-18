@@ -3,7 +3,6 @@
 #include "../../_config.h"
 #include <vector>
 #include "tinyxml2/shared/tinyxml2.h"
-#include "beatsaber-hook/shared/utils/typedefs.h"
 
 #include "UnityEngine/Transform.hpp"
 #include "../Parsing/BSMLParserParams.hpp"

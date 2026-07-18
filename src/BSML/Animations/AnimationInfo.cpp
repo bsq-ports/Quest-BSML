@@ -9,6 +9,6 @@ namespace BSML {
     :
         width(width),
         height(height),
-        colors(Array<uint8_t>::NewLength(width * height * bpp)),
+        colors(ArrayW<uint8_t>(width * height * bpp)),
         delay(0) {}
 }

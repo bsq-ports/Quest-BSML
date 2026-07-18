@@ -14,15 +14,17 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
 namespace BSML {
     static BSMLNodeParser<ButtonTag> buttonTagParser({"button"});
     Button* ButtonTag::get_buttonPrefab() const {
-        static SafePtrUnity<Button> buttonPrefab;
+        static safe_ptr<Button*> buttonPrefab;
         if (!buttonPrefab) {
-            buttonPrefab = Resources::FindObjectsOfTypeAll<Button*>()->LastOrDefault([&](auto x){ return x->get_name() == "PracticeButton"; });
+            buttonPrefab = Resources::FindObjectsOfTypeAll<Button*>().back_or_default([&](auto x){ return x->get_name() == "PracticeButton"; });
         }
         return buttonPrefab.ptr();
     }

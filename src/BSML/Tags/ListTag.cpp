@@ -21,15 +21,17 @@
 #include "HMUI/Touchable.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
 
+#include "beatsaber-hook/shared/safeptr.hpp"
+
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
 namespace BSML {
     static BSMLNodeParser<ListTag> listTagParser({"list", "list2"});
     Canvas* get_listCanvasTemplate() {
-        static SafePtrUnity<Canvas> listCanvasTemplate;
+        static safe_ptr<Canvas*> listCanvasTemplate;
         if (!listCanvasTemplate) {
-            listCanvasTemplate = Resources::FindObjectsOfTypeAll<Canvas*>()->FirstOrDefault([](auto x){ return x->get_name() == "DropdownTableView"; });
+            listCanvasTemplate = Resources::FindObjectsOfTypeAll<Canvas*>().front_or_default([](auto x){ return x->get_name() == "DropdownTableView"; });
         }
         return listCanvasTemplate.ptr();
     }

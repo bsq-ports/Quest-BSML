@@ -43,7 +43,7 @@ namespace BSML {
             slider->set_numberOfSteps(steps + 1);
             ReceiveValue();
 
-            auto onChangeInfo = il2cpp_functions::class_get_method_from_name(this->klass, "OnChange", 2);
+            auto onChangeInfo = i2c::functions::class_get_method_from_name(this->klass, "OnChange", 2);
             auto delegate = MakeSystemAction<UnityW<HMUI::RangeValuesTextSlider>, float>(this, onChangeInfo);
 
             slider->add_valueDidChangeEvent(delegate);
@@ -94,11 +94,12 @@ namespace BSML {
     }
 
     StringW SliderSetting::TextForValue(float value) {
+        if (isInt) value = std::round(value);
         // since the formatter can't differentiate between int and float, we just call it
         if (formatter) return formatter(value);
 
         if (isInt) {
-            return fmt::format("{}", (int)value);
+            return fmt::format("{}", (int) value);
         } else {
             return fmt::format("{:.{}f}", value, digits);
         }

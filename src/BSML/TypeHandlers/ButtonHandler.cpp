@@ -4,8 +4,6 @@
 
 #include "UnityEngine/Events/UnityAction.hpp"
 
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
-
 using namespace UnityEngine;
 using namespace UnityEngine::Events;
 using namespace UnityEngine::UI;
@@ -32,7 +30,7 @@ namespace BSML {
 
     void ButtonHandler::HandleTypeAfterParse(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
         Base::HandleTypeAfterParse(componentType, parserParams);
-        
+
         auto button = reinterpret_cast<Button*>(componentType.component);
         auto event = button->get_onClick();
 

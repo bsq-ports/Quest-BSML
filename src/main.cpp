@@ -1,6 +1,6 @@
 #include "BSML/MainThreadScheduler.hpp"
 #include "scotland2/shared/loader.hpp"
-#include "beatsaber-hook/shared/utils/typedefs.h"
+#include "beatsaber-hook/shared/api.hpp"
 #include "_config.h"
 #include "hooking.hpp"
 #include "logging.hpp"
@@ -17,17 +17,12 @@
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/HideFlags.hpp"
 
-namespace BSML {}
 using namespace BSML;
 
 modloader::ModInfo modInfo{MOD_ID, VERSION, GIT_COMMIT};
 
 BSML_EXPORT_FUNC void setup(CModInfo* info) {
-    info->version = VERSION;
-    info->id = MOD_ID;
-    info->version_long = GIT_COMMIT;
-
-    modInfo.assign(*info);
+    *info = modInfo.to_c();
 }
 
 static bool isLoaded = false;

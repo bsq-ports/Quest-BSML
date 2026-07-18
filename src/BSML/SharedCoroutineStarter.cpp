@@ -5,7 +5,7 @@
 DEFINE_TYPE(BSML, SharedCoroutineStarter);
 
 namespace BSML {
-    SafePtrUnity<UnityEngine::MonoBehaviour> SharedCoroutineStarter::instance;
+    safe_ptr<UnityEngine::MonoBehaviour*> SharedCoroutineStarter::instance;
 
     UnityEngine::MonoBehaviour* SharedCoroutineStarter::get_instance() {
         return instance.ptr();

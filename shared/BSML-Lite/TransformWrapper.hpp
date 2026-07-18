@@ -1,8 +1,7 @@
 #pragma once
 
 #include "../_config.h"
-#include "beatsaber-hook/shared/utils/typedefs.h"
-#include "beatsaber-hook/shared/utils/type-concepts.hpp"
+#include "beatsaber-hook/shared/types.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Component.hpp"
@@ -38,9 +37,9 @@ namespace BSML::Lite {
 MARK_REF_T(BSML::Lite::TransformWrapper);
 
 template<>
-struct ::il2cpp_utils::il2cpp_type_check::il2cpp_no_arg_class<BSML::Lite::TransformWrapper> {
+struct ::i2c::type_check::no_arg_class<BSML::Lite::TransformWrapper> {
     static inline Il2CppClass* get() {
-        return classof(UnityEngine::Transform*);
+        return i2c::class_of<UnityEngine::Transform*>();
     }
 };
 static_assert(sizeof(BSML::Lite::TransformWrapper) == sizeof(UnityEngine::Transform*));

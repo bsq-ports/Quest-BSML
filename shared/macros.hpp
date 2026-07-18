@@ -1,6 +1,6 @@
 #pragma once
 
-#include "beatsaber-hook/shared/utils/typedefs.h"
+#include "beatsaber-hook/shared/listw.hpp"
 
 /// This macro defines a backing field, a getter and a setter for a property.
 /// The field is declared as _name, the getter as get_name and the setter as set_name.
@@ -16,9 +16,8 @@ ___CREATE_INSTANCE_METHOD(set_##name, "set_" #name, METHOD_ATTRIBUTE_PUBLIC | ME
 
 /// method to be used by BSML_OPTIONS_LIST to convert the given options into an on demand getter for options
 template<typename T>
-inline ::ListW<T> initializer_list_to_List(std::initializer_list<std::string> list) {
-    auto result = ::ListW<T>::New();
-    result->EnsureCapacity(list.size());
+inline ListW<T> initializer_list_to_List(std::initializer_list<std::string> list) {
+    auto result = ListW<T>(list.size());
     if constexpr (std::is_pointer_v<T>) {
         for (auto& v : list) result->Add(reinterpret_cast<T>(::StringW(v).convert()));
     } else {

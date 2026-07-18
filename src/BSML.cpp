@@ -113,6 +113,6 @@ namespace BSML {
     }
 
     namespace Events {
-        UnorderedEventCallback<> onGameDidRestart;
+        unordered_event_callback<> onGameDidRestart;
     }
 }

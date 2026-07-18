@@ -75,8 +75,8 @@ namespace BSML {
         });
         sprite = nullptr;
 
-        auto objectFinalize = il2cpp_utils::il2cpp_type_check::MetadataGetter<&System::Object::Finalize>::methodInfo();
-        il2cpp_utils::RunMethodRethrow<void, false>(this, objectFinalize);
+        auto objectFinalize = i2c::metadata_getter<&System::Object::Finalize>::method_info();
+        i2c::run_method(this, objectFinalize);
 
         this->~AnimationControllerData();
     }

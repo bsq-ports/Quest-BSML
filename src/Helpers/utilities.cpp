@@ -33,12 +33,13 @@
 #include "csscolorparser.hpp"
 
 #include "System/Uri.hpp"
+#include "System/String.hpp"
 #include "System/StringComparison.hpp"
 
 #include "custom-types/shared/coroutine.hpp"
-
-#include "beatsaber-hook/shared/utils/il2cpp-utils.hpp"
-#include "beatsaber-hook/shared/utils/il2cpp-functions.hpp"
+#include "beatsaber-hook/shared/safeptr.hpp"
+#include "beatsaber-hook/shared/stringw.hpp"
+#include "beatsaber-hook/shared/byref.hpp"
 
 #define coro(coroutine) BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(coroutine))
 
@@ -50,22 +51,22 @@ namespace BSML::Utilities {
     template<typename T, typename U>
     using Dictionary = System::Collections::Generic::Dictionary_2<T, U>;
 
-    SafePtr<Dictionary<StringW, UnityEngine::Sprite*>> spriteCache;
+    safe_ptr<Dictionary<StringW, UnityEngine::Sprite*>*> spriteCache;
     Sprite* FindSpriteCached(StringW name) {
         if (!spriteCache)
             spriteCache.emplace(Dictionary<StringW, UnityEngine::Sprite*>::New_ctor());
 
         UnityEngine::Sprite* sprite = nullptr;
 
-        if (spriteCache->TryGetValue(name, byref(sprite)) && sprite && sprite->m_CachedPtr.m_value)
+        if (spriteCache->TryGetValue(name, by_ref(sprite)) && sprite && sprite->m_CachedPtr.m_value)
             return sprite;
 
         for (auto x : Resources::FindObjectsOfTypeAll<Sprite*>())
         {
-            if (x->name->Length == 0)
+            if (x->name.size() == 0)
                 continue;
             UnityEngine::Sprite* a = nullptr;
-            if(!spriteCache->TryGetValue(x->get_name(), byref(a)) || !a)
+            if(!spriteCache->TryGetValue(x->get_name(), by_ref(a)) || !a)
                 spriteCache->Add(x->get_name(), x);
 
             if (x->get_name() == name)
@@ -75,22 +76,22 @@ namespace BSML::Utilities {
         return sprite;
     }
 
-    SafePtr<Dictionary<StringW, UnityEngine::Texture*>> textureCache;
+    safe_ptr<Dictionary<StringW, UnityEngine::Texture*>*> textureCache;
     Texture* FindTextureCached(StringW name) {
         if (!textureCache)
             textureCache.emplace(Dictionary<StringW, UnityEngine::Texture*>::New_ctor());
 
         UnityEngine::Texture* texture = nullptr;
 
-        if (textureCache->TryGetValue(name, byref(texture)) && texture && texture->m_CachedPtr.m_value)
+        if (textureCache->TryGetValue(name, by_ref(texture)) && texture && texture->m_CachedPtr.m_value)
             return texture;
 
         for (auto x : Resources::FindObjectsOfTypeAll<Texture*>())
         {
-            if (x->name->Length == 0)
+            if (x->name.size() == 0)
                 continue;
             UnityEngine::Texture* a = nullptr;
-            if(!textureCache->TryGetValue(x->get_name(), byref(a)) || !a)
+            if(!textureCache->TryGetValue(x->get_name(), by_ref(a)) || !a)
                 textureCache->Add(x->get_name(), x);
 
             if (x->get_name() == name)
@@ -246,7 +247,7 @@ namespace BSML::Utilities {
     }
 
     Dictionary<StringW, UnityEngine::Sprite*>* get_bsmlSetImageCache() {
-        static SafePtr<Dictionary<StringW, UnityEngine::Sprite*>> bsmlSetImageCache;
+        static safe_ptr<Dictionary<StringW, UnityEngine::Sprite*>*> bsmlSetImageCache;
         if (!bsmlSetImageCache) {
             bsmlSetImageCache = Dictionary<StringW, UnityEngine::Sprite*>::New_ctor();
         }
@@ -256,7 +257,7 @@ namespace BSML::Utilities {
     bool RemoveImage(StringW path) {
         auto cache = get_bsmlSetImageCache();
         UnityEngine::Sprite* img = nullptr;
-        if (cache->TryGetValue(path, byref(img))) {
+        if (cache->TryGetValue(path, by_ref(img))) {
             cache->Remove(path);
             if (img && img->m_CachedPtr.m_value) UnityEngine::Object::DestroyImmediate(img);
             return true;
@@ -274,7 +275,7 @@ namespace BSML::Utilities {
             System::Object* data = nullptr;
             AnimationControllerData* animationControllerData;
         };
-        if (animationController->registeredAnimations->TryGetValue(path, byref(data))) {
+        if (animationController->registeredAnimations->TryGetValue(path, by_ref(data))) {
             stateUpdater->enabled = true;
             stateUpdater->set_controllerData(animationControllerData);
             if (onFinished) onFinished();
@@ -395,7 +396,7 @@ namespace BSML::Utilities {
             stateUpdater->set_enabled(false);
         }
 
-        if (path->get_Length() > 1 && path[0] == '#') { // it's a base game sprite that is requested
+        if (path.size() > 1 && path[0] == '#') { // it's a base game sprite that is requested
             auto imgName = path->Substring(1);
             image->set_sprite(FindSpriteCached(imgName));
 
@@ -405,7 +406,7 @@ namespace BSML::Utilities {
         }
 
         UnityEngine::Sprite* sprite = nullptr;
-        if (get_bsmlSetImageCache()->TryGetValue(path, byref(sprite)) && sprite && sprite->m_CachedPtr.m_value) {
+        if (get_bsmlSetImageCache()->TryGetValue(path, by_ref(sprite)) && sprite && sprite->m_CachedPtr.m_value) {
             // we got a sprite, use it
             stateUpdater->set_controllerData(nullptr);
             stateUpdater->enabled = false;
@@ -419,7 +420,7 @@ namespace BSML::Utilities {
         }
 
         System::Uri* uri = nullptr;
-        bool isUri = System::Uri::TryCreate(path, System::UriKind::Absolute, byref(uri));
+        bool isUri = System::Uri::TryCreate(path, System::UriKind::Absolute, by_ref(uri));
         // animated just means ".gif || .apng"
         // TODO: support for animated sprites in the future
         if (IsAnimated(path) || (isUri && IsAnimated(uri->get_LocalPath()))) {
@@ -467,23 +468,23 @@ namespace BSML::Utilities {
 
         void* myIter = nullptr;
         const PropertyInfo* prop = nullptr;
-        while((prop = il2cpp_functions::class_get_properties(klass, &myIter))) {
+        while((prop = i2c::functions::class_get_properties(klass, &myIter))) {
             if (prop->get && prop->set) {
-                auto getter = il2cpp_functions::property_get_get_method(prop);
-                auto setter = il2cpp_functions::property_get_set_method(prop);
+                auto getter = i2c::functions::property_get_get_method(prop);
+                auto setter = i2c::functions::property_get_set_method(prop);
                 if ((getter->token & METHOD_ATTRIBUTE_STATIC) == METHOD_ATTRIBUTE_STATIC) continue;
                 if ((setter->token & METHOD_ATTRIBUTE_STATIC) == METHOD_ATTRIBUTE_STATIC) continue;
 
                 std::array<void*, 1> args{nullptr};
                 Il2CppException* exp = nullptr;
-                auto value = il2cpp_functions::runtime_invoke(getter, other, args.data(), &exp);
+                auto value = i2c::functions::runtime_invoke(getter, other, args.data(), &exp);
                 if (exp) {
                     // handle an exception
                     ERROR("Exception: {}", StringW(exp->message));
                     continue;
                 }
                 args[0] = value;
-                il2cpp_functions::runtime_invoke(setter, comp, args.data(), &exp);
+                i2c::functions::runtime_invoke(setter, comp, args.data(), &exp);
                 if (exp) {
                     // handle an exception
                     ERROR("Exception: {}", StringW(exp->message));
@@ -496,13 +497,13 @@ namespace BSML::Utilities {
         ::FieldInfo* field = nullptr;
         void* value = nullptr;
         uint32_t size = 0;
-        while((field = il2cpp_functions::class_get_fields(klass, &myIter))) {
+        while((field = i2c::functions::class_get_fields(klass, &myIter))) {
             if ((field->token & FIELD_ATTRIBUTE_STATIC) == FIELD_ATTRIBUTE_STATIC) continue;
-            auto klass = il2cpp_functions::Class_FromIl2CppType(const_cast<Il2CppType*>(field->type));
+            auto klass = i2c::functions::Class_FromIl2CppType(const_cast<Il2CppType*>(field->type));
             size = klass->instance_size;
             value = realloc(value, size);
-            il2cpp_functions::field_get_value(other, field, value);
-            il2cpp_functions::field_set_value(comp, field, value);
+            i2c::functions::field_get_value(other, field, value);
+            i2c::functions::field_set_value(comp, field, value);
         }
         free(value);
 
@@ -523,7 +524,7 @@ namespace BSML::Utilities {
     /// end of based on thing
 
     namespace ImageResources {
-        SafePtrUnity<UnityEngine::Sprite> blankSprite;
+        safe_ptr<UnityEngine::Sprite*> blankSprite;
         UnityEngine::Sprite* GetBlankSprite() {
             if (!blankSprite) {
                 auto texture = Texture2D::get_blackTexture();
@@ -534,7 +535,7 @@ namespace BSML::Utilities {
             return blankSprite.ptr();
         }
 
-        SafePtrUnity<UnityEngine::Sprite> whitePixelSprite;
+        safe_ptr<UnityEngine::Sprite*> whitePixelSprite;
         UnityEngine::Sprite* GetWhitePixel() {
             if (!whitePixelSprite) {
                 whitePixelSprite = FindSpriteCached("WhitePixel");
