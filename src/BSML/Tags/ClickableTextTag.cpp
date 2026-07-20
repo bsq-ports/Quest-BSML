@@ -13,13 +13,12 @@
 
 #include "GlobalNamespace/Signal.hpp"
 #include "GlobalNamespace/MenuShockwave.hpp"
-#include "GlobalNamespace/HapticFeedbackManager.hpp"
-#include "Libraries/HM/HMLib/VR/HapticPresetSO.hpp"
+#include "BeatSaber/Haptics/HapticFeedbackManager.hpp"
+#include "BeatSaber/Haptics/HapticPresetSO.hpp"
 
 #include "beatsaber-hook/shared/safeptr.hpp"
 
 using namespace UnityEngine;
-using HapticPresetSO = Libraries::HM::HMLib::VR::HapticPresetSO;
 
 namespace BSML {
     static BSMLNodeParser<ClickableTextTag> clickableTextTagParser({"clickable-text"});
@@ -33,10 +32,10 @@ namespace BSML {
         return textClickedSignal.ptr();
     }
 
-    HapticPresetSO* get_textHapticPreset() {
-        static safe_ptr<HapticPresetSO*> textHapticPreset;
+    BeatSaber::Haptics::HapticPresetSO* get_textHapticPreset() {
+        static safe_ptr<BeatSaber::Haptics::HapticPresetSO*> textHapticPreset;
         if (!textHapticPreset) {
-            textHapticPreset = UnityEngine::ScriptableObject::CreateInstance<HapticPresetSO*>();
+            textHapticPreset = UnityEngine::ScriptableObject::CreateInstance<BeatSaber::Haptics::HapticPresetSO*>();
             textHapticPreset->_duration = 0.02f;
             textHapticPreset->_strength = 1.0f;
             textHapticPreset->_frequency = 0.2f;
@@ -45,10 +44,10 @@ namespace BSML {
         return textHapticPreset.ptr();
     }
 
-    GlobalNamespace::HapticFeedbackManager* get_textHapticFeedbackManager() {
-        static safe_ptr<GlobalNamespace::HapticFeedbackManager*> textHapticFeedbackManager;
+    BeatSaber::Haptics::HapticFeedbackManager* get_textHapticFeedbackManager() {
+        static safe_ptr<BeatSaber::Haptics::HapticFeedbackManager*> textHapticFeedbackManager;
         if (!textHapticFeedbackManager) {
-            textHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::HapticFeedbackManager*>().front();
+            textHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<BeatSaber::Haptics::HapticFeedbackManager*>().front();
         }
         return textHapticFeedbackManager.ptr();
     }

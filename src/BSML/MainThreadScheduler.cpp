@@ -1,5 +1,6 @@
 #include "BSML/MainThreadScheduler.hpp"
 #include <mutex>
+#include <thread>
 
 #include "UnityEngine/Time.hpp"
 
@@ -15,15 +16,13 @@ namespace BSML {
     std::vector<std::tuple<bool, std::function<bool()>, std::function<void()>>> MainThreadScheduler::scheduledUntilMethods;
     std::mutex MainThreadScheduler::scheduledUntilMethodsMutex;
 
-    bool MainThreadScheduler::CurrentThreadIsMainThread() {
-        // unity icall for whether this is the main thread
-        static auto currentThreadIsMainThread = i2c::resolve_icall<bool>("UnityEngine.Object::CurrentThreadIsMainThread");
-        return currentThreadIsMainThread();
+    void MainThreadScheduler::Start() {
+        MainThreadID = std::this_thread::get_id();
     }
 
     void MainThreadScheduler::Schedule(std::function<void ()> method) {
         // if this thread is already main thread, just run the method
-        if (CurrentThreadIsMainThread()) {
+        if (std::this_thread::get_id() == MainThreadID) {
             method();
             return;
         }

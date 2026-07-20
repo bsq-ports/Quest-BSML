@@ -12,15 +12,13 @@
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Resources.hpp"
 
-using HapticPresetSO = Libraries::HM::HMLib::VR::HapticPresetSO;
-
 namespace BSML {
 
     static BSMLNodeParser<SubmenuTag> submenuTagParser({"settings-submenu"});
 
     extern GlobalNamespace::Signal* get_textClickedSignal();
-    extern HapticPresetSO* get_textHapticPreset();
-    extern GlobalNamespace::HapticFeedbackManager* get_textHapticFeedbackManager();
+    extern BeatSaber::Haptics::HapticPresetSO* get_textHapticPreset();
+    extern BeatSaber::Haptics::HapticFeedbackManager* get_textHapticFeedbackManager();
 
     ModSettingsFlowCoordinator* get_flow() {
         static safe_ptr<ModSettingsFlowCoordinator*> flow;

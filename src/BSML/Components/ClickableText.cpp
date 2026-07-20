@@ -19,6 +19,7 @@ namespace BSML {
         onExit = nullptr;
 
         buttonClickedSignal = nullptr;
+
         hapticFeedbackManager = nullptr;
         hapticFeedbackPresetSO = nullptr;
 

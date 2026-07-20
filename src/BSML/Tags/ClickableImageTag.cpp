@@ -14,13 +14,12 @@
 
 #include "GlobalNamespace/Signal.hpp"
 #include "GlobalNamespace/MenuShockwave.hpp"
-#include "GlobalNamespace/HapticFeedbackManager.hpp"
-#include "Libraries/HM/HMLib/VR/HapticPresetSO.hpp"
+#include "BeatSaber/Haptics/HapticFeedbackManager.hpp"
+#include "BeatSaber/Haptics/HapticPresetSO.hpp"
 
 #include "beatsaber-hook/shared/safeptr.hpp"
 
 using namespace UnityEngine;
-using HapticPresetSO = Libraries::HM::HMLib::VR::HapticPresetSO;
 
 namespace BSML {
     static BSMLNodeParser<ClickableImageTag> imageTagParser({"clickable-image", "clickable-img"});
@@ -34,10 +33,10 @@ namespace BSML {
         return imageClickedSignal.ptr();
     }
 
-    HapticPresetSO* get_imageHapticPreset() {
-        static safe_ptr<HapticPresetSO*> imageHapticPreset;
+    BeatSaber::Haptics::HapticPresetSO* get_imageHapticPreset() {
+        static safe_ptr<BeatSaber::Haptics::HapticPresetSO*> imageHapticPreset;
         if (!imageHapticPreset) {
-            imageHapticPreset = UnityEngine::ScriptableObject::CreateInstance<HapticPresetSO*>();
+            imageHapticPreset = UnityEngine::ScriptableObject::CreateInstance<BeatSaber::Haptics::HapticPresetSO*>();
             imageHapticPreset->_duration = 0.02f;
             imageHapticPreset->_strength = 1.0f;
             imageHapticPreset->_frequency = 0.2f;
@@ -46,10 +45,10 @@ namespace BSML {
         return imageHapticPreset.ptr();
     }
 
-    GlobalNamespace::HapticFeedbackManager* get_imageHapticFeedbackManager() {
-        static safe_ptr<GlobalNamespace::HapticFeedbackManager*> imageHapticFeedbackManager;
+    BeatSaber::Haptics::HapticFeedbackManager* get_imageHapticFeedbackManager() {
+        static safe_ptr<BeatSaber::Haptics::HapticFeedbackManager*> imageHapticFeedbackManager;
         if (!imageHapticFeedbackManager) {
-            imageHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::HapticFeedbackManager*>().front();
+            imageHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<BeatSaber::Haptics::HapticFeedbackManager*>().front();
         }
         return imageHapticFeedbackManager.ptr();
     }

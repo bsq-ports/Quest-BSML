@@ -107,8 +107,8 @@ namespace BSML {
         if (value < std::numeric_limits<int>::min()) {
             return -std::numeric_limits<int>::infinity();
         }
-        if (value > std::numeric_limits<int>::max()) {
-            return std::numeric_limits<int>::infinity();
+        if (value >= static_cast<float>(std::numeric_limits<int>::max())) {
+            return std::numeric_limits<int>::max();
         }
         return value;
     }

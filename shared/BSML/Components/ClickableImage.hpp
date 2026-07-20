@@ -7,9 +7,9 @@
 #include "UnityEngine/EventSystems/PointerEventData.hpp"
 #include "UnityEngine/Color.hpp"
 
-#include "GlobalNamespace/HapticFeedbackManager.hpp"
+#include "BeatSaber/Haptics/HapticFeedbackManager.hpp"
 #include "GlobalNamespace/Signal.hpp"
-#include "Libraries/HM/HMLib/VR/HapticPresetSO.hpp"
+#include "BeatSaber/Haptics/HapticPresetSO.hpp"
 #include "HMUI/ImageView.hpp"
 #include "VRUIControls/VRPointer.hpp"
 
@@ -34,8 +34,8 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, ClickableImage, HMUI::ImageView, UnityEng
     DECLARE_INSTANCE_FIELD(void*, padding2);
 
     DECLARE_INSTANCE_FIELD(GlobalNamespace::Signal*, buttonClickedSignal);
-    DECLARE_INSTANCE_FIELD(GlobalNamespace::HapticFeedbackManager*, hapticFeedbackManager);
-    DECLARE_INSTANCE_FIELD(Libraries::HM::HMLib::VR::HapticPresetSO*, hapticFeedbackPresetSO);
+    DECLARE_INSTANCE_FIELD(BeatSaber::Haptics::HapticFeedbackManager*, hapticFeedbackManager);
+    DECLARE_INSTANCE_FIELD(BeatSaber::Haptics::HapticPresetSO*, hapticFeedbackPresetSO);
     DECLARE_INSTANCE_FIELD(VRUIControls::VRPointer*, _vrPointer);
 
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, highlightColor);

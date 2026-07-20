@@ -6,7 +6,7 @@
   "info": {
     "name": "BSML",
     "id": "bsml",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "url": "https://github.com/bsq-ports/Quest-BSML",
     "additionalData": {
       "overrideSoName": "libbsml.so",
@@ -49,7 +49,7 @@
     },
     {
       "id": "bs-cordl",
-      "versionRange": "^4401.1.0",
+      "versionRange": "^4402.0.0",
       "additionalData": {}
     },
     {

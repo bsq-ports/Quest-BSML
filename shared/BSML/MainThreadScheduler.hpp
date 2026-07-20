@@ -10,6 +10,7 @@
 
 DECLARE_CLASS_CODEGEN(BSML, MainThreadScheduler, UnityEngine::MonoBehaviour) {
     private:
+        static inline std::thread::id MainThreadID;
         static std::queue<std::function<void()>> scheduledMethods;
         static std::mutex scheduledMethodsMutex;
         static std::queue<std::function<void()>> nextFrameScheduledMethods;
@@ -112,8 +113,6 @@ DECLARE_CLASS_CODEGEN(BSML, MainThreadScheduler, UnityEngine::MonoBehaviour) {
             ScheduleUntil(std::bind(AwaitFuture, future), std::bind(InvokeMethod, future, method, instance));
         }
 
-        /// @brief method that checks whether the thread it's called from is the main thread
-        static bool CurrentThreadIsMainThread();
-
-    DECLARE_INSTANCE_METHOD(void, Update);
+        DECLARE_INSTANCE_METHOD(void, Start);
+        DECLARE_INSTANCE_METHOD(void, Update);
 };
