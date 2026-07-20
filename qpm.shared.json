@@ -7,7 +7,7 @@
     "info": {
       "name": "BSML",
       "id": "bsml",
-      "version": "0.5.2",
+      "version": "0.5.3",
       "url": "https://github.com/bsq-ports/Quest-BSML",
       "additionalData": {
         "overrideSoName": "libbsml.so",
