@@ -19,8 +19,6 @@ namespace BSML {
         onExit = nullptr;
 
         buttonClickedSignal = nullptr;
-        hapticFeedbackManager = nullptr;
-        hapticFeedbackPresetSO = nullptr;
 
         INVOKE_BASE_CTOR(i2c::class_of<HMUI::CurvedTextMeshPro*>());
     }

@@ -25,8 +25,7 @@ DEFINE_TYPE(BSML, AnimationLoader);
 namespace BSML {
     int get_atlasSizeLimit() {
         static auto getMaxTextureSize = i2c::resolve_icall<int>("UnityEngine.SystemInfo::GetMaxTextureSize");
-        static int maxSize = getMaxTextureSize();
-        return maxSize >= 4096 ? 4096 : maxSize;
+        return getMaxTextureSize() ? getMaxTextureSize() : 4096;
     }
 
     void AnimationLoader::Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed) {

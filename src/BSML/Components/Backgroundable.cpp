@@ -97,7 +97,7 @@ namespace BSML {
 		background->set_preserveAspect(bgTemplate->get_preserveAspect());
 		background->set_raycastTarget(bgTemplate->get_raycastTarget());
 		background->set_sprite(bgTemplate->get_sprite());
-		background->set_tag(bgTemplate->get_tag());
+		// background->set_tag(bgTemplate->get_tag());
 		background->set_type(bgTemplate->get_type());
 		background->set_useGUILayout(bgTemplate->get_useGUILayout());
 		background->set_useLegacyMeshGeneration(bgTemplate->get_useLegacyMeshGeneration());
