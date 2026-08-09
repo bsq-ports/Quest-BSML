@@ -9,10 +9,12 @@ using namespace UnityEngine;
 
 namespace BSML {
     void BoxTableCell::ctor() {
+        INVOKE_CTOR();
         selectedColor0 = {0, 0.75f, 1, 1};
         selectedColor1 = {0, 0.75f, 1, 0};
         highlightedColor0 = {0, 0.75f, 1, 1};
         highlightedColor1 = {0, 0.75f, 1, 0};
+        INVOKE_BASE_CTOR(i2c::class_of<HMUI::TableCell*>());
     }
 
     BoxTableCell* BoxTableCell::Create(GlobalNamespace::AnnotatedBeatmapLevelCollectionCell* prefab) {

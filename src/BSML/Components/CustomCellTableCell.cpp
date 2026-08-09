@@ -5,9 +5,11 @@ DEFINE_TYPE(BSML, CustomCellTableCell);
 
 namespace BSML {
     void CustomCellTableCell::ctor() {
+        INVOKE_CTOR();
         selectedTags = ListW<UnityEngine::GameObject*>::New();
         hoveredTags = ListW<UnityEngine::GameObject*>::New();
         neitherTags = ListW<UnityEngine::GameObject*>::New();
+        INVOKE_BASE_CTOR(i2c::class_of<HMUI::TableCell*>());
     }
 
     void CustomCellTableCell::Finalize() {
