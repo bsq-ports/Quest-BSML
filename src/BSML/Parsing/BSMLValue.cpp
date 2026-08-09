@@ -90,11 +90,7 @@ namespace BSML {
 
     void BSMLValue::SetValue(System::Object* val) {
         if (fieldInfo) {
-            if (!val || i2c::is_convertible_from(fieldInfo->type, &val->klass->byval_arg)) {
-                i2c::functions::field_set_value(host, fieldInfo, val);
-            } else {
-                i2c::result_or_throw<void>("Field type does not match value's runtime type");
-            }
+            i2c::set_field(host, fieldInfo, val);
         } else if (setterInfo) {
             i2c::run_method(host, setterInfo, val);
         }
