@@ -75,6 +75,7 @@ namespace BSML {
         scrollView->_contentRectTransform = content;
         scrollView->_viewport = viewport;
         scrollView->_platformHelper = Helpers::GetIVRPlatformHelper();
+        scrollView->_xrSystemState = Helpers::GetIXRSystemState();
 
         auto externalComponents = contentGo->AddComponent<ExternalComponents*>();
         externalComponents->Add(scrollView);

@@ -31,6 +31,7 @@ namespace BSML {
         scrollView->set_enabled(true);
 
         scrollView->_platformHelper = Helpers::GetIVRPlatformHelper();
+        scrollView->_xrSystemState = Helpers::GetIXRSystemState();
 
         TMPro::TextMeshProUGUI* textMesh = scrollView->_text;
         textMesh->set_text("Default Text");

@@ -59,6 +59,7 @@ namespace BSML {
         scrollView->_verticalScrollIndicator = verticalScrollIndicator;
         scrollView->_viewport = viewport;
         scrollView->_platformHelper = Helpers::GetIVRPlatformHelper();
+        scrollView->_xrSystemState = Helpers::GetIXRSystemState();
         auto scrollTransform = scrollView->transform.cast<UnityEngine::RectTransform>();
         scrollTransform->set_anchorMin(UnityEngine::Vector2(0.0f, 0.0f));
         scrollTransform->set_anchorMax(UnityEngine::Vector2(1.0f, 1.0f));

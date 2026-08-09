@@ -103,6 +103,17 @@ namespace BSML::Helpers {
         return platformHelper.ptr();
     }
 
+    safe_ptr<IXRSystemState*> xrSystemState;
+    IXRSystemState* GetIXRSystemState() {
+        if (!xrSystemState)
+            xrSystemState = GetDiContainer()->Resolve<IXRSystemState*>();
+        if (!xrSystemState) {
+            CacheNotFoundWarningLog(IXRSystemState);
+            return nullptr;
+        }
+        return xrSystemState.ptr();
+    }
+
     safe_ptr<TMP_FontAsset*> mainTextFont;
     TMP_FontAsset* GetMainTextFont() {
         TMPro::TextMeshProUGUI* textMesh;

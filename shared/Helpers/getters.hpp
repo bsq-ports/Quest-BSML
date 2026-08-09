@@ -7,6 +7,7 @@
 #include "HMUI/HoverHintController.hpp"
 #include "TMPro/TMP_FontAsset.hpp"
 #include "GlobalNamespace/IVRPlatformHelper.hpp"
+#include "GlobalNamespace/IXRSystemState.hpp"
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
 
 namespace BSML::Helpers {
@@ -18,5 +19,6 @@ namespace BSML::Helpers {
     BSML_EXPORT UnityEngine::Material* GetMainUIFontMaterial();
     BSML_EXPORT UnityEngine::Material* GetUINoGlowMat();
     BSML_EXPORT GlobalNamespace::IVRPlatformHelper* GetIVRPlatformHelper();
+    BSML_EXPORT GlobalNamespace::IXRSystemState* GetIXRSystemState();
     BSML_EXPORT GlobalNamespace::MainFlowCoordinator* GetMainFlowCoordinator();
 }

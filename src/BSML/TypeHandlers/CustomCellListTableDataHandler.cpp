@@ -41,7 +41,12 @@ namespace BSML {
         return {
             {"cellClickable",     [](auto component, auto value){ component->clickableCells = value.tryParseBool().value_or(true); }},
             {"alignCenter",     [](auto component, auto value){ component->tableView->_alignToCenter = value; }},
-            {"stickScrolling",  [](auto component, auto value){ if (static_cast<bool>(value)) component->tableView->_scrollView->_platformHelper = Helpers::GetIVRPlatformHelper(); }}
+            {"stickScrolling",  [](auto component, auto value){
+                if (static_cast<bool>(value)) {
+                    component->tableView->_scrollView->_platformHelper = Helpers::GetIVRPlatformHelper();
+                    component->tableView->_scrollView->_xrSystemState = Helpers::GetIXRSystemState();
+                }
+            }}
         };
     }
 

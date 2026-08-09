@@ -21,6 +21,7 @@ namespace BSML::Lite {
         auto go = BSML::ListTag{}.CreateObject(parent);
         auto list = go->GetComponent<BSML::CustomListTableData*>();
         list->tableView->scrollView->_platformHelper = BSML::Helpers::GetIVRPlatformHelper();
+        list->tableView->scrollView->_xrSystemState = BSML::Helpers::GetIXRSystemState();
 
         auto rect = go->transform.cast<UnityEngine::RectTransform>();
         rect->set_anchoredPosition(anchoredPosition);
