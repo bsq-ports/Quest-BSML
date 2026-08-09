@@ -29,7 +29,15 @@ DECLARE_CLASS_CODEGEN(BSML, GenericSettingWrapper, System::Object) {
 
         template<typename T>
         void SetField(T value) {
-            i2c::set_field(get_host(), valueInfo, value);
+            if constexpr (std::is_same_v<std::remove_cv_t<T>, System::Object*>) {
+                if (!value || i2c::is_convertible_from(valueInfo->type, &value->klass->byval_arg)) {
+                    i2c::functions::field_set_value(get_host(), valueInfo, value);
+                } else {
+                    i2c::result_or_throw<void>("Field type does not match value's runtime type");
+                }
+            } else {
+                i2c::set_field(get_host(), valueInfo, value);
+            }
         }
 
         template<typename T>

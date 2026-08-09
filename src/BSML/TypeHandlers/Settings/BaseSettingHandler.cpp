@@ -24,7 +24,9 @@ namespace BSML {
         auto component = componentType.component;
         auto& data = componentType.data;
 
-        auto genericSettings = i2c::get_field<i2c::result<GenericSettingWrapper*>>(component, "genericSetting").value_or(nullptr);
+        auto genericSettings = i2c::get_field<i2c::result<GenericSettingWrapper*>>(
+            reinterpret_cast<Il2CppObject*>(component), "genericSetting"
+        ).value_or(nullptr);
         if (!genericSettings) {
             ERROR("Type {}::{} did not have a 'genericSetting' field", component->klass->namespaze, component->klass->name);
             return;
