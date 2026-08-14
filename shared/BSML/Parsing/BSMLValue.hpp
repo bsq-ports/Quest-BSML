@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../_config.h"
+#include "beatsaber-hook/shared/listw.hpp"
 #include "System/Object.hpp"
 #include <map>
 
@@ -15,6 +16,7 @@ namespace BSML {
 
         virtual void SetValue(System::Object* val);
         virtual System::Object* GetValue();
+        ListW<System::Object*> GetObjectList();
 
         template<typename T>
         requires(!std::is_same_v<System::Object*, T>)

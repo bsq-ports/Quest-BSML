@@ -24,23 +24,10 @@ namespace BSML {
         if (dataItr != data.end() && !dataItr->second.empty()) {
             auto val = parserParams.TryGetValue(dataItr->second);
             auto texts = ListW<StringW>::New();
-            static auto dataKlass = i2c::class_of<System::Collections::Generic::List_1<System::Object*>*>();
-            static auto stringDataKlass = i2c::class_of<System::Collections::Generic::List_1<Il2CppString*>*>();
-
-            System::Collections::Generic::List_1<System::Object*>* data = val ? val->GetValue<System::Collections::Generic::List_1<System::Object*>*>() : nullptr;
+            auto data = val ? val->GetObjectList() : nullptr;
 
             if (data) {
-                if (i2c::functions::class_is_assignable_from(data->klass, stringDataKlass)) {
-                    // it's already a list of strings :)
-                    ListW<StringW> strings = reinterpret_cast<System::Collections::Generic::List_1<StringW>*>(data);
-                    for (auto str : strings) texts->Add(str);
-                } else if (i2c::functions::class_is_assignable_from(data->klass, dataKlass)) {
-                    // it's a list of objects, use ToString
-                    ListW<System::Object*> objects = data;
-                    for (auto obj : objects) texts->Add(obj ? obj->ToString() : StringW(""));
-                }
-            } else if (data && !i2c::functions::class_is_assignable_from(data->klass, dataKlass)) {
-                ERROR("klass {}::{} is not assignable from {}::{}", data->klass->namespaze, data->klass->name, dataKlass->namespaze, dataKlass->name);
+                for (auto obj : data) texts->Add(obj ? obj->ToString() : StringW(""));
             } else {
                 ERROR("Could not find value {}", dataItr->second);
             }

@@ -109,16 +109,12 @@ namespace BSML {
         auto dataItr = data.find("data");
         if (dataItr != data.end() && !dataItr->second.empty()) {
             auto val = parserParams.TryGetValue(dataItr->second);
-            System::Collections::Generic::List_1<System::Object*>* cellData = val ? val->GetValue<System::Collections::Generic::List_1<System::Object*>*>() : nullptr;
-            static auto dataKlass = i2c::class_of<System::Collections::Generic::List_1<System::Object*>*>();
-            if (cellData && i2c::functions::class_is_assignable_from(cellData->klass, dataKlass)) {
+            auto cellData = val ? val->GetObjectList() : nullptr;
+            if (cellData) {
                 tableData->data = cellData;
                 tableView->ReloadData();
-            } else if (cellData && !i2c::functions::class_is_assignable_from(cellData->klass, dataKlass)){
-                ERROR("The class of the data field was not Correct! this should be a 'List<System::Object*>*' or equivalent!");
-                ERROR("Class {}::{} is not assignable from {}::{}", cellData->klass->namespaze, cellData->klass->name, dataKlass->namespaze, dataKlass->name);
             } else {
-                ERROR("IconSegmentedControl needs to have at least 1 value!");
+                ERROR("CustomCellListTableData needs a valid list for its data!");
                 ERROR("This means BSML could not find value '{}'", dataItr->second);
             }
         }

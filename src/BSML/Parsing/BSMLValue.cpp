@@ -1,4 +1,6 @@
 #include "BSML/Parsing/BSMLValue.hpp"
+#include "System/Collections/ICollection.hpp"
+#include "System/Collections/IList.hpp"
 
 void collect_finfos(Il2CppClass* klass, std::vector<FieldInfo*>& finfos) {
     if (!klass) return;
@@ -103,5 +105,24 @@ namespace BSML {
             return i2c::run_method<i2c::result<System::Object*>>(host, getterInfo).value_or(nullptr);
         }
         return nullptr;
+    }
+
+    ListW<System::Object*> BSMLValue::GetObjectList() {
+        auto value = GetValue();
+        if (!value) return nullptr;
+
+        if (auto objectList = i2c::try_cast<System::Collections::Generic::List_1<System::Object*>*>(value)) {
+            return objectList;
+        }
+
+        auto list = i2c::try_cast<System::Collections::IList*>(value);
+        auto collection = i2c::try_cast<System::Collections::ICollection*>(value);
+        if (!list || !collection) return nullptr;
+
+        auto objectList = ListW<System::Object*>::New(collection->get_Count());
+        for (int i = 0; i < collection->get_Count(); i++) {
+            objectList->Add(list->get_Item(i));
+        }
+        return objectList;
     }
 }
