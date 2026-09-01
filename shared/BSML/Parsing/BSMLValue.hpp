@@ -20,7 +20,7 @@ namespace BSML {
         requires(!std::is_same_v<System::Object*, T>)
         void SetValue(T val) {
             if (fieldInfo) {
-                i2c::set_field(host, fieldInfo, val);
+                i2c::functions::field_set_value(host, fieldInfo, &val);
             } else if (setterInfo) {
                 i2c::run_method(host, setterInfo, val);
             }
@@ -30,7 +30,9 @@ namespace BSML {
         requires(std::is_default_constructible_v<T> && !std::is_same_v<System::Object*, T>)
         T GetValue() {
             if (fieldInfo) {
-                return i2c::get_field<T>(host, fieldInfo);
+                T val;
+                i2c::functions::field_get_value(host, fieldInfo, &val);
+                return val;
             } else if (getterInfo) {
                 return i2c::run_method<T>(host, getterInfo);
             }

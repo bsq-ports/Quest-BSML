@@ -90,7 +90,7 @@ namespace BSML {
 
     void BSMLValue::SetValue(System::Object* val) {
         if (fieldInfo) {
-            i2c::set_field(host, fieldInfo, val);
+            i2c::functions::field_set_value(host, fieldInfo, val);
         } else if (setterInfo) {
             i2c::run_method(host, setterInfo, val);
         }
@@ -98,7 +98,9 @@ namespace BSML {
 
     System::Object* BSMLValue::GetValue() {
         if (fieldInfo) {
-            return i2c::get_field<System::Object*>(host, fieldInfo);
+            System::Object* val;
+            i2c::functions::field_get_value(host, fieldInfo, &val);
+            return val;
         } else if (getterInfo) {
             return i2c::run_method<i2c::result<System::Object*>>(host, getterInfo).value_or(nullptr);
         }
