@@ -57,7 +57,7 @@ namespace BSML::Lite {
     UnityEngine::Sprite* get_carat_down() {
         static safe_ptr<UnityEngine::Sprite*> carat_down;
         if (!carat_down) {
-            auto sprite = BSML::Utilities::LoadSpriteRaw(BSML::Utilities::ToArrayW(Assets::Images::CaratDown));
+            auto sprite = BSML::Utilities::LoadSpriteRaw(ArrayW<uint8_t>(Assets::Images::CaratDown));
             UnityEngine::Object::DontDestroyOnLoad(sprite);
             carat_down = sprite;
         }
@@ -67,7 +67,7 @@ namespace BSML::Lite {
     UnityEngine::Sprite* get_carat_up() {
         static safe_ptr<UnityEngine::Sprite*> carat_up;
         if (!carat_up) {
-            auto sprite = BSML::Utilities::LoadSpriteRaw(BSML::Utilities::ToArrayW(Assets::Images::CaratUp));
+            auto sprite = BSML::Utilities::LoadSpriteRaw(ArrayW<uint8_t>(Assets::Images::CaratUp));
             UnityEngine::Object::DontDestroyOnLoad(sprite);
             carat_up = sprite;
         }

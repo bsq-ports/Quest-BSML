@@ -61,17 +61,17 @@ BSML_EXPORT_FUNC void late_load() {
 }
 
 BSML_DATACACHE(settings_about) {
-    return BSML::Utilities::ToArrayW(Assets::Settings::About);
+    return ArrayW<uint8_t>(Assets::Settings::About);
 }
 
 BSML_DATACACHE(mods_idle) {
-    return BSML::Utilities::ToArrayW(Assets::Images::ModsIdle);
+    return ArrayW<uint8_t>(Assets::Images::ModsIdle);
 }
 
 BSML_DATACACHE(mods_selected) {
-    return BSML::Utilities::ToArrayW(Assets::Images::ModsSelected);
+    return ArrayW<uint8_t>(Assets::Images::ModsSelected);
 }
 
 BSML_DATACACHE(visibility) {
-    return BSML::Utilities::ToArrayW(Assets::Images::Visibility);
+    return ArrayW<uint8_t>(Assets::Images::Visibility);
 }
