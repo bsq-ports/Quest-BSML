@@ -75,7 +75,7 @@ namespace BSML {
     }
 
     void AnimationController::InitializeLoadingAnimation() {
-        BSML::AnimationLoader::Process(AnimationLoader::AnimationType::GIF, Assets::loading_gif,
+        BSML::AnimationLoader::Process(AnimationLoader::AnimationType::GIF, Assets::Images::Loading,
             [this](UnityEngine::Texture2D* tex, ArrayW<UnityEngine::Rect> uvs, ArrayW<float> delays){
                 loadingAnimation = AnimationControllerData::Make_new(tex, uvs, delays);
             }

@@ -60,17 +60,17 @@ BSML_EXPORT_FUNC void late_load() {
 }
 
 BSML_DATACACHE(settings_about) {
-    return Assets::Settings::About_bsml;
+    return Assets::Settings::About;
 }
 
 BSML_DATACACHE(mods_idle) {
-    return Assets::mods_idle_png;
+    return Assets::Images::ModsIdle;
 }
 
 BSML_DATACACHE(mods_selected) {
-    return Assets::mods_selected_png;
+    return Assets::Images::ModsSelected;
 }
 
 BSML_DATACACHE(visibility) {
-    return Assets::visibility_png;
+    return Assets::Images::Visibility;
 }

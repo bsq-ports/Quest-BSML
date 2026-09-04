@@ -3,11 +3,10 @@ include(qpm_defines.cmake)
 
 cmake_minimum_required(VERSION 3.22)
 project(${COMPILE_ID})
-include(${EXTERN_DIR}/includes/kaleb/shared/cmake/assets.cmake)
 
 # c++ standard
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED 23)
+set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD_REQUIRED 26)
 
 # Enable link time optimization
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
@@ -21,7 +20,7 @@ set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_link_options(-Wl,--exclude-libs,ALL)
 
 # compile options used
-add_compile_options(-frtti -fPIE -fPIC -fexceptions -fdeclspec -fvisibility=hidden)
+add_compile_options(-frtti -fPIE -fPIC -fexceptions -fdeclspec -fvisibility=hidden -Wno-c23-extensions -std=c++26 -Wno-vla-cxx-extension)
 
 # get git info
 execute_process(COMMAND git config user.name OUTPUT_VARIABLE GIT_USER)
@@ -93,9 +92,6 @@ target_include_directories(${COMPILE_ID} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/in
 target_include_directories(${COMPILE_ID} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/submodules/EasyGifReader/")
 target_include_directories(${COMPILE_ID} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/submodules/cppcodec/")
 target_include_directories(${COMPILE_ID} PRIVATE ${EXTERN_DIR}/includes/gif-lib/shared)
-
-add_assets(${COMPILE_ID}-assets STATIC ${CMAKE_CURRENT_LIST_DIR}/assets ${INCLUDE_DIR}/_assets.hpp)
-target_link_libraries(${COMPILE_ID} PRIVATE -llog -lz ${COMPILE_ID}-assets)
 
 # add extern stuff like libs and other includes
 include(extern.cmake)
