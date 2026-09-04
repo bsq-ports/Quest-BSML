@@ -9,6 +9,9 @@
 #include "UnityEngine/UI/Image.hpp"
 #include "System/Uri.hpp"
 
+#include <span>
+#include <string_view>
+
 namespace BSML::Utilities {
     enum class ImageLoadError {
         None,
@@ -123,6 +126,17 @@ namespace BSML::Utilities {
     /// @param key the key to get the data with
     /// @param onFinished what to do with the downloaded bytes, onFinished is ran with a nullptr argument if not found
     BSML_EXPORT void GetData(StringW key, std::function<void(ArrayW<uint8_t>)> onFinished = nullptr);
+
+    /// @brief Converts a span of bytes into an ArrayW<uint8_t>, e.g. to pass embedded/vendored asset data
+    /// (std::span<const uint8_t>) into APIs expecting an il2cpp array, such as LoadSpriteRaw or LoadTextureRaw
+    /// @param data the bytes to convert
+    /// @return the newly allocated ArrayW<uint8_t> holding a copy of data
+    BSML_EXPORT ArrayW<uint8_t> ToArrayW(std::span<const uint8_t> data);
+
+    /// @brief Converts a string view into an ArrayW<uint8_t> of its raw bytes, see ToArrayW(std::span<const uint8_t>)
+    /// @param data the string to convert
+    /// @return the newly allocated ArrayW<uint8_t> holding a copy of data's bytes
+    BSML_EXPORT ArrayW<uint8_t> ToArrayW(std::string_view data);
 
     /// @brief Function to load a sprite from a data array
     /// @param data the data to load the sprite from

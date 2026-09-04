@@ -7,6 +7,7 @@
 #include "git_info.h"
 
 #include "BSMLDataCache.hpp"
+#include "Helpers/utilities.hpp"
 #include "assets.hpp"
 #include "config.hpp"
 #include "custom-types/shared/register.hpp"
@@ -60,17 +61,17 @@ BSML_EXPORT_FUNC void late_load() {
 }
 
 BSML_DATACACHE(settings_about) {
-    return Assets::Settings::About;
+    return BSML::Utilities::ToArrayW(Assets::Settings::About);
 }
 
 BSML_DATACACHE(mods_idle) {
-    return Assets::Images::ModsIdle;
+    return BSML::Utilities::ToArrayW(Assets::Images::ModsIdle);
 }
 
 BSML_DATACACHE(mods_selected) {
-    return Assets::Images::ModsSelected;
+    return BSML::Utilities::ToArrayW(Assets::Images::ModsSelected);
 }
 
 BSML_DATACACHE(visibility) {
-    return Assets::Images::Visibility;
+    return BSML::Utilities::ToArrayW(Assets::Images::Visibility);
 }

@@ -430,6 +430,14 @@ namespace BSML::Utilities {
         }
     }
 
+    ArrayW<uint8_t> ToArrayW(std::span<const uint8_t> data) {
+        return ArrayW<uint8_t>(i2c::view<uint8_t>(data));
+    }
+
+    ArrayW<uint8_t> ToArrayW(std::string_view data) {
+        return ToArrayW(std::span(reinterpret_cast<uint8_t const*>(data.data()), data.size()));
+    }
+
     UnityEngine::Texture2D* LoadTextureRaw(ArrayW<uint8_t> data) {
         if (data.size() > 0) {
             auto texture = Texture2D::New_ctor(1, 1, TextureFormat::RGBA32, false, false);

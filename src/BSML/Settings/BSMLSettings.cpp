@@ -178,9 +178,9 @@ namespace BSML {
         if (get_settingsMenus().size() == 0)
             button->get_gameObject()->SetActive(false);
 
-        normal = Utilities::LoadSpriteRaw(Assets::Images::ModsIdle);
+        normal = Utilities::LoadSpriteRaw(Utilities::ToArrayW(Assets::Images::ModsIdle));
         normal->get_texture()->set_wrapMode(UnityEngine::TextureWrapMode::Clamp);
-        hover = Utilities::LoadSpriteRaw(Assets::Images::ModsSelected);
+        hover = Utilities::LoadSpriteRaw(Utilities::ToArrayW(Assets::Images::ModsSelected));
         hover->get_texture()->set_wrapMode(UnityEngine::TextureWrapMode::Clamp);
 
         auto buttonSpriteSwap = button->GetComponent<HMUI::ButtonSpriteSwap*>();
