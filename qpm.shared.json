@@ -7,7 +7,7 @@
     "info": {
       "name": "BSML",
       "id": "bsml",
-      "version": "0.5.4",
+      "version": "0.5.5",
       "url": "https://github.com/bsq-ports/Quest-BSML",
       "additionalData": {
         "overrideSoName": "libbsml.so",
@@ -86,13 +86,6 @@
         }
       },
       {
-        "id": "kaleb",
-        "versionRange": "^0.1.9",
-        "additionalData": {
-          "private": true
-        }
-      },
-      {
         "id": "flamingo",
         "versionRange": "^1.2.1",
         "additionalData": {}
@@ -100,23 +93,6 @@
     ]
   },
   "restoredDependencies": [
-    {
-      "dependency": {
-        "id": "kaleb",
-        "versionRange": "=0.1.9",
-        "additionalData": {
-          "headersOnly": true,
-          "branchName": "version/v0_1_9",
-          "compileOptions": {
-            "cppFlags": [
-              "-DKALEB_VERSION=\"0.1.9\""
-            ]
-          },
-          "cmake": false
-        }
-      },
-      "version": "0.1.9"
-    },
     {
       "dependency": {
         "id": "custom-types",
@@ -230,13 +206,13 @@
     {
       "dependency": {
         "id": "beatsaber-hook",
-        "versionRange": "=8.1.0",
+        "versionRange": "=8.2.1",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.1.0/libbeatsaber-hook.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.1.0/debug_libbeatsaber-hook.so",
+          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.2.1/libbeatsaber-hook.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.2.1/debug_libbeatsaber-hook.so",
           "overrideSoName": "libbeatsaber-hook.so",
-          "modLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.1.0/beatsaber-hook.qmod",
-          "branchName": "version/v8_1_0",
+          "modLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.2.1/beatsaber-hook.qmod",
+          "branchName": "version/v8_2_1",
           "compileOptions": {
             "cppFlags": [
               "-Wno-extra-qualification"
@@ -245,7 +221,7 @@
           "cmake": true
         }
       },
-      "version": "8.1.0"
+      "version": "8.2.1"
     },
     {
       "dependency": {
@@ -265,6 +241,19 @@
     },
     {
       "dependency": {
+        "id": "scotland2",
+        "versionRange": "=0.1.7",
+        "additionalData": {
+          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.7/libsl2.so",
+          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.7/debug_libsl2.so",
+          "overrideSoName": "libsl2.so",
+          "branchName": "version/v0_1_7"
+        }
+      },
+      "version": "0.1.7"
+    },
+    {
+      "dependency": {
         "id": "flamingo",
         "versionRange": "=1.2.1",
         "additionalData": {
@@ -276,19 +265,6 @@
         }
       },
       "version": "1.2.1"
-    },
-    {
-      "dependency": {
-        "id": "scotland2",
-        "versionRange": "=0.1.7",
-        "additionalData": {
-          "soLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.7/libsl2.so",
-          "debugSoLink": "https://github.com/sc2ad/scotland2/releases/download/v0.1.7/debug_libsl2.so",
-          "overrideSoName": "libsl2.so",
-          "branchName": "version/v0_1_7"
-        }
-      },
-      "version": "0.1.7"
     }
   ]
 }

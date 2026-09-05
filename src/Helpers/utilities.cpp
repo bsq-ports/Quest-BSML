@@ -430,6 +430,8 @@ namespace BSML::Utilities {
         }
     }
 
+
+
     UnityEngine::Texture2D* LoadTextureRaw(ArrayW<uint8_t> data) {
         if (data.size() > 0) {
             auto texture = Texture2D::New_ctor(1, 1, TextureFormat::RGBA32, false, false);

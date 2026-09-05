@@ -6,6 +6,7 @@
 
 #include "Helpers/getters.hpp"
 #include "Helpers/utilities.hpp"
+#include <span>
 #define protected public
 #include "BSML/Tags/ListTag.hpp"
 #undef protected
@@ -56,7 +57,7 @@ namespace BSML::Lite {
     UnityEngine::Sprite* get_carat_down() {
         static safe_ptr<UnityEngine::Sprite*> carat_down;
         if (!carat_down) {
-            auto sprite = BSML::Utilities::LoadSpriteRaw(Assets::carat_down_png);
+            auto sprite = BSML::Utilities::LoadSpriteRaw(ArrayW<uint8_t>(Assets::Images::CaratDown));
             UnityEngine::Object::DontDestroyOnLoad(sprite);
             carat_down = sprite;
         }
@@ -66,7 +67,7 @@ namespace BSML::Lite {
     UnityEngine::Sprite* get_carat_up() {
         static safe_ptr<UnityEngine::Sprite*> carat_up;
         if (!carat_up) {
-            auto sprite = BSML::Utilities::LoadSpriteRaw(Assets::carat_up_png);
+            auto sprite = BSML::Utilities::LoadSpriteRaw(ArrayW<uint8_t>(Assets::Images::CaratUp));
             UnityEngine::Object::DontDestroyOnLoad(sprite);
             carat_up = sprite;
         }

@@ -14,7 +14,7 @@ namespace BSML {
     void SettingsMenuListViewController::DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling) {
         if (firstActivation) {
             DEBUG("DidActivate");
-            parse_and_construct(Assets::Settings::List_bsml, get_transform(), this);
+            parse_and_construct(Assets::Settings::List, get_transform(), this);
 
             auto r = get_rectTransform();
             r->set_sizeDelta({35, 0});

@@ -2,6 +2,7 @@
 #include "BSML/Animations/AnimationControllerData.hpp"
 #include "BSML/Animations/AnimationLoader.hpp"
 #include "logging.hpp"
+#include "Helpers/utilities.hpp"
 #include "assets.hpp"
 
 #include "UnityEngine/GameObject.hpp"
@@ -75,7 +76,7 @@ namespace BSML {
     }
 
     void AnimationController::InitializeLoadingAnimation() {
-        BSML::AnimationLoader::Process(AnimationLoader::AnimationType::GIF, Assets::loading_gif,
+        BSML::AnimationLoader::Process(AnimationLoader::AnimationType::GIF, ArrayW<uint8_t>(Assets::Images::Loading),
             [this](UnityEngine::Texture2D* tex, ArrayW<UnityEngine::Rect> uvs, ArrayW<float> delays){
                 loadingAnimation = AnimationControllerData::Make_new(tex, uvs, delays);
             }

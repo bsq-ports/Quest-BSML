@@ -6,7 +6,7 @@
   "info": {
     "name": "BSML",
     "id": "bsml",
-    "version": "0.5.4",
+    "version": "0.5.5",
     "url": "https://github.com/bsq-ports/Quest-BSML",
     "additionalData": {
       "overrideSoName": "libbsml.so",
@@ -80,13 +80,6 @@
     {
       "id": "gif-lib",
       "versionRange": "^5.2.2",
-      "additionalData": {
-        "private": true
-      }
-    },
-    {
-      "id": "kaleb",
-      "versionRange": "^0.1.9",
       "additionalData": {
         "private": true
       }
