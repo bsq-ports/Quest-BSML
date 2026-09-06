@@ -8,6 +8,7 @@
 #include "Helpers/getters.hpp"
 
 #include "UnityEngine/Resources.hpp"
+#include "GlobalNamespace/MainFlowCoordinator.hpp"
 #include "GlobalNamespace/MenuTransitionsHelper.hpp"
 
 DEFINE_TYPE(BSML, ModSettingsFlowCoordinator);
@@ -99,8 +100,26 @@ namespace BSML {
 
     void ModSettingsFlowCoordinator::Ok() {
         EmitEventToAll("apply");
-        // make ur mods not crash on soft restart lul
-        UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuTransitionsHelper*>().front()->RestartGame(nullptr);
+
+        auto mainFlowCoordinators = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MainFlowCoordinator*>();
+        if (!mainFlowCoordinators || mainFlowCoordinators.empty()) {
+            ERROR("MainFlowCoordinator not found!");
+            return;
+        }
+
+        auto* mainFlowCoordinator = mainFlowCoordinators.front();
+        if (!mainFlowCoordinator) {
+            ERROR("MainFlowCoordinator is null!");
+            return;
+        }
+
+        auto* helper = mainFlowCoordinator->_menuTransitionsHelper;
+        if (!helper) {
+            ERROR("MenuTransitionsHelper not found!");
+            return;
+        }
+
+        helper->RestartGame(nullptr);
     }
 
     void ModSettingsFlowCoordinator::Cancel() {
