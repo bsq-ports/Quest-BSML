@@ -101,19 +101,8 @@ namespace BSML {
     void ModSettingsFlowCoordinator::Ok() {
         EmitEventToAll("apply");
 
-        auto mainFlowCoordinators = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MainFlowCoordinator*>();
-        if (!mainFlowCoordinators || mainFlowCoordinators.empty()) {
-            ERROR("MainFlowCoordinator not found!");
-            return;
-        }
 
-        auto* mainFlowCoordinator = mainFlowCoordinators.front();
-        if (!mainFlowCoordinator) {
-            ERROR("MainFlowCoordinator is null!");
-            return;
-        }
-
-        auto* helper = mainFlowCoordinator->_menuTransitionsHelper;
+        auto* helper = Helpers::GetDiContainer()->Resolve<GlobalNamespace::MenuTransitionsHelper*>();
         if (!helper) {
             ERROR("MenuTransitionsHelper not found!");
             return;
