@@ -6,7 +6,6 @@
 #include "logging.hpp"
 
 #include "UnityEngine/GameObject.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/UI/Image.hpp"
 #include "UnityEngine/UI/ScrollRect.hpp"
@@ -14,14 +13,15 @@
 #include "HMUI/TableView.hpp"
 #include "HMUI/ScrollView.hpp"
 #include "HMUI/EventSystemListener.hpp"
-#include "VRUIControls/VRGraphicRaycaster.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
+#include "GlobalNamespace/ColorsOverrideSettingsPanelController.hpp"
+#include "GlobalNamespace/ColorSchemeDropdown.hpp"
 
 #include "beatsaber-hook/shared/safeptr.hpp"
 
 using namespace HMUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
-using namespace VRUIControls;
 
 namespace BSML {
     static BSMLNodeParser<ModalTag> modalTagParser({"modal"});
@@ -29,7 +29,7 @@ namespace BSML {
     HMUI::ModalView* get_modalViewTemplate() {
         static safe_ptr<HMUI::ModalView*> modalViewTemplate;
         if (!modalViewTemplate) {
-            modalViewTemplate = Resources::FindObjectsOfTypeAll<HMUI::ModalView*>().front_or_default([](auto x){ return x->get_gameObject()->get_name() == "DropdownTableView"; });
+            modalViewTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_colorsOverrideSettingsPanelController->_colorSchemeDropDown->_modalView.cast<HMUI::ModalView>();
         }
         return modalViewTemplate.ptr();
     }
@@ -46,7 +46,6 @@ namespace BSML {
 
         modalView->_presentPanelAnimations = modalViewTemplate->_presentPanelAnimations;
         modalView->_dismissPanelAnimation = modalViewTemplate->_dismissPanelAnimation;
-        gameObject->GetComponent<VRGraphicRaycaster*>()->_physicsRaycaster = Helpers::GetPhysicsRaycasterWithCache();
 
         Object::DestroyImmediate(gameObject->GetComponent<TableView*>());
         Object::DestroyImmediate(gameObject->GetComponent<ScrollRect*>());
