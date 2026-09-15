@@ -37,23 +37,25 @@ namespace BSML {
             set_currentColor(genericSetting->GetValueOpt<UnityEngine::Color>().value_or(currentColor));
     }
 
+    // TODO: Validate callback signatures and handle mismatches gracefully, including
+    // GenericSettingWrapper::OnChange. Raw MethodInfo* invocation skips i2c type checks.
     void ModalColorPicker::CancelPressed() {
+        if (onCancelHost && onCancelInfo) i2c::run_method(onCancelHost, onCancelInfo);
         if (cancel) cancel();
-        if (host && onCancelInfo) i2c::run_method(host, onCancelInfo);
         modalView->Hide();
     }
 
     void ModalColorPicker::DonePressed() {
-        if (done) done(currentColor);
-        if (host && onDoneInfo) i2c::run_method(host, onDoneInfo, currentColor);
         if (genericSetting)
             genericSetting->SetValue(currentColor);
+        if (onDoneHost && onDoneInfo) i2c::run_method(onDoneHost, onDoneInfo, currentColor);
+        if (done) done(currentColor);
         modalView->Hide();
     }
 
     void ModalColorPicker::OnChange(UnityEngine::Color value, GlobalNamespace::ColorChangeUIEventType type) {
         if (onChange) onChange(value);
-        if (host && colorChangeInfo) i2c::run_method(host, colorChangeInfo, currentColor);
+        if (colorChangeHost && colorChangeInfo) i2c::run_method(colorChangeHost, colorChangeInfo, value);
         if (genericSetting)
             genericSetting->OnChange(value);
         set_currentColor(value);

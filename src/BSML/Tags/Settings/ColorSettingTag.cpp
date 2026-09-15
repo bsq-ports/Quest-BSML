@@ -112,7 +112,6 @@ namespace BSML {
         colorSetting->editButton->transform.cast<RectTransform>()->set_anchorMin({0, 0});
 
         colorSetting->modalColorPicker = Base::CreateObject(gameObject->get_transform())->GetComponent<ModalColorPicker*>();
-        externalComponents->Add(colorSetting->modalColorPicker);
 
         gameObject->SetActive(true);
         return gameObject;

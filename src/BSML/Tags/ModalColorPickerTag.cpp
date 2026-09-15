@@ -29,9 +29,9 @@ namespace BSML {
     static BSMLNodeParser<ModalColorPickerTag> modalColorPickerTagParser({"modal-color-picker"});
     std::string buttonXML {
         "\
-        <horizontal anchor-pos-y='-30' spacing='2' horizontal-fit='PreferredSize'>\
-            <button text='Cancel' on-click='CancelPressed' pref-width='30'/>\
-            <action-button text='Done' on-click='DonePressed' pref-width='30'/>\
+        <horizontal anchor-pos-y='-28' spacing='2' horizontal-fit='PreferredSize'>\
+            <button text='Cancel' on-click='CancelPressed' pref-width='34' pref-height='10'/>\
+            <action-button text='OK' on-click='DonePressed' pref-width='34' pref-height='10'/>\
         </horizontal>\
         "
     };
@@ -63,12 +63,13 @@ namespace BSML {
         auto externalComponents = gameObject->GetComponent<ExternalComponents*>();
         auto windowTransform = gameObject->transform.cast<RectTransform>();
         gameObject->set_name("BSMLModalColorPicker");
-        windowTransform->set_sizeDelta({135, 75});
+        windowTransform->set_sizeDelta({135, 70});
 
         auto colorPicker = gameObject->AddComponent<ModalColorPicker*>();
         colorPicker->modalView = externalComponents->Get<ModalView*>();
-
-
+        // Center independently of a setting row's position in scrolled content.
+        // The shared factory also covers Lite; markup can still override this.
+        colorPicker->modalView->moveToCenter = true;
 
         auto onChangeInfo = i2c::functions::class_get_method_from_name(colorPicker->klass, "OnChange", 2);
         auto delegate = MakeSystemAction<UnityEngine::Color, GlobalNamespace::ColorChangeUIEventType>(colorPicker, onChangeInfo);
@@ -85,8 +86,8 @@ namespace BSML {
         hsvController->set_name("BSMLHSVPanel");
         auto hsvTransform = hsvController->transform.cast<RectTransform>();
         hsvTransform->set_anchoredPosition({0, 3});
-        hsvTransform->set_anchorMin({0.75f, 0.5f});
-        hsvTransform->set_anchorMax({0.75f, 0.5f});
+        hsvTransform->set_anchorMin({0.6f, 0.15f});
+        hsvTransform->set_anchorMax({0.6f, 0.15f});
         hsvController->add_colorDidChangeEvent(delegate);
         colorPicker->hsvPanel = hsvController;
 
@@ -94,8 +95,9 @@ namespace BSML {
         colorImage->set_name("BSMLCurrentColor");
         auto colorTransform = colorImage->transform.cast<RectTransform>();
         colorTransform->set_anchoredPosition({0, 0});
-        colorTransform->set_anchorMin({0.5, 0.5f});
-        colorTransform->set_anchorMax({0.5, 0.5f});
+        colorTransform->set_anchorMin({0.53f, 0.53f});
+        colorTransform->set_anchorMax({0.53f, 0.53f});
+        colorTransform->set_sizeDelta({6, 6});
         colorPicker->colorImage = colorImage;
 
         BSML::parse_and_construct(buttonXML, gameObject->get_transform(), colorPicker);

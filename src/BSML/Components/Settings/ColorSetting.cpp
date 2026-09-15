@@ -37,8 +37,15 @@ namespace BSML {
     void ColorSetting::Setup() {
         if (modalColorPicker) {
             modalColorPicker->host = this;
+            modalColorPicker->onDoneHost = this;
             modalColorPicker->onDoneInfo = i2c::functions::class_get_method_from_name(this->klass, "DonePressed", 1);
+            modalColorPicker->onCancelHost = this;
             modalColorPicker->onCancelInfo = i2c::functions::class_get_method_from_name(this->klass, "CancelPressed", 0);
+            if (genericSetting && modalColorPicker->genericSetting) {
+                // Forward previews without giving the picker a value to commit.
+                modalColorPicker->genericSetting->onChangeHost = genericSetting->get_onChangeHost();
+                modalColorPicker->genericSetting->onChangeInfo = genericSetting->onChangeInfo;
+            }
         } else {
             ERROR("No modalColorPicker found!");
         }
@@ -56,13 +63,12 @@ namespace BSML {
 
     void ColorSetting::DonePressed(UnityEngine::Color color) {
         set_currentColor(color);
-        if (genericSetting) {
-            genericSetting->OnChange(color);
-            if (genericSetting->applyOnChange) ApplyValue();
-        }
+        if (genericSetting && genericSetting->applyOnChange) ApplyValue();
     }
 
     void ColorSetting::CancelPressed() {
+        if (modalColorPicker && modalColorPicker->onChange)
+            modalColorPicker->onChange(get_currentColor());
         if (genericSetting)
             genericSetting->OnChange(get_currentColor());
     }

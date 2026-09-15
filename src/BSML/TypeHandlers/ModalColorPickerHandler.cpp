@@ -45,21 +45,30 @@ namespace BSML {
         auto onCancelItr = data.find("onCancel");
         if (onCancelItr != data.end() && !onCancelItr->second.empty()) {
             auto action = parserParams.TryGetAction(onCancelItr->second);
-            if (action) colorPicker->onCancelInfo = action->methodInfo;
+            if (action) {
+                colorPicker->onCancelHost = action->host;
+                colorPicker->onCancelInfo = action->methodInfo;
+            }
             else ERROR("Action '{}' could not be found", onCancelItr->second);
         }
 
         auto onDoneItr = data.find("onDone");
         if (onDoneItr != data.end() && !onDoneItr->second.empty()) {
             auto action = parserParams.TryGetAction(onDoneItr->second);
-            if (action) colorPicker->onCancelInfo = action->methodInfo;
+            if (action) {
+                colorPicker->onDoneHost = action->host;
+                colorPicker->onDoneInfo = action->methodInfo;
+            }
             else ERROR("Action '{}' could not be found", onDoneItr->second);
         }
 
         auto onChangeItr = data.find("onChange");
         if (onChangeItr != data.end() && !onChangeItr->second.empty()) {
             auto action = parserParams.TryGetAction(onChangeItr->second);
-            if (action) colorPicker->colorChangeInfo = action->methodInfo;
+            if (action) {
+                colorPicker->colorChangeHost = action->host;
+                colorPicker->colorChangeInfo = action->methodInfo;
+            }
             else ERROR("Action '{}' could not be found", onChangeItr->second);
         }
     }

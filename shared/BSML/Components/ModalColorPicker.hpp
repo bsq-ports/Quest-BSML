@@ -41,4 +41,9 @@ DECLARE_CLASS_CODEGEN(BSML, ModalColorPicker, UnityEngine::MonoBehaviour) {
         const MethodInfo* onCancelInfo = nullptr;
         const MethodInfo* onDoneInfo = nullptr;
         const MethodInfo* colorChangeInfo = nullptr;
+
+        // Append managed receivers so existing C++ callback offsets stay stable.
+        DECLARE_INSTANCE_FIELD_PRIVATE(System::Object*, onCancelHost);
+        DECLARE_INSTANCE_FIELD_PRIVATE(System::Object*, onDoneHost);
+        DECLARE_INSTANCE_FIELD_PRIVATE(System::Object*, colorChangeHost);
 };
