@@ -3,7 +3,6 @@
 #include "BSML/Components/ExternalComponents.hpp"
 #include "BSML/Components/ScrollViewContent.hpp"
 
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/UI/Button.hpp"
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
@@ -31,7 +30,14 @@ namespace BSML {
     HMUI::TextPageScrollView* get_scrollViewTemplate() {
         static safe_ptr<HMUI::TextPageScrollView*> scrollViewTemplate;
         if (!scrollViewTemplate) {
-            scrollViewTemplate =  UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::EulaDisplayViewController*>().front()->_textPageScrollView;
+            scrollViewTemplate = UnityEngine::Object::Instantiate(Helpers::GetDiContainer()->Resolve<GlobalNamespace::EulaDisplayViewController*>()->_textPageScrollView);
+            scrollViewTemplate->set_name("BSMLScrollViewTemplate");
+            scrollViewTemplate->SetText(nullptr);
+
+            auto rectTransform = scrollViewTemplate->transform.cast<UnityEngine::RectTransform>();
+            rectTransform->set_anchorMin({0, 0});
+            rectTransform->set_anchorMax({1, 1});
+            rectTransform->set_sizeDelta({0, 0});
         }
         return scrollViewTemplate.ptr();
     }
@@ -47,19 +53,17 @@ namespace BSML {
         auto verticalScrollIndicator = textScrollView->_verticalScrollIndicator;
 
         UnityEngine::RectTransform* viewport = textScrollView->_viewport;
-        viewport->get_gameObject()->AddComponent<VRUIControls::VRGraphicRaycaster*>()->_physicsRaycaster = Helpers::GetPhysicsRaycasterWithCache();
+        Helpers::GetDiContainer()->InstantiateComponent<VRUIControls::VRGraphicRaycaster*>(viewport->get_gameObject());
 
         UnityEngine::Object::Destroy(textScrollView->_text->get_gameObject());
         UnityEngine::Object::Destroy(textScrollView);
         gameObject->SetActive(false);
 
-        BSML::ScrollView* scrollView = gameObject->AddComponent<BSML::ScrollView*>();
+        BSML::ScrollView* scrollView = Helpers::GetDiContainer()->InstantiateComponent<BSML::ScrollView*>(gameObject);
         scrollView->_pageUpButton = pageUpButton;
         scrollView->_pageDownButton = pageDownButton;
         scrollView->_verticalScrollIndicator = verticalScrollIndicator;
         scrollView->_viewport = viewport;
-        scrollView->_platformHelper = Helpers::GetIVRPlatformHelper();
-        scrollView->_xrSystemState = Helpers::GetIXRSystemState();
         auto scrollTransform = scrollView->transform.cast<UnityEngine::RectTransform>();
         scrollTransform->set_anchorMin(UnityEngine::Vector2(0.0f, 0.0f));
         scrollTransform->set_anchorMax(UnityEngine::Vector2(1.0f, 1.0f));

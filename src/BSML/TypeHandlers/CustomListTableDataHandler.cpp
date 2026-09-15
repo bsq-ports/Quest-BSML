@@ -18,7 +18,7 @@ HMUI::TableView::TableType stringToTableType(const std::string& str);
 
 namespace BSML {
     static CustomListTableDataHandler customListTableDataHandler{};
-    HMUI::TextPageScrollView* get_textPageTemplate();
+    HMUI::TextPageScrollView* get_scrollViewTemplate();
 
     CustomListTableDataHandler::Base::PropMap CustomListTableDataHandler::get_props() const {
         return {
@@ -90,7 +90,7 @@ namespace BSML {
         if (verticalList && showScrollBarItr != data.end() && !showScrollBarItr->second.empty()) {
             auto arg = StringParseHelper(showScrollBarItr->second);
             if (static_cast<bool>(arg)) {
-                auto textScrollView = Object::Instantiate(get_textPageTemplate(), tableData->get_transform(), false);
+                auto textScrollView = Object::Instantiate(get_scrollViewTemplate(), tableData->get_transform(), false);
 
                 auto pageUpButton = textScrollView->_pageUpButton;
                 auto pageDownButton = textScrollView->_pageDownButton;
