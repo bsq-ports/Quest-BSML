@@ -1,4 +1,5 @@
 #include "BSML/Tags/Settings/SubmenuTag.hpp"
+#include "BSML/Settings/BSMLSettings.hpp"
 #include "BSML.hpp"
 #include "BSML/Settings/UI/ModSettingsFlowCoordinator.hpp"
 #include "Helpers/getters.hpp"
@@ -10,7 +11,6 @@
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
-#include "UnityEngine/Resources.hpp"
 
 namespace BSML {
 
@@ -23,7 +23,7 @@ namespace BSML {
     ModSettingsFlowCoordinator* get_flow() {
         static safe_ptr<ModSettingsFlowCoordinator*> flow;
         if (!flow) {
-            flow = UnityEngine::Resources::FindObjectsOfTypeAll<ModSettingsFlowCoordinator*>().front_or_default();
+            flow = BSMLSettings::get_instance()->get_modSettingsFlowCoordinator();
         }
         return flow.ptr();
     }
@@ -56,6 +56,7 @@ namespace BSML {
         externalComponents->Add(clickableText);
         externalComponents->Add(clickableText->get_rectTransform());
 
+        go->SetActive(true);
         return submenuController->get_gameObject();
     }
 }
