@@ -43,7 +43,9 @@ std::optional<bool> StringParseHelper::tryParseBool() const {
 }
 
 std::optional<int> StringParseHelper::tryParseInt() const {
-    const char* begin = data();
+    // strtol requires a terminated string; this view may be one part of a vector.
+    const std::string input(data(), size());
+    const char* begin = input.c_str();
     char* end = nullptr;
     int result = strtol(begin, &end, 10);
     if (*begin == '\0') return std::nullopt;
@@ -56,7 +58,9 @@ std::optional<float> StringParseHelper::tryParseFloat() const {
 }
 
 std::optional<double> StringParseHelper::tryParseDouble() const {
-    const char* begin = data();
+    // Bound strtod to this view rather than the rest of its backing string.
+    const std::string input(data(), size());
+    const char* begin = input.c_str();
     char* end = nullptr;
     double result = strtod(begin, &end);
     if (*begin == '\0') return std::nullopt;
