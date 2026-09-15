@@ -2,6 +2,9 @@
 #include "Helpers/utilities.hpp"
 #include "logging.hpp"
 
+#include <array>
+#include <charconv>
+
 // splits this view into a vector of views into the different parts
 std::vector<std::string_view> StringParseHelper::split(char split) const {
     std::vector<std::string_view> parts;
@@ -137,6 +140,40 @@ std::optional<UnityEngine::Vector4> StringParseHelper::tryParseVector4(float def
         default: return std::nullopt;
     }
 }
+std::optional<StringParseHelper::Padding> StringParseHelper::tryParsePadding() const {
+    std::array<int, 4> values{};
+    std::size_t count = 0;
+    std::string_view input = *this;
+    while (!input.empty()) {
+        auto end = input.find(' ');
+        auto token = input.substr(0, end);
+        input = end == std::string_view::npos ? std::string_view{} : input.substr(end + 1);
+        if (token.empty()) continue;
+        if (count == values.size()) return std::nullopt;
+
+        // Match Int parsing on PC, including a leading plus and surrounding whitespace.
+        auto first = token.find_first_not_of("\t\r\n\v\f");
+        if (first == std::string_view::npos) return std::nullopt;
+        token = token.substr(first, token.find_last_not_of("\t\r\n\v\f") - first + 1);
+        if (token.front() == '+') {
+            token.remove_prefix(1);
+            if (token.empty() || token.front() == '-') return std::nullopt;
+        }
+        auto result = std::from_chars(token.data(), token.data() + token.size(), values[count]);
+        if (result.ec != std::errc{} || result.ptr != token.data() + token.size()) return std::nullopt;
+        ++count;
+    }
+    if (count == 0) return std::nullopt;
+
+    // CSS shorthand: all; vertical horizontal; top horizontal bottom;
+    // or top right bottom left. This also matches PC's actual output.
+    int top = values[0];
+    int right = count > 1 ? values[1] : top;
+    int bottom = count > 2 ? values[2] : top;
+    int left = count > 3 ? values[3] : right;
+    return Padding{left, right, top, bottom};
+}
+
 const MethodInfo* minfo_from_name_in_parents(Il2CppClass* klass, const char* name, int argc) {
     if (!klass) return nullptr;
     auto minfo = i2c::functions::class_get_method_from_name(klass, name, argc);

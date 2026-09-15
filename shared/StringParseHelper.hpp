@@ -9,6 +9,13 @@
 #include "UnityEngine/Vector4.hpp"
 
 struct BSML_EXPORT StringParseHelper : std::string_view {
+    struct Padding {
+        int left;
+        int right;
+        int top;
+        int bottom;
+    };
+
     // pass the normal constructors through to the base, these are the only ones we need
     StringParseHelper(const std::string_view& str) : std::string_view(str) {}
     StringParseHelper(const char* str) : std::string_view(str) {}
@@ -95,6 +102,10 @@ struct BSML_EXPORT StringParseHelper : std::string_view {
     /// @brief try to parse a vector4
     /// @return optional containing vector4 value, or nullopt if invalid vector2 string
     std::optional<UnityEngine::Vector4> tryParseVector4(float defaultValue = 0) const;
+
+    /// @brief Parse one to four integers using CSS padding shorthand.
+    /// @return Padding in left/right/top/bottom fields, or nullopt for invalid input.
+    std::optional<Padding> tryParsePadding() const;
 
     /* -- reflection methods -- */
     /// @brief use the string for a method lookup in host->klass

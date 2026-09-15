@@ -99,7 +99,10 @@ namespace BSML {
             {"italics", {"italics"}},
             {"underlined", {"underlined"}},
             {"strikethrough", {"strikethrough"}},
-            {"allUppercase", {"all-uppercase"}}
+            {"allUppercase", {"all-uppercase"}},
+            {"lineSpacing", {"line-spacing"}},
+            {"lineSpacingAdjustment", {"line-spacing-adjustment"}},
+            {"paragraphSpacing", {"paragraph-spacing"}}
         };
     }
 
@@ -122,7 +125,10 @@ namespace BSML {
             {"italics",         [](auto component, auto value){ component->set_fontStyle(SetStyle(component->get_fontStyle(), TMPro::FontStyles::Italic, value)); }},
             {"underlined",      [](auto component, auto value){ component->set_fontStyle(SetStyle(component->get_fontStyle(), TMPro::FontStyles::Underline, value)); }},
             {"strikethrough",   [](auto component, auto value){ component->set_fontStyle(SetStyle(component->get_fontStyle(), TMPro::FontStyles::Strikethrough, value)); }},
-            {"allUppercase",   [](auto component, auto value){ component->set_fontStyle(SetStyle(component->get_fontStyle(), TMPro::FontStyles::UpperCase, value)); }}
+            {"allUppercase",   [](auto component, auto value){ component->set_fontStyle(SetStyle(component->get_fontStyle(), TMPro::FontStyles::UpperCase, value)); }},
+            {"lineSpacing",    [](auto component, auto value){ component->set_lineSpacing(value); }},
+            {"lineSpacingAdjustment", [](auto component, auto value){ component->set_lineSpacingAdjustment(value); }},
+            {"paragraphSpacing", [](auto component, auto value){ component->set_paragraphSpacing(value); }}
         };
     }
 }

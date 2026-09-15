@@ -31,8 +31,8 @@ namespace BSML {
             {"padBottom", {"pad-bottom"}},
             {"padLeft", {"pad-left"}},
             {"padRight", {"pad-right"}},
-            {"pad", {"pad"}},
-            {"childAlign",  {"child-align"}}
+            {"pad", {"padding", "pad"}},
+            {"childAlign",  {"child-alignment", "child-align"}}
         };
     }
 
@@ -48,8 +48,12 @@ namespace BSML {
 
         auto padItr = data.find("pad");
         if (padItr != data.end()) {
-            int pad = StringParseHelper(padItr->second);
-            layoutGroup->set_padding(UnityEngine::RectOffset::New_ctor(pad, pad, pad, pad));
+            auto pad = StringParseHelper(padItr->second).tryParsePadding();
+            if (pad) {
+                layoutGroup->set_padding(UnityEngine::RectOffset::New_ctor(pad->left, pad->right, pad->top, pad->bottom));
+            } else {
+                ERROR("Could not parse padding '{}': expected one to four integers", padItr->second);
+            }
         }
 
         auto padTopItr = data.find("padTop");
