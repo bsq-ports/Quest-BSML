@@ -82,8 +82,11 @@ namespace BSML {
 
     TextHandler::Base::PropMap TextHandler::get_props() const {
         return {
+            {"enableAutoSizing", {"enable-auto-sizing"}},
             {"text", {"text", "label"}},
             {"fontSize", {"font-size"}},
+            {"fontSizeMin", {"font-size-min"}},
+            {"fontSizeMax", {"font-size-max"}},
             {"fontColor", {"font-color", "color"}},
             {"faceColor", {"face-color"}},
             {"outlineColor", {"outline-color"}},
@@ -102,8 +105,11 @@ namespace BSML {
 
     TextHandler::Base::SetterMap TextHandler::get_setters() const {
         return {
+            {"enableAutoSizing", [](auto component, auto value){ component->set_enableAutoSizing(value); }},
             {"text",            [](auto component, auto value){ component->set_text(value); }},
             {"fontSize",       [](auto component, auto value){ component->set_fontSize(value); }},
+            {"fontSizeMin",    [](auto component, auto value){ component->set_fontSizeMin(value); }},
+            {"fontSizeMax",    [](auto component, auto value){ component->set_fontSizeMax(value); }},
             {"fontColor",      [](auto component, auto value){ component->set_color(value); }},
             {"faceColor",      [](auto component, auto value){ component->set_faceColor(value); }},
             {"outlineColor",   [](auto component, auto value){ component->set_outlineColor(value); }},

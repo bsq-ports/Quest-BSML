@@ -67,7 +67,7 @@ namespace BSML {
         auto layoutElement = gameObject->GetComponent<LayoutElement*>();
         if (!layoutElement) layoutElement = gameObject->AddComponent<LayoutElement*>();
 
-        layoutElement->set_preferredWidth(30.0f);
+        // Let the layout group derive the preferred width from the label, as on PC.
         externalComponents->Add(layoutElement);
 
         return gameObject;

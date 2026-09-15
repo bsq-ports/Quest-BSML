@@ -28,7 +28,7 @@ namespace BSML {
             else ERROR("Action '{}' could not be found", onClickItr->second);
         }
 
-        auto clickEventItr = componentType.data.find("click-event");
+        auto clickEventItr = componentType.data.find("clickEvent");
         if (clickEventItr != componentType.data.end() && !clickEventItr->second.empty()) {
             auto parserEvent = parserParams.GetEvent(clickEventItr->second);
             clickableText->onClick += [parserEvent](){
