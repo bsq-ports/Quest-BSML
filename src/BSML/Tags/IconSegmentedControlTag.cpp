@@ -1,11 +1,12 @@
 #include "BSML/Tags/IconSegmentedControlTag.hpp"
+#include "GlobalNamespace/StandardLevelDetailView.hpp"
+#include "GlobalNamespace/StandardLevelDetailViewController.hpp"
 #include "Helpers/getters.hpp"
 #include "logging.hpp"
 
 #include "BSML/Components/TabSelector.hpp"
 #include "HMUI/IconSegmentedControl.hpp"
 #include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "GlobalNamespace/BeatmapCharacteristicSegmentedControlController.hpp"
@@ -20,12 +21,7 @@ namespace BSML {
     HMUI::IconSegmentedControl* get_iconSegmentedControlTemplate() {
         static safe_ptr<HMUI::IconSegmentedControl*> iconSegmentedControlTemplate;
         if (!iconSegmentedControlTemplate) {
-            iconSegmentedControlTemplate = Resources::FindObjectsOfTypeAll<HMUI::IconSegmentedControl*>().front_or_default(
-                [](auto x) {
-                    auto name = x->get_name();
-                    if (name != "BeatmapCharacteristicSegmentedControl") return false;
-                    return x->_container != nullptr;
-                });
+            iconSegmentedControlTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::StandardLevelDetailViewController*>()->_standardLevelDetailView->_beatmapCharacteristicSegmentedControlController->GetComponent<HMUI::IconSegmentedControl*>();
         }
         return iconSegmentedControlTemplate.ptr();
     }

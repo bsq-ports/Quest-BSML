@@ -1,10 +1,12 @@
 #include "BSML/Tags/ModifierTag.hpp"
+#include "GlobalNamespace/GameplayModifiersPanelController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
+#include "Helpers/getters.hpp"
 #include "logging.hpp"
 
 #include "BSML/Components/Settings/ToggleSetting.hpp"
 #include "BSML/Components/ExternalComponents.hpp"
 #include "GlobalNamespace/GameplayModifierToggle.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
@@ -24,7 +26,7 @@ namespace BSML {
     GlobalNamespace::GameplayModifierToggle* get_gameplayModifierToggleTemplate() {
         static safe_ptr<GlobalNamespace::GameplayModifierToggle*> gameplayModifierToggleTemplate;
         if (!gameplayModifierToggleTemplate)
-            gameplayModifierToggleTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::GameplayModifierToggle*>().front_or_default([](GlobalNamespace::GameplayModifierToggle* x) { return x->get_name() == "InstaFail"; });
+            gameplayModifierToggleTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_gameplayModifiersPanelController->GetComponentsInChildren<GlobalNamespace::GameplayModifierToggle*>(true).front_or_default([](GlobalNamespace::GameplayModifierToggle* x) { return x->get_name() == "InstaFail"; });
         return gameplayModifierToggleTemplate.ptr();
     }
 

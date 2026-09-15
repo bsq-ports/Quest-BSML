@@ -1,7 +1,13 @@
 #include "BSML/Components/CustomListTableData.hpp"
+#include "GlobalNamespace/AnnotatedBeatmapLevelCollectionsGridView.hpp"
+#include "GlobalNamespace/AnnotatedBeatmapLevelCollectionsViewController.hpp"
+#include "HMUI/SimpleTextDropdown.hpp"
+#include "GlobalNamespace/PlayerOptionsViewController.hpp"
+#include "GlobalNamespace/LevelCollectionTableView.hpp"
+#include "GlobalNamespace/LevelCollectionViewController.hpp"
+#include "Helpers/getters.hpp"
 #include "Helpers/utilities.hpp"
 
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/RectTransform.hpp"
@@ -79,7 +85,7 @@ namespace BSML {
 
         if (!tableCell) {
             if (!levelListTableCell || !levelListTableCell->m_CachedPtr.m_value) {
-                levelListTableCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelListTableCell*>().front_or_default([](auto x){ return x->get_name() == "LevelListTableCell"; });
+                levelListTableCell = Helpers::GetDiContainer()->Resolve<GlobalNamespace::LevelCollectionViewController*>()->GetComponentInChildren<GlobalNamespace::LevelCollectionTableView*>(true)->_levelCellPrefab;
             }
 
             tableCell = Object::Instantiate(levelListTableCell);
@@ -95,7 +101,7 @@ namespace BSML {
 
         if (!tableCell) {
             if (!simpleTextTableCell || !simpleTextTableCell->m_CachedPtr.m_value) {
-                simpleTextTableCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::SimpleTextTableCell*>().front_or_default([](auto x){ return x->get_name() == "SimpleTextTableCell"; });
+                simpleTextTableCell = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PlayerOptionsViewController*>()->GetComponentInChildren<HMUI::SimpleTextDropdown*>(true)->_cellPrefab;
             }
 
             tableCell = Object::Instantiate(simpleTextTableCell);
@@ -110,7 +116,7 @@ namespace BSML {
 
         if (!tableCell) {
             if (!levelPackCell || !levelPackCell->m_CachedPtr.m_value) {
-                levelPackCell = Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelPackCell*>().front_or_default([](auto x){ return x->get_name() == "AnnotatedBeatmapLevelCollectionCell"; });
+                levelPackCell = Helpers::GetDiContainer()->Resolve<GlobalNamespace::AnnotatedBeatmapLevelCollectionsViewController*>()->GetComponentInChildren<GlobalNamespace::AnnotatedBeatmapLevelCollectionsGridView*>(true)->_cellPrefab;
             }
             tableCell = BSML::BoxTableCell::Create(levelPackCell);
         }

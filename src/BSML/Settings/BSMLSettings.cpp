@@ -12,7 +12,6 @@
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/WaitForFixedUpdate.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/TextureWrapMode.hpp"
 #include "BGLib/Polyglot/LocalizedTextMeshProUGUI.hpp"
 
@@ -165,7 +164,8 @@ namespace BSML {
         GlobalNamespace::OptionsViewController* optionsViewController = nullptr;
         auto wait = UnityEngine::WaitForFixedUpdate::New_ctor();
         while (!optionsViewController) {
-            optionsViewController = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::OptionsViewController*>().front_or_default();
+            auto container = Helpers::GetDiContainer();
+            optionsViewController = container ? container->TryResolve<GlobalNamespace::OptionsViewController*>() : nullptr;
             co_yield reinterpret_cast<System::Collections::IEnumerator*>(wait);
         }
 

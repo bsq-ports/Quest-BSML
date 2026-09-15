@@ -9,7 +9,8 @@
 
 #include "UnityEngine/UI/Image.hpp"
 #include "UnityEngine/UI/Button.hpp"
-#include "UnityEngine/Resources.hpp"
+#include "GlobalNamespace/UIKeyboardManager.hpp"
+#include "Helpers/getters.hpp"
 #include "System/Globalization/NumberStyles.hpp"
 
 DEFINE_TYPE(BSML, Keyboard);
@@ -72,15 +73,13 @@ namespace BSML {
         }
 
         void Keyboard::SetButtonType(std::string_view buttonName) {
-            auto allButtons = Resources::FindObjectsOfTypeAll<Button*>();
-            Button* q;
-            baseButton = allButtons.front([&](auto x){
-                if (x->get_name() == "Q") q = x;
+            auto keyboardManager = Helpers::GetDiContainer()->Resolve<GlobalNamespace::UIKeyboardManager*>();
+            baseButton = keyboardManager->GetComponentsInChildren<Button*>(true).front_or_default([&](auto x){
                 return x->get_name() == buttonName;
             });
 
             if (!baseButton) {
-                baseButton = q;
+                baseButton = keyboardManager->get_transform()->Find("KeyboardWrapper/Keyboard/Letters/Row/Q")->GetComponent<Button*>();
             }
         }
 

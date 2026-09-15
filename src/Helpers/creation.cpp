@@ -1,10 +1,14 @@
 #include "Helpers/creation.hpp"
+#include "HMUI/TableView.hpp"
+#include "HMUI/SimpleTextDropdown.hpp"
+#include "GlobalNamespace/NoteJumpStartBeatOffsetDropdown.hpp"
+#include "GlobalNamespace/PlayerSettingsPanelController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
 #include "Helpers/getters.hpp"
 
 #include "System/Type.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/GameObject.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Canvas.hpp"
 #include "UnityEngine/CanvasGroup.hpp"
 #include "UnityEngine/RectTransform.hpp"
@@ -44,7 +48,7 @@ namespace BSML::Helpers {
     safe_ptr<Canvas*> canvasTemplate;
     HMUI::ViewController* CreateViewController(System::Type* type) {
         if (!canvasTemplate)
-            canvasTemplate = Resources::FindObjectsOfTypeAll<Canvas*>().front_or_default([](auto x) { return x->get_name() == "DropdownTableView"; });
+            canvasTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_playerSettingsPanelController->_noteJumpStartBeatOffsetDropdown->_simpleTextDropdown->_tableView->GetComponent<Canvas*>();
 
         auto go = GameObject::New_ctor(type->NameOrDefault);
         auto cv = go->AddComponent<Canvas*>();

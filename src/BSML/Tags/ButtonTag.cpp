@@ -1,4 +1,7 @@
 #include "BSML/Tags/ButtonTag.hpp"
+#include "GlobalNamespace/StandardLevelDetailView.hpp"
+#include "GlobalNamespace/StandardLevelDetailViewController.hpp"
+#include "Helpers/getters.hpp"
 
 #include "BSML/Components/ExternalComponents.hpp"
 #include "logging.hpp"
@@ -8,7 +11,6 @@
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/UI/Button.hpp"
 #include "UnityEngine/UI/LayoutGroup.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
@@ -24,7 +26,7 @@ namespace BSML {
     Button* ButtonTag::get_buttonPrefab() const {
         static safe_ptr<Button*> buttonPrefab;
         if (!buttonPrefab) {
-            buttonPrefab = Resources::FindObjectsOfTypeAll<Button*>().back_or_default([&](auto x){ return x->get_name() == "PracticeButton"; });
+            buttonPrefab = Helpers::GetDiContainer()->Resolve<GlobalNamespace::StandardLevelDetailViewController*>()->_standardLevelDetailView->get_practiceButton();
         }
         return buttonPrefab.ptr();
     }

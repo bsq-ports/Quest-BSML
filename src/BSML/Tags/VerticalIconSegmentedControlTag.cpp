@@ -4,7 +4,6 @@
 
 #include "HMUI/IconSegmentedControl.hpp"
 #include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "GlobalNamespace/BeatmapCharacteristicSegmentedControlController.hpp"
@@ -20,7 +19,7 @@ namespace BSML {
     HMUI::IconSegmentedControl* get_verticalIconSegmentedControlTemplate() {
         static safe_ptr<HMUI::IconSegmentedControl*> verticalIconSegmentedControlTemplate;
         if (!verticalIconSegmentedControlTemplate) {
-            auto vc = Resources::FindObjectsOfTypeAll<GlobalNamespace::PlatformLeaderboardViewController*>().front_or_default();
+            auto vc = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PlatformLeaderboardViewController*>();
             verticalIconSegmentedControlTemplate = vc->_scopeSegmentedControl;
         }
         return verticalIconSegmentedControlTemplate.ptr();

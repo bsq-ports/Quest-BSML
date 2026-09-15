@@ -1,4 +1,6 @@
 #include "BSML/Tags/ButtonWithIconTag.hpp"
+#include "GlobalNamespace/StandardLevelDetailView.hpp"
+#include "GlobalNamespace/StandardLevelDetailViewController.hpp"
 #include "BSML/Components/ExternalComponents.hpp"
 #include "BSML/Components/ButtonIconImage.hpp"
 #include "Helpers/getters.hpp"
@@ -10,7 +12,6 @@
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/UI/Button.hpp"
 #include "UnityEngine/UI/LayoutGroup.hpp"
@@ -31,7 +32,7 @@ namespace BSML {
     Button* get_buttonWithIconTemplate() {
         static safe_ptr<Button*> buttonWithIconTemplate;
         if (!buttonWithIconTemplate) {
-            buttonWithIconTemplate = Resources::FindObjectsOfTypeAll<Button*>().back_or_default([&](auto x){ return x->get_name() == "PracticeButton"; });
+            buttonWithIconTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::StandardLevelDetailViewController*>()->_standardLevelDetailView->get_practiceButton();
         }
         return buttonWithIconTemplate.ptr();
     }

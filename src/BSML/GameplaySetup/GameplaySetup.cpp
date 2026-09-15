@@ -5,7 +5,6 @@
 #include "logging.hpp"
 #include "BSML.hpp"
 
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "GlobalNamespace/SinglePlayerLevelSelectionFlowCoordinator.hpp"
@@ -33,7 +32,7 @@ namespace BSML {
         DEBUG("Setup");
         auto menus = get_menus();
         if (menus.size() == 0) return;
-        gameplaySetupViewController = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::GameplaySetupViewController*>().front_or_default();
+        gameplaySetupViewController = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>();
         auto vanillaItems = get_vanillaItems();
         vanillaItems->Clear();
 

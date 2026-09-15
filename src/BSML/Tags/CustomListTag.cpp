@@ -69,7 +69,7 @@ namespace BSML {
         gameObject->AddComponent<HMUI::Touchable*>();
         gameObject->AddComponent<HMUI::EventSystemListener*>();
 
-        auto scrollView = gameObject->AddComponent<HMUI::ScrollView*>();
+        auto scrollView = Helpers::GetDiContainer()->InstantiateComponent<HMUI::ScrollView*>(gameObject);
 
         HMUI::TableView* tableView = gameObject->AddComponent<BSML::TableView*>();
         auto tableData = container->get_gameObject()->AddComponent<CustomCellListTableData*>();

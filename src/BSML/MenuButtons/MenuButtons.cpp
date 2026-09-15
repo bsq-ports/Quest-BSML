@@ -1,4 +1,5 @@
 #include "BSML/MenuButtons/MenuButtons.hpp"
+#include "GlobalNamespace/MainMenuViewController.hpp"
 #include "logging.hpp"
 
 #include "UnityEngine/WaitForSeconds.hpp"
@@ -91,7 +92,7 @@ namespace BSML {
         GlobalNamespace::MainFlowCoordinator* mainFlowCoordinator = BSML::Helpers::GetMainFlowCoordinator();
 
         ShowView(false, false, false);
-        auto vc = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MainMenuViewController*>().front_or_default();
+        auto vc = Helpers::GetDiContainer()->Resolve<GlobalNamespace::MainMenuViewController*>();
         std::function<void(bool, bool, bool)> fun = std::bind(&MenuButtons::ShowView, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
         vc->add_didActivateEvent(custom_types::MakeDelegate<HMUI::ViewController::DidActivateDelegate*>(fun));
 

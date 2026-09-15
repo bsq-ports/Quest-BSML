@@ -1,4 +1,12 @@
 #include "BSML/Tags/ModalColorPickerTag.hpp"
+#include "UnityEngine/UI/Image.hpp"
+#include "GlobalNamespace/ColorSchemeView.hpp"
+#include "GlobalNamespace/ColorSchemeTableCell.hpp"
+#include "GlobalNamespace/ColorSchemeDropdown.hpp"
+#include "GlobalNamespace/ColorsOverrideSettingsPanelController.hpp"
+#include "GlobalNamespace/EditColorSchemeController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
+#include "Helpers/getters.hpp"
 #include "BSML/Components/ModalColorPicker.hpp"
 #include "BSML/Components/ExternalComponents.hpp"
 #include "Helpers/delegates.hpp"
@@ -6,7 +14,6 @@
 #include "BSML.hpp"
 
 #include "UnityEngine/Object.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Vector2.hpp"
@@ -32,24 +39,19 @@ namespace BSML {
     GlobalNamespace::RGBPanelController* get_rgbTemplate() {
         static safe_ptr<GlobalNamespace::RGBPanelController*> rgbTemplate;
         if (!rgbTemplate)
-            rgbTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::RGBPanelController*>().front_or_default([](auto x){ return x->get_name() == "RGBColorPicker"; });
+            rgbTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->GetComponentInChildren<GlobalNamespace::EditColorSchemeController*>(true)->GetComponentInChildren<GlobalNamespace::RGBPanelController*>(true);
         return rgbTemplate.ptr();
     }
     GlobalNamespace::HSVPanelController* get_hsvTemplate() {
         static safe_ptr<GlobalNamespace::HSVPanelController*> hsvTemplate;
         if (!hsvTemplate)
-            hsvTemplate = Resources::FindObjectsOfTypeAll<GlobalNamespace::HSVPanelController*>().front_or_default([](auto x){ return x->get_name() == "HSVColorPicker"; });
+            hsvTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->GetComponentInChildren<GlobalNamespace::EditColorSchemeController*>(true)->GetComponentInChildren<GlobalNamespace::HSVPanelController*>(true);
         return hsvTemplate.ptr();
     }
-    HMUI::ImageView* get_currentColorTemplate() {
-        static safe_ptr<HMUI::ImageView*> currentColorTemplate;
+    UnityEngine::UI::Image* get_currentColorTemplate() {
+        static safe_ptr<UnityEngine::UI::Image*> currentColorTemplate;
         if (!currentColorTemplate) {
-            currentColorTemplate = Resources::FindObjectsOfTypeAll<HMUI::ImageView*>().front_or_default([](auto x){
-                if (x->get_name() != "SaberColorA") return false;
-                auto parent = x->get_transform()->get_parent();
-                if (!parent) return false;
-                return parent->get_name() == "ColorSchemeView";
-            });
+            currentColorTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_colorsOverrideSettingsPanelController->_colorSchemeDropDown->_cellPrefab->_colorSchemeView->_saberAColorImage;
         }
         return currentColorTemplate.ptr();
     }

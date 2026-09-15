@@ -1,4 +1,7 @@
 #include "BSML/Tags/PageButtonTag.hpp"
+#include "HMUI/ScrollView.hpp"
+#include "GlobalNamespace/PlayerSettingsPanelController.hpp"
+#include "GlobalNamespace/PlayerOptionsViewController.hpp"
 #include "BSML/Components/ExternalComponents.hpp"
 #include "BSML/Components/ButtonIconImage.hpp"
 #include "BSML/Components/PageButton.hpp"
@@ -11,7 +14,6 @@
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/UI/Button.hpp"
 #include "UnityEngine/UI/LayoutGroup.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
@@ -32,7 +34,7 @@ namespace BSML {
     Button* get_pageButtonTemplate() {
         static safe_ptr<Button*> pageButtonTemplate;
         if (!pageButtonTemplate) {
-            pageButtonTemplate = Resources::FindObjectsOfTypeAll<Button*>().back_or_default([&](auto x){ return x->get_name() == "UpButton"; });
+            pageButtonTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PlayerOptionsViewController*>()->_playerSettingsPanelController->GetComponent<HMUI::ScrollView*>()->_pageUpButton;
         }
         return pageButtonTemplate.ptr();
     }

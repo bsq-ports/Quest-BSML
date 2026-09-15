@@ -1,11 +1,12 @@
 #include "BSML/Tags/TextSegmentedControlTag.hpp"
+#include "GlobalNamespace/StandardLevelDetailView.hpp"
+#include "GlobalNamespace/StandardLevelDetailViewController.hpp"
 #include "logging.hpp"
 #include "Helpers/getters.hpp"
 
 #include "BSML/Components/TabSelector.hpp"
 #include "HMUI/TextSegmentedControl.hpp"
 #include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "GlobalNamespace/BeatmapDifficultySegmentedControlController.hpp"
@@ -20,12 +21,7 @@ namespace BSML {
     HMUI::TextSegmentedControl* get_textSegmentedControlTemplate() {
         static safe_ptr<HMUI::TextSegmentedControl*> textSegmentedControlTemplate;
         if (!textSegmentedControlTemplate) {
-            textSegmentedControlTemplate = Resources::FindObjectsOfTypeAll<HMUI::TextSegmentedControl*>().front_or_default(
-                [](auto x) {
-                    auto name = x->get_name();
-                    if (name != "BeatmapDifficultySegmentedControl") return false;
-                    return x->_container != nullptr;
-                });
+            textSegmentedControlTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::StandardLevelDetailViewController*>()->_standardLevelDetailView->_beatmapDifficultySegmentedControlController->GetComponent<HMUI::TextSegmentedControl*>();
         }
         return textSegmentedControlTemplate.ptr();
     }

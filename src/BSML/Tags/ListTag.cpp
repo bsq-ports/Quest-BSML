@@ -1,4 +1,8 @@
 #include "BSML/Tags/ListTag.hpp"
+#include "HMUI/SimpleTextDropdown.hpp"
+#include "GlobalNamespace/NoteJumpStartBeatOffsetDropdown.hpp"
+#include "GlobalNamespace/PlayerSettingsPanelController.hpp"
+#include "GlobalNamespace/GameplaySetupViewController.hpp"
 #include "Helpers/getters.hpp"
 #include "Helpers/utilities.hpp"
 #include "logging.hpp"
@@ -7,7 +11,6 @@
 #include "BSML/Components/CustomListTableData.hpp"
 
 #include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/UI/ScrollRect.hpp"
 #include "UnityEngine/UI/RectMask2D.hpp"
@@ -31,7 +34,7 @@ namespace BSML {
     Canvas* get_listCanvasTemplate() {
         static safe_ptr<Canvas*> listCanvasTemplate;
         if (!listCanvasTemplate) {
-            listCanvasTemplate = Resources::FindObjectsOfTypeAll<Canvas*>().front_or_default([](auto x){ return x->get_name() == "DropdownTableView"; });
+            listCanvasTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::GameplaySetupViewController*>()->_playerSettingsPanelController->_noteJumpStartBeatOffsetDropdown->_simpleTextDropdown->_tableView->GetComponent<Canvas*>();
         }
         return listCanvasTemplate.ptr();
     }
@@ -67,7 +70,7 @@ namespace BSML {
         gameObject->AddComponent<HMUI::Touchable*>();
         gameObject->AddComponent<HMUI::EventSystemListener*>();
 
-        auto scrollView = gameObject->AddComponent<HMUI::ScrollView*>();
+        auto scrollView = Helpers::GetDiContainer()->InstantiateComponent<HMUI::ScrollView*>(gameObject);
 
         HMUI::TableView* tableView = gameObject->AddComponent<BSML::TableView*>();
         auto tableData = container->get_gameObject()->AddComponent<CustomListTableData*>();

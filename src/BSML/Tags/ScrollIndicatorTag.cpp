@@ -1,7 +1,12 @@
 #include "BSML/Tags/ScrollIndicatorTag.hpp"
+#include "HMUI/ScrollView.hpp"
+#include "HMUI/TableView.hpp"
+#include "GlobalNamespace/LevelCollectionTableView.hpp"
+#include "GlobalNamespace/LevelCollectionViewController.hpp"
+#include "GlobalNamespace/LevelCollectionNavigationController.hpp"
+#include "Helpers/getters.hpp"
 #include "logging.hpp"
 
-#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Object.hpp"
@@ -18,7 +23,7 @@ namespace BSML {
         static safe_ptr<HMUI::VerticalScrollIndicator*> scrollIndicatorTemplate;
         if (!scrollIndicatorTemplate)
         {
-            scrollIndicatorTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<HMUI::VerticalScrollIndicator* >().front_or_default();
+            scrollIndicatorTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::LevelCollectionNavigationController*>()->_levelCollectionViewController->_levelCollectionTableView->_tableView->get_scrollView()->_verticalScrollIndicator;
         }
         return scrollIndicatorTemplate.ptr();
     }

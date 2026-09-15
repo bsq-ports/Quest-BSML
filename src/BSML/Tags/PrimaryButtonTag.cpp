@@ -1,6 +1,7 @@
 #include "BSML/Tags/PrimaryButtonTag.hpp"
+#include "GlobalNamespace/PracticeViewController.hpp"
+#include "Helpers/getters.hpp"
 #include "UnityEngine/UI/Button.hpp"
-#include "UnityEngine/Resources.hpp"
 
 #include "beatsaber-hook/shared/safeptr.hpp"
 
@@ -12,7 +13,7 @@ namespace BSML {
     Button* PrimaryButtonTag::get_buttonPrefab() const {
         static safe_ptr<Button*> playButtonPrefab;
         if (!playButtonPrefab) {
-            playButtonPrefab = Resources::FindObjectsOfTypeAll<Button*>().back_or_default([&](auto x){ return x->get_name() == "PlayButton"; });
+            playButtonPrefab = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PracticeViewController*>()->_playButton;
         }
         return playButtonPrefab.ptr();
     }
