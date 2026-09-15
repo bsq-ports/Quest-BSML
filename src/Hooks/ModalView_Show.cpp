@@ -10,20 +10,24 @@ MAKE_AUTO_HOOK_MATCH(ModalView_Show, &HMUI::ModalView::Show, void, HMUI::ModalVi
 {
 	ModalView_Show(self, animated, moveToCenter, finishedCallback);
 	auto cb = self->_blockerGO->get_gameObject()->GetComponent<UnityEngine::Canvas*>();
-	auto screen = self->get_transform()->get_parent()->get_gameObject()->GetComponentInParent<HMUI::Screen*>();
-	auto canvases = screen->get_gameObject()->GetComponentsInChildren<UnityEngine::Canvas*>(true);
-
-	int highest = 0;
-	for (auto& canvas : canvases) {
-		if (canvas->get_sortingLayerID() == cb->get_sortingLayerID()) {
-			// if highest lower than current, assign
-			if (highest < canvas->get_sortingOrder()) {
-				highest = canvas->get_sortingOrder();
+	auto parent = self->get_transform()->get_parent();
+	auto screen = parent ? parent->GetComponentInParent<HMUI::Screen*>() : nullptr;
+	int highest = 1;
+	if (screen) {
+		// Match PC: inactive canvases must not influence modal stacking.
+		auto canvases = screen->GetComponentsInChildren<UnityEngine::Canvas*>();
+		bool foundCanvas = false;
+		int maxOrder = 0;
+		for (auto canvas : canvases) {
+			if (canvas->get_sortingLayerID() == cb->get_sortingLayerID()) {
+				if (!foundCanvas || canvas->get_sortingOrder() > maxOrder) {
+					maxOrder = canvas->get_sortingOrder();
+				}
+				foundCanvas = true;
 			}
 		}
+		highest = maxOrder + 1;
 	}
-
-	highest ++;
 	cb->set_overrideSorting(true);
 	cb->set_sortingOrder(highest);
 

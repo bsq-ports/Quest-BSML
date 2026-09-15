@@ -24,6 +24,9 @@ namespace BSML {
         auto modalView = reinterpret_cast<BSML::ModalView*>(componentType.component);
         auto& data = componentType.data;
 
+        // Match PC's markup default; the setter below still honors an explicit false.
+        modalView->moveToCenter = true;
+
         auto showEventItr = data.find("showEvent");
         if (showEventItr != data.end()) {
             parserParams.AddEvent(showEventItr->second, std::bind(&BSML::ModalView::Show, modalView));
