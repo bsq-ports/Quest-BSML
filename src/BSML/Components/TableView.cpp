@@ -13,13 +13,13 @@ void BSML::TableView::ctor() {
 }
 
 void BSML::TableView::ReloadData() {
+    static auto methodInfo = i2c::functions::class_get_method_from_name(i2c::class_of<HMUI::TableView*>(), "ReloadData", 0);
+    if (methodInfo) i2c::run_method(this, methodInfo);
+
     if (get_tableType() == TableType::Horizontal) {
         contentTransform->set_anchorMin({0, 0});
         contentTransform->set_anchorMax({0, 1});
     }
-
-    static auto methodInfo = i2c::functions::class_get_method_from_name(i2c::class_of<HMUI::TableView*>(), "ReloadData", 0);
-    if (methodInfo) i2c::run_method(this, methodInfo);
 }
 
 void BSML::TableView::DidSelectCellWithIdx(int idx) {
