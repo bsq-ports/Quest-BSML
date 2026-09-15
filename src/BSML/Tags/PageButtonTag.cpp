@@ -57,6 +57,7 @@ namespace BSML {
         externalComponents->Add(pageButton);
 
         auto btnIcon = gameObject->AddComponent<ButtonIconImage*>();
+        btnIcon->button = UnityW<Button>(button).cast<HMUI::NoTransitionsButton>();
         btnIcon->image = gameObject->GetComponentsInChildren<Image*>(true).front_or_default([&](auto x){ return x->get_name() == "Icon"; });
         externalComponents->Add(btnIcon);
 

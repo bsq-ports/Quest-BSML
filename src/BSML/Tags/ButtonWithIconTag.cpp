@@ -45,6 +45,7 @@ namespace BSML {
         button->set_interactable(true);
         auto transform = button->transform.cast<RectTransform>();
         auto gameObject = button->get_gameObject();
+        gameObject->SetActive(false);
 
         Object::Destroy(button->GetComponent<HMUI::HoverHint*>());
         Object::Destroy(button->GetComponent<GlobalNamespace::LocalizedHoverHint*>());
@@ -73,7 +74,10 @@ namespace BSML {
         iconImage->set_sprite(Utilities::FindSpriteCached("EditIcon"));
 
         auto btnIcon = button->get_gameObject()->AddComponent<ButtonIconImage*>();
+        btnIcon->button = UnityW<Button>(button).cast<HMUI::NoTransitionsButton>();
         btnIcon->image = iconImage;
+        btnIcon->underline = transform->Find("Underline")->get_gameObject();
+        btnIcon->SetSkew(transform->Find("BG")->GetComponent<HMUI::ImageView*>()->get_skew());
         externalComponents->Add(btnIcon);
 
         auto buttonSizeFitter = gameObject->AddComponent<ContentSizeFitter*>();
