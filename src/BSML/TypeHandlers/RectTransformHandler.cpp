@@ -30,9 +30,9 @@ namespace BSML {
             {"anchorMaxX", {"anchor-max-x"}},
             {"anchorMaxY", {"anchor-max-y"}},
             {"anchorMax",  {"anchor-max"}},
-            {"anchorPosX", {"anchor-pos-x"}},
-            {"anchorPosY", {"anchor-pos-y"}},
-            {"anchorPos",  {"anchor-pos"}},
+            {"anchorPosX", {"anchored-position-x", "anchor-pos-x"}},
+            {"anchorPosY", {"anchored-position-y", "anchor-pos-y"}},
+            {"anchorPos",  {"anchored-position", "anchor-pos"}},
             {"sizeDeltaX", {"size-delta-x"}},
             {"sizeDeltaY", {"size-delta-y"}},
             {"sizeDelta", {"size-delta"}},
@@ -42,6 +42,7 @@ namespace BSML {
             {"hoverHint", {"hover-hint"}},
             {"hoverHintKey", {"hover-hint-key"}},
             {"active", {"active"}},
+            {"name", {"name"}},
             {"localScale", {"local-scale", "scale" }},
         };
     }
@@ -56,15 +57,17 @@ namespace BSML {
             {"anchorMax",       [](auto component, auto value){ component->set_anchorMax(value.tryParseVector2().value_or(UnityEngine::Vector2(1, 1))); }},
             {"anchorPosX",      [](auto component, auto value){ component->set_anchoredPosition(UnityEngine::Vector2(value, component->get_anchoredPosition().y)); }},
             {"anchorPosY",      [](auto component, auto value){ component->set_anchoredPosition(UnityEngine::Vector2(component->get_anchoredPosition().x, value)); }},
+            {"anchorPos",       [](auto component, auto value){ component->set_anchoredPosition(value.tryParseVector2().value_or(UnityEngine::Vector2(0, 0))); }},
             {"sizeDeltaX",      [](auto component, auto value){ component->set_sizeDelta(UnityEngine::Vector2(value, component->get_sizeDelta().y)); }},
             {"sizeDeltaY",      [](auto component, auto value){ component->set_sizeDelta(UnityEngine::Vector2(component->get_sizeDelta().x, value)); }},
             {"sizeDelta",       [](auto component, auto value){ component->set_sizeDelta(value.tryParseVector2().value_or(UnityEngine::Vector2(0, 0))); }},
             {"pivotX",          [](auto component, auto value){ component->set_pivot(UnityEngine::Vector2(value, component->get_pivot().y)); }},
             {"pivotY",          [](auto component, auto value){ component->set_pivot(UnityEngine::Vector2(component->get_pivot().x, value)); }},
-            {"pivot",           [](auto component, auto value){ component->set_sizeDelta(value.tryParseVector2().value_or(UnityEngine::Vector2(0.5, 0.5))); }},
+            {"pivot",           [](auto component, auto value){ component->set_pivot(value.tryParseVector2().value_or(UnityEngine::Vector2(0.5, 0.5))); }},
             {"hoverHint",       [](auto component, auto value){ AddHoverHint(component, value); }},
             {"hoverHintKey",    [](auto component, auto value){ AddHoverHintKey(component, value); }},
             {"active",          [](auto component, auto value){ component->get_gameObject()->SetActive(value); }},
+            {"name",            [](auto component, auto value){ component->set_name(value); }},
             {"localScale",      [](auto component, auto value){ component->localScale = value.tryParseVector3(1).value_or(UnityEngine::Vector3(1, 1, 1)); }}
         };
     }
