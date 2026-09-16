@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/PageButtonHandler.hpp"
+#include "EnumParseHelper.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/Quaternion.hpp"
@@ -19,9 +20,7 @@ static std::map<std::string, PageButtonDirection> stringToPageButtonDirectionMap
 };
 
 static PageButtonDirection stringToPageButtonDirection(const std::string& str) {
-    auto itr = stringToPageButtonDirectionMap.find(str);
-    if (itr == stringToPageButtonDirectionMap.end()) return PageButtonDirection::Up;
-    return itr->second;
+    return BSML::ParseEnum(str, stringToPageButtonDirectionMap, "page button direction");
 }
 
 void SetButtonDirection(BSML::PageButton* pageButton, const StringParseHelper& value);

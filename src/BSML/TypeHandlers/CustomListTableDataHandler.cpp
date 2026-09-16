@@ -1,3 +1,4 @@
+#include "EnumParseHelper.hpp"
 #include "BSML/TypeHandlers/CustomListTableDataHandler.hpp"
 #include "Helpers/getters.hpp"
 #include "Helpers/delegates.hpp"
@@ -181,6 +182,9 @@ namespace BSML {
 }
 
 HMUI::TableView::TableType stringToTableType(const std::string& str) {
-    if (str == "Horizontal") return HMUI::TableView::TableType::Horizontal;
-    return HMUI::TableView::TableType::Vertical;
+    static const std::map<std::string, HMUI::TableView::TableType> names {
+        {"Horizontal", HMUI::TableView::TableType::Horizontal},
+        {"Vertical", HMUI::TableView::TableType::Vertical}
+    };
+    return BSML::ParseEnum(str, names, "list direction");
 }

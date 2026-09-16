@@ -14,7 +14,7 @@ namespace BSML {
         };
     }
 
-    void RepeatMacro::Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams,  std::vector<ComponentTypeWithData*>& componentInfo) const {
+    void RepeatMacro::Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams,  std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const {
         INFO("Executing repeat macro");
         auto host = parserParams.get_host();
         auto countItr = data.find("count");

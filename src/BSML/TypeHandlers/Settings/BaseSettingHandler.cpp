@@ -35,7 +35,8 @@ namespace BSML {
         auto applyOnChangeItr = data.find("applyOnChange");
         if (applyOnChangeItr != data.end()) {
             auto arg = StringParseHelper(applyOnChangeItr->second);
-            genericSettings->applyOnChange = arg.tryParseBool().value_or(true);
+            // Calls StringParseHelper::operator bool(): parses true/false and throws on invalid input, like PC's Parse.Bool.
+            genericSettings->applyOnChange = static_cast<bool>(arg);
         }
 
         auto valueItr = data.find("value");

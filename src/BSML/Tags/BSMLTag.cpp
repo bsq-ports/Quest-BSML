@@ -1,6 +1,8 @@
 #include "BSML/Tags/BSMLTag.hpp"
 #include "BSML/TypeHandlers/TypeHandler.hpp"
 #include "BSML/Components/ExternalComponents.hpp"
+#include <memory>
+#include <iterator>
 
 #include "logging.hpp"
 
@@ -26,12 +28,12 @@ namespace BSML {
         #endif
     }
 
-    void BSMLTag::Handle(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<ComponentTypeWithData*>& componentInfo) const {
+    void BSMLTag::Handle(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const {
         // create object
         auto currentObject = CreateObject(parent);
         auto externalComponents = currentObject->GetComponent<ExternalComponents*>();
 
-        std::vector<ComponentTypeWithData*> localComponentInfo = {};
+        std::vector<std::unique_ptr<ComponentTypeWithData>> localComponentInfo = {};
         auto& typeHandlers = TypeHandlerBase::get_typeHandlers();
         // get the type handlers for the components on currentObject
         for (auto typeHandler : typeHandlers) {
@@ -40,16 +42,16 @@ namespace BSML {
             if (component)
             {
                 INFO("Found component {}", type->FullNameOrDefault);
-                auto componentTypeWithData = new ComponentTypeWithData();
+                auto componentTypeWithData = std::make_unique<ComponentTypeWithData>();
                 componentTypeWithData->typeHandler = typeHandler;
                 componentTypeWithData->component = component;
                 componentTypeWithData->data = ComponentTypeWithData::GetParameters(attributes, parserParams, typeHandler->get_cachedProps());
-                localComponentInfo.emplace_back(componentTypeWithData);
+                localComponentInfo.emplace_back(std::move(componentTypeWithData));
             }
         }
 
         // handle type initially
-        for (auto componentTypeWithData : localComponentInfo) {
+        for (const auto& componentTypeWithData : localComponentInfo) {
             componentTypeWithData->typeHandler->HandleType(*componentTypeWithData, parserParams);
         }
 
@@ -78,16 +80,20 @@ namespace BSML {
         if (!tags.empty()) {
             parserParams.AddObjectWithTags(currentObject, tags);
         }
+        // Remember where this subtree starts before children append their metadata.
+        auto subtreeStart = componentInfo.size();
         // handle children
         HandleChildren(currentObject->get_transform(), parserParams, componentInfo);
 
         // handle type after children
-        for (auto componentTypeWithData : localComponentInfo) {
+        for (const auto& componentTypeWithData : localComponentInfo) {
             componentTypeWithData->typeHandler->HandleTypeAfterChildren(*componentTypeWithData, parserParams);
         }
 
-        // add all localComponentInfo to global one
-        componentInfo.insert(componentInfo.begin(), localComponentInfo.begin(), localComponentInfo.end());
+        // Match PC: parent metadata precedes its children, with siblings in document order.
+        componentInfo.insert(componentInfo.begin() + subtreeStart,
+            std::make_move_iterator(localComponentInfo.begin()),
+            std::make_move_iterator(localComponentInfo.end()));
     }
 
     UnityEngine::GameObject* BSMLTag::CreateObject(UnityEngine::Transform* parent) const {

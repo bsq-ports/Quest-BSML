@@ -32,38 +32,38 @@ struct BSML_EXPORT StringParseHelper : std::string_view {
     operator std::string() const;
 
     /// @brief string as bool
-    /// @return bool or false if invalid bool string
+    /// @return bool; throws BSML::ParseException on invalid input.
     operator bool() const;
 
     /// @brief string as int
-    /// @return int or 0 if invalid int string
+    /// @return int; throws BSML::ParseException on invalid input.
     operator int() const;
 
     /// @brief string as float
-    /// @return float or 0 if invalid float string
+    /// @return float; throws BSML::ParseException on invalid input.
     operator float() const;
 
-    /// @brief string as color
-    /// @return double or 0 if invalid double string
+    /// @brief string as double
+    /// @return double; throws BSML::ParseException on invalid input.
     operator double() const;
 
-    /// @return Color or white if invalid color string
+    /// @return Color; throws BSML::ParseException on invalid input.
     operator UnityEngine::Color() const;
 
     /// @brief string as color32
-    /// @return Color32 or white if invalid color string
+    /// @return Color32; throws BSML::ParseException on invalid input.
     operator UnityEngine::Color32() const;
 
     /// @brief string as vector2
-    /// @return Vector2 or 0, 0 if invalid vector2 string
+    /// @return Vector2; throws BSML::ParseException on invalid input.
     operator UnityEngine::Vector2() const;
 
     /// @brief string as vector3
-    /// @return Vector3 or 0, 0, 0 if invalid vector3 string
+    /// @return Vector3; throws BSML::ParseException on invalid input.
     operator UnityEngine::Vector3() const;
 
     /// @brief string as vector4
-    /// @return Vector4 or 0, 0, 0, 0 if invalid vector4 string
+    /// @return Vector4; throws BSML::ParseException on invalid input.
     operator UnityEngine::Vector4() const;
 
     /* -- parsing methods -- */
@@ -83,6 +83,10 @@ struct BSML_EXPORT StringParseHelper : std::string_view {
     /// @return optional containing double value, or nullopt if invalid double string
     std::optional<double> tryParseDouble() const;
 
+    /// Parse a Vector3; throws BSML::ParseException on invalid input.
+    /// defaultZ is used only for a valid two-component vector, never for invalid input.
+    UnityEngine::Vector3 parseVector3(float defaultZ = 0) const;
+
     /// @brief try to parse a color
     /// @return optional containing color value, or nullopt if invalid color string
     std::optional<UnityEngine::Color> tryParseColor() const;
@@ -93,15 +97,16 @@ struct BSML_EXPORT StringParseHelper : std::string_view {
 
     /// @brief try to parse a vector2
     /// @return optional containing vector2 value, or nullopt if invalid vector2 string
-    std::optional<UnityEngine::Vector2> tryParseVector2(float defaultValue = 0) const;
+    std::optional<UnityEngine::Vector2> tryParseVector2() const;
 
     /// @brief try to parse a vector3
-    /// @return optional containing vector3 value, or nullopt if invalid vector2 string
-    std::optional<UnityEngine::Vector3> tryParseVector3(float defaultValue = 0) const;
+    /// @return optional containing vector3 value, or nullopt if invalid vector3 string
+    /// @param defaultZ Z component when exactly two valid components are supplied.
+    std::optional<UnityEngine::Vector3> tryParseVector3(float defaultZ = 0) const;
 
     /// @brief try to parse a vector4
-    /// @return optional containing vector4 value, or nullopt if invalid vector2 string
-    std::optional<UnityEngine::Vector4> tryParseVector4(float defaultValue = 0) const;
+    /// @return optional containing vector4 value, or nullopt if invalid vector4 string
+    std::optional<UnityEngine::Vector4> tryParseVector4() const;
 
     /// @brief Parse one to four integers using CSS padding shorthand.
     /// @return Padding in left/right/top/bottom fields, or nullopt for invalid input.

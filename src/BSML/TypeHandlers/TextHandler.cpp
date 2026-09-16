@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/TextHandler.hpp"
+#include "EnumParseHelper.hpp"
 #include "Helpers/utilities.hpp"
 #include "TMPro/TextAlignmentOptions.hpp"
 #include "TMPro/TextOverflowModes.hpp"
@@ -53,22 +54,6 @@ static std::map<std::string, TMPro::TextOverflowModes> stringToOverflowModes {
     {"Linked", TMPro::TextOverflowModes::Linked}
 };
 
-static std::optional<TMPro::TextAlignmentOptions> stringToTextAlignmentOption(const std::string& str) {
-    auto itr = stringToTextAlignmentOptions.find(str);
-    if (itr != stringToTextAlignmentOptions.end())
-        return itr->second;
-
-    return std::nullopt;
-};
-
-static std::optional<TMPro::TextOverflowModes> stringToOverflowMode(const std::string& str) {
-    auto itr = stringToOverflowModes.find(str);
-    if (itr != stringToOverflowModes.end())
-        return itr->second;
-
-    return std::nullopt;
-};
-
 TMPro::FontStyles SetStyle(TMPro::FontStyles existing, TMPro::FontStyles modify, bool flag) {
     if (flag)
         return TMPro::FontStyles(existing.value__ | modify.value__);
@@ -118,8 +103,8 @@ namespace BSML {
             {"outlineColor",   [](auto component, auto value){ component->set_outlineColor(value); }},
             {"outlineWidth",   [](auto component, auto value){ component->set_outlineWidth(value); }},
             {"richText",       [](auto component, auto value){ component->set_richText(value); }},
-            {"fontAlign",      [](auto component, auto value){ auto v = stringToTextAlignmentOption(value); if (v.has_value()) component->set_alignment(v.value()); }},
-            {"overflowMode",   [](auto component, auto value){ auto v = stringToOverflowMode(value); if (v.has_value()) component->set_overflowMode(v.value()); }},
+            {"fontAlign",      [](auto component, auto value){ component->set_alignment(ParseEnum(value, stringToTextAlignmentOptions, "text alignment")); }},
+            {"overflowMode",   [](auto component, auto value){ component->set_overflowMode(ParseEnum(value, stringToOverflowModes, "overflow mode")); }},
             {"wordWrapping",   [](auto component, auto value){ component->set_enableWordWrapping(value); }},
             {"bold",            [](auto component, auto value){ component->set_fontStyle(SetStyle(component->get_fontStyle(), TMPro::FontStyles::Bold, value)); }},
             {"italics",         [](auto component, auto value){ component->set_fontStyle(SetStyle(component->get_fontStyle(), TMPro::FontStyles::Italic, value)); }},
