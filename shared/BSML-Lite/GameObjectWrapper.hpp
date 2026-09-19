@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../_config.h"
+#include "../concepts.hpp"
 #include "beatsaber-hook/shared/types.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Component.hpp"
@@ -8,20 +9,14 @@
 #include "UnityEngine/Transform.hpp"
 
 namespace BSML::Lite {
-    template<typename T>
-    concept has_gameObject = !std::is_convertible_v<T, UnityEngine::GameObject*> && requires(T t) {
-        { t->get_gameObject() } -> std::convertible_to<UnityEngine::GameObject*>;
-    };
-
     /// @brief A wrapper for transforms, components and gameobjects to automatically be converted into a gameObject
     struct BSML_EXPORT GameObjectWrapper {
         constexpr GameObjectWrapper(UnityEngine::GameObject* gameObject) noexcept : gameObject(gameObject) {}
 
-        template<has_gameObject T>
+        template<Concepts::HasGameObject T>
         GameObjectWrapper(T t) : GameObjectWrapper(t->get_gameObject()) {}
 
-        template<typename T>
-        requires(std::is_convertible_v<T, UnityEngine::GameObject*>)
+        template<Concepts::BSMLConvertible<UnityEngine::GameObject*> T>
         GameObjectWrapper(T t) : GameObjectWrapper(static_cast<UnityEngine::GameObject*>(t)) {}
 
         // il2cpp wrapper type
