@@ -6,10 +6,8 @@ UnityEngine::UI::Image* GetHandleImage(BSML::ScrollIndicator* indicator) {
     return indicator->get_Handle()->GetComponent<UnityEngine::UI::Image*>();
 }
 
-void TrySetHandleColor(BSML::ScrollIndicator* indicator, const StringParseHelper& htmlColor) {
-    auto v = htmlColor.tryParseColor(); 
-    if (v.has_value())
-    GetHandleImage(indicator)->set_color(v.value());
+void SetHandleColor(BSML::ScrollIndicator* indicator, const StringParseHelper& htmlColor) {
+    GetHandleImage(indicator)->set_color(static_cast<UnityEngine::Color>(htmlColor));
 }
 
 namespace BSML { 
@@ -24,7 +22,7 @@ namespace BSML {
 
     ScrollIndicatorHandler::Base::SetterMap ScrollIndicatorHandler::get_setters() const {
         return {
-            { "handleColor", TrySetHandleColor },
+            { "handleColor", SetHandleColor },
             { "handleImage", [](auto component, auto value){ Utilities::SetImage(GetHandleImage(component), value); }}
         };
     }

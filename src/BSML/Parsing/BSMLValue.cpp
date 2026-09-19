@@ -52,13 +52,13 @@ namespace BSML {
             if (itr != values.end()) { // if the value existed
                 auto val = itr->second;
                 val->setterInfo = i2c::functions::property_get_set_method(pinfo);
-                val->getterInfo = i2c::functions::property_get_set_method(pinfo);
+                val->getterInfo = i2c::functions::property_get_get_method(pinfo);
             } else { // if the value did not yet exist
                 auto val = new BSMLValue();
                 val->host = host;
                 val->name = pinfo->name;
                 val->setterInfo = i2c::functions::property_get_set_method(pinfo);
-                val->getterInfo = i2c::functions::property_get_set_method(pinfo);
+                val->getterInfo = i2c::functions::property_get_get_method(pinfo);
                 values.emplace(pinfo->name, val);
             }
         }

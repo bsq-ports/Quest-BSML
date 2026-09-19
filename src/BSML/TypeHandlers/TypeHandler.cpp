@@ -30,7 +30,7 @@ namespace BSML {
         auto itr = std::find(typeHandlers.begin(), typeHandlers.end(), typeHandler);
         if (itr != typeHandlers.end()) {
             INFO("UnRegistered type handler");
-            typeHandlers.erase(itr, itr++);
+            typeHandlers.erase(itr);
         }
         INFO("type handler count: {}", typeHandlers.size());
     }

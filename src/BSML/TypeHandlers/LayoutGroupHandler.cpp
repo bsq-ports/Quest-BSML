@@ -1,5 +1,6 @@
 #include "BSML/TypeHandlers/LayoutGroupHandler.hpp"
 #include "UnityEngine/RectOffset.hpp"
+#include "EnumParseHelper.hpp"
 
 static std::map<std::string, UnityEngine::TextAnchor> stringToTextAnchorMap {
     {"UpperLeft", UnityEngine::TextAnchor::UpperLeft},
@@ -12,15 +13,6 @@ static std::map<std::string, UnityEngine::TextAnchor> stringToTextAnchorMap {
     {"LowerCenter", UnityEngine::TextAnchor::LowerCenter},
     {"LowerRight", UnityEngine::TextAnchor::LowerRight}
 };
-
-static std::optional<UnityEngine::TextAnchor> stringToTextAnchor(const std::string& str) {
-    auto itr = stringToTextAnchorMap.find(str);
-    if (itr != stringToTextAnchorMap.end()) {
-        return itr->second;
-    }
-
-    return std::nullopt;
-}
 
 namespace BSML {
     static LayoutGroupHandler layoutGroupHandler{};
@@ -52,7 +44,7 @@ namespace BSML {
             if (pad) {
                 layoutGroup->set_padding(UnityEngine::RectOffset::New_ctor(pad->left, pad->right, pad->top, pad->bottom));
             } else {
-                ERROR("Could not parse padding '{}': expected one to four integers", padItr->second);
+                throw ParseException(fmt::format("Invalid padding '{}': expected one to four integers", padItr->second));
             }
         }
 
@@ -62,7 +54,6 @@ namespace BSML {
         auto padRightItr = data.find("padRight");
         auto originalPadding = layoutGroup->get_padding();
 
-        // if any padding values are found, override them
         layoutGroup->set_padding(UnityEngine::RectOffset::New_ctor(
             padLeftItr == data.end()     ? originalPadding->get_left()   : StringParseHelper(padLeftItr->second), 
             padRightItr == data.end()    ? originalPadding->get_right()  : StringParseHelper(padRightItr->second),
@@ -72,8 +63,7 @@ namespace BSML {
 
         auto childAlignItr = data.find("childAlign");
         if (childAlignItr != data.end()) {
-            auto childAlign = stringToTextAnchor(childAlignItr->second);
-            if (childAlign.has_value()) layoutGroup->set_childAlignment(childAlign.value());
+            layoutGroup->set_childAlignment(ParseEnum(childAlignItr->second, stringToTextAnchorMap, "child-alignment"));
         }
 
         Base::HandleType(componentType, parserParams);

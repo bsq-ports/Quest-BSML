@@ -125,7 +125,7 @@ namespace BSML {
         INFO("Got BSML string: {}", bsmlString);
     }
 
-    void CustomListTag::HandleChildren(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<ComponentTypeWithData*>& componentInfo) const {
+    void CustomListTag::HandleChildren(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const {
         // intentionally not doing anything
     }
 }

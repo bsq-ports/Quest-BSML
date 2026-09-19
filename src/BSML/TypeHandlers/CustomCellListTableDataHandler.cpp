@@ -39,7 +39,7 @@ namespace BSML {
 
     CustomCellListTableDataHandler::Base::SetterMap CustomCellListTableDataHandler::get_setters() const {
         return {
-            {"cellClickable",     [](auto component, auto value){ component->clickableCells = value.tryParseBool().value_or(true); }},
+            {"cellClickable",     [](auto component, auto value){ component->clickableCells = static_cast<bool>(value); }},
             {"alignCenter",     [](auto component, auto value){ component->tableView->_alignToCenter = value; }},
             {"stickScrolling",  [](auto component, auto value){
                 if (static_cast<bool>(value)) {
