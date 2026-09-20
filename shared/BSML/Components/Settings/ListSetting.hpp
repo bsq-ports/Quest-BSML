@@ -3,6 +3,7 @@
 #include "beatsaber-hook/shared/listw.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "IncDecSetting.hpp"
+#include <optional>
 
 DECLARE_CLASS_CUSTOM(BSML, ListSetting, BSML::IncDecSetting) {
     DECLARE_INSTANCE_METHOD(void, Setup);
@@ -25,4 +26,9 @@ DECLARE_CLASS_CUSTOM(BSML, ListSetting, BSML::IncDecSetting) {
     public:
         /* set a formatter if you want to give your own format to the setting */
         std::function<StringW(System::Object*)> formatter = nullptr;
+
+        /// @brief Like get_Value(), but distinguishes "no values registered"
+        /// (nullopt) from "the current value is itself null" (an engaged
+        /// optional holding nullptr) — get_Value() collapses both to nullptr.
+        std::optional<System::Object*> TryGetValue();
 };

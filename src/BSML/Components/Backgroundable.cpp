@@ -64,7 +64,12 @@ namespace BSML {
             }
 
             const auto& templateNames = templateNamesItr->second;
-            bgTemplate = FindTemplate(templateNames.spriteName, templateNames.objectName, templateNames.parentName);
+            auto found = FindTemplate(templateNames.spriteName, templateNames.objectName, templateNames.parentName);
+            if (!found) {
+                ERROR("Could not find background template for '{}', Skipping!", name);
+                return;
+            }
+            bgTemplate = *found;
             backgroundCache->Add(name, bgTemplate);
         }
 
@@ -159,7 +164,7 @@ namespace BSML {
         background->set_color(col);
     }
 
-    HMUI::ImageView* Backgroundable::FindTemplate(std::string_view spriteName, std::string_view objectName, std::string_view parentName) {
+    std::optional<HMUI::ImageView*> Backgroundable::FindTemplate(std::string_view spriteName, std::string_view objectName, std::string_view parentName) {
         auto images = Resources::FindObjectsOfTypeAll<HMUI::ImageView*>();
 
         for (auto image : images) {
@@ -175,6 +180,6 @@ namespace BSML {
             return image;
         }
 
-        return nullptr;
+        return std::nullopt;
     }
 }

@@ -3,6 +3,7 @@
 #include "custom-types/shared/macros.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "HMUI/ImageView.hpp"
+#include <optional>
 #include <string_view>
 
 DECLARE_CLASS_CODEGEN(BSML, Backgroundable, UnityEngine::MonoBehaviour) {
@@ -16,5 +17,7 @@ DECLARE_CLASS_CODEGEN(BSML, Backgroundable, UnityEngine::MonoBehaviour) {
     DECLARE_INSTANCE_METHOD(void, ApplyAlpha, float alpha);
 
     private:
-        static HMUI::ImageView* FindTemplate(std::string_view spriteName, std::string_view objectName, std::string_view parentName);
+        /// @return the matching template, or nullopt if the scene has no
+        /// ImageView matching all three of spriteName/objectName/parentName.
+        static std::optional<HMUI::ImageView*> FindTemplate(std::string_view spriteName, std::string_view objectName, std::string_view parentName);
 };

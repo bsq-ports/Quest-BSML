@@ -104,7 +104,7 @@ namespace BSML::Utilities {
         return texture;
     }
 
-    std::optional<UnityEngine::Color> ParseHTMLColorOpt(std::string_view str) {
+    std::optional<UnityEngine::Color> ParseHTMLColorOpt(std::string_view str) noexcept {
         std::string val{str};
         bool valid = false;
         auto color = CSSColorParser::parseRGBA(val, valid);
@@ -117,11 +117,11 @@ namespace BSML::Utilities {
         };
     }
 
-    UnityEngine::Color ParseHMTMLColor(std::string_view str) {
+    UnityEngine::Color ParseHMTMLColor(std::string_view str) noexcept {
         return ParseHTMLColorOpt(str).value_or(UnityEngine::Color{1.0, 1.0, 1.0, 1.0});
     }
 
-    std::optional<UnityEngine::Color32> ParseHTMLColor32Opt(std::string_view str) {
+    std::optional<UnityEngine::Color32> ParseHTMLColor32Opt(std::string_view str) noexcept {
         std::string val{str};
         bool valid = false;
         auto color = CSSColorParser::parse(val, valid);
@@ -135,7 +135,7 @@ namespace BSML::Utilities {
         };
     }
 
-    UnityEngine::Color32 ParseHTMLColor32(std::string_view str) {
+    UnityEngine::Color32 ParseHTMLColor32(std::string_view str) noexcept {
         return ParseHTMLColor32Opt(str).value_or(UnityEngine::Color32{0, 255, 255, 255, 255});
     }
 

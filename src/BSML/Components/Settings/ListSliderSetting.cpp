@@ -71,6 +71,11 @@ namespace BSML {
         return nullptr;
     }
 
+    std::optional<System::Object*> ListSliderSetting::TryGetValue() {
+        if (values.size() == 0) return std::nullopt;
+        return values[get_index()];
+    }
+
     void ListSliderSetting::set_Value(System::Object* value) {
         int index = 0;
         for (auto& v : values) {

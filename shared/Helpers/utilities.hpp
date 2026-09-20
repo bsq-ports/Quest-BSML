@@ -28,22 +28,22 @@ namespace BSML::Utilities {
     /// @brief parses a HTML color from given string view
     /// @param str the string view
     /// @return the color, or nullopt
-    BSML_EXPORT std::optional<UnityEngine::Color> ParseHTMLColorOpt(std::string_view str);
+    BSML_EXPORT std::optional<UnityEngine::Color> ParseHTMLColorOpt(std::string_view str) noexcept;
 
     /// @brief parses a HTML color from given string view
     /// @param str the string view
     /// @return the color, or white if invalid
-    BSML_EXPORT UnityEngine::Color ParseHMTMLColor(std::string_view str);
+    BSML_EXPORT UnityEngine::Color ParseHMTMLColor(std::string_view str) noexcept;
 
     /// @brief parses a HTML color from given string view
     /// @param str the string view
     /// @return the color32, or nullopt
-    BSML_EXPORT std::optional<UnityEngine::Color32> ParseHTMLColor32Opt(std::string_view str);
+    BSML_EXPORT std::optional<UnityEngine::Color32> ParseHTMLColor32Opt(std::string_view str) noexcept;
 
     /// @brief parses a HTML color from given string view
     /// @param str the string view
     /// @return the color32, or white if invalid
-    BSML_EXPORT UnityEngine::Color32 ParseHTMLColor32(std::string_view str);
+    BSML_EXPORT UnityEngine::Color32 ParseHTMLColor32(std::string_view str) noexcept;
 
     struct BSML_EXPORT ScaleOptions {
         int width;
