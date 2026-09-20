@@ -41,6 +41,9 @@
 #include "beatsaber-hook/shared/stringw.hpp"
 #include "beatsaber-hook/shared/byref.hpp"
 
+#include <algorithm>
+#include <cctype>
+
 #define coro(coroutine) BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(coroutine))
 
 using namespace UnityEngine;
@@ -221,12 +224,23 @@ namespace BSML::Utilities {
         }
     }
 
-    bool IsAnimated(StringW str)
+    namespace {
+        // Plain C++ suffix check
+        bool EndsWithIgnoreCase(std::string_view str, std::string_view suffix) {
+            if (str.size() < suffix.size()) return false;
+            auto tail = str.substr(str.size() - suffix.size());
+            return std::equal(tail.begin(), tail.end(), suffix.begin(), [](char a, char b) {
+                return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
+            });
+        }
+    }
+
+    bool IsAnimated(std::string_view str)
     {
-        return  str->EndsWith(".gif", System::StringComparison::OrdinalIgnoreCase) ||
-                str->EndsWith("_gif", System::StringComparison::OrdinalIgnoreCase) ||
-                str->EndsWith(".apng", System::StringComparison::OrdinalIgnoreCase)||
-                str->EndsWith("_apng", System::StringComparison::OrdinalIgnoreCase);
+        return  EndsWithIgnoreCase(str, ".gif") ||
+                EndsWithIgnoreCase(str, "_gif") ||
+                EndsWithIgnoreCase(str, ".apng") ||
+                EndsWithIgnoreCase(str, "_apng");
     }
 
     void DefaultImageLoadErrorHandler(ImageLoadError err) {
@@ -423,7 +437,7 @@ namespace BSML::Utilities {
         bool isUri = System::Uri::TryCreate(path, System::UriKind::Absolute, by_ref(uri));
         // animated just means ".gif || .apng"
         // TODO: support for animated sprites in the future
-        if (IsAnimated(path) || (isUri && IsAnimated(uri->get_LocalPath()))) {
+        if (IsAnimated(std::string(path)) || (isUri && IsAnimated(std::string(uri->get_LocalPath())))) {
             SetAndLoadImageAnimated(image, path, loadingAnimation, {isUri, uri}, onFinished, onError);
         } else { // not animated
             SetAndLoadImageNonAnimated(image, path, loadingAnimation, scaleOptions, cached, {isUri, uri}, onFinished, onError);

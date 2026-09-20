@@ -31,16 +31,22 @@ namespace BSML {
         return _buttons;
     }
 
-    bool MenuButtons::Registerbutton(MenuButton* button) {
-        if (!button) return false;
-        auto btns = get_buttons();
-        if (btns.find_if([button](auto b){ return b && (reinterpret_cast<MenuButton*>(b)->text == button->text); }) != btns.end()) {
-            ERROR("can't register a button with the same text ('{}') as an existing one!", button->text);
-            return false;
-        }
-        btns->Add(button);
-        Refresh();
-        return true;
+    bool MenuButtons::Registerbutton(MenuButton *button) {
+      if (!button)
+        return false;
+      auto btns = get_buttons();
+      if (btns.find_if([button](auto b) {
+            auto mb = i2c::try_cast<MenuButton *>(b);
+            return mb && mb->text == button->text;
+          }) != btns.end()) {
+        ERROR("can't register a button with the same text ('{}') as an "
+              "existing one!",
+              button->text);
+        return false;
+      }
+      btns->Add(button);
+      Refresh();
+      return true;
     }
 
     bool MenuButtons::UnRegisterbutton(MenuButton* button) {

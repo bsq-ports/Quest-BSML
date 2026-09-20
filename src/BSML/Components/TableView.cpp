@@ -13,7 +13,7 @@ void BSML::TableView::ctor() {
 }
 
 void BSML::TableView::ReloadData() {
-    static auto methodInfo = i2c::functions::class_get_method_from_name(i2c::class_of<HMUI::TableView*>(), "ReloadData", 0);
+    static auto methodInfo = i2c::metadata_getter<&HMUI::TableView::ReloadData>::method_info();
     if (methodInfo) i2c::run_method(this, methodInfo);
 
     if (get_tableType() == TableType::Horizontal) {
@@ -23,7 +23,7 @@ void BSML::TableView::ReloadData() {
 }
 
 void BSML::TableView::DidSelectCellWithIdx(int idx) {
-    static auto methodInfo = i2c::functions::class_get_method_from_name(i2c::class_of<HMUI::TableView*>(), "DidSelectCellWithIdx", 1);
+    static auto methodInfo = i2c::metadata_getter<&HMUI::TableView::DidSelectCellWithIdx>::method_info();
     if (methodInfo) i2c::run_method(this, methodInfo, idx);
 
     // TODO: possibly use the klass for the tableData to call a callback on that instead of registering things?

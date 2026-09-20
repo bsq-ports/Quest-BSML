@@ -27,23 +27,13 @@ DECLARE_CLASS_CODEGEN(BSML, ModalColorPicker, UnityEngine::MonoBehaviour) {
     DECLARE_INSTANCE_METHOD(void, OnChange, UnityEngine::Color value, GlobalNamespace::ColorChangeUIEventType type);
 
     DECLARE_CTOR(ctor);
-    public:
+  public:
+        // TODO: Replace with shim?
+        // Arbitrary XML on-cancel/on-done/color-change host bindings (ModalColorPickerHandler.cpp)
+        // and BSML's own known callers (e.g. ColorSetting) both go through these —
+        // resolving a host method by name still happens once, in BSMLAction::GetFunction,
+        // but nothing downstream of that ever touches a raw MethodInfo*/host pair again.
         std::function<void(UnityEngine::Color)> onChange = nullptr;
         std::function<void(UnityEngine::Color)> done = nullptr;
         std::function<void(void)> cancel = nullptr;
-    protected:
-        /* protected because these are for internal use */
-        friend class ModalColorPickerData;
-        friend class ColorSetting;
-        friend class ModalColorPickerHandler;
-
-        /* TODO replace with std::function? */
-        const MethodInfo* onCancelInfo = nullptr;
-        const MethodInfo* onDoneInfo = nullptr;
-        const MethodInfo* colorChangeInfo = nullptr;
-
-        // Append managed receivers so existing C++ callback offsets stay stable.
-        DECLARE_INSTANCE_FIELD_PRIVATE(System::Object*, onCancelHost);
-        DECLARE_INSTANCE_FIELD_PRIVATE(System::Object*, onDoneHost);
-        DECLARE_INSTANCE_FIELD_PRIVATE(System::Object*, colorChangeHost);
 };

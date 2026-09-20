@@ -37,10 +37,8 @@ namespace BSML {
     void ColorSetting::Setup() {
         if (modalColorPicker) {
             modalColorPicker->host = this;
-            modalColorPicker->onDoneHost = this;
-            modalColorPicker->onDoneInfo = i2c::functions::class_get_method_from_name(this->klass, "DonePressed", 1);
-            modalColorPicker->onCancelHost = this;
-            modalColorPicker->onCancelInfo = i2c::functions::class_get_method_from_name(this->klass, "CancelPressed", 0);
+            modalColorPicker->done = std::bind(&ColorSetting::DonePressed, this, std::placeholders::_1);
+            modalColorPicker->cancel = std::bind(&ColorSetting::CancelPressed, this);
             if (genericSetting && modalColorPicker->genericSetting) {
                 // Forward previews without giving the picker a value to commit.
                 modalColorPicker->genericSetting->onChangeHost = genericSetting->get_onChangeHost();

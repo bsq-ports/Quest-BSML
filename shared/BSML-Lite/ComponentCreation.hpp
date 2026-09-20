@@ -41,7 +41,7 @@ namespace BSML::Lite {
         auto gameObject = component->get_gameObject();
         gameObject->SetActive(true);
         auto rectTransform = component->transform.template cast<UnityEngine::RectTransform>();
-        auto externalComponents = gameObject->AddComponent<BSML::ExternalComponents*>();
+        auto externalComponents = gameObject->template AddComponent<BSML::ExternalComponents*>();
         externalComponents->Add(component);
         externalComponents->Add(rectTransform);
         // safe_ptr<T>'s converting constructor takes T* by reference, so a UnityW<...>
