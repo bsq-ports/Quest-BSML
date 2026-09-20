@@ -185,7 +185,7 @@ namespace BSML::Lite {
         layout->preferredHeight = sizeDelta.y;
         layout->preferredWidth = sizeDelta.x;
 
-        auto list = CreateList(rect, {0, 0}, {sizeDelta.x, sizeDelta.y - 16}, onCellWithIdxClicked);
+        auto list = CreateList(rect, UnityEngine::Vector2{0, 0}, UnityEngine::Vector2{sizeDelta.x, sizeDelta.y - 16}, onCellWithIdxClicked);
         auto pageUp = CreateClickableImage(vertical, get_carat_up(), [scrollView = list->tableView->scrollView.unsafe_ptr()](){
             if (scrollView && scrollView->m_CachedPtr.m_value) scrollView->PageUpButtonPressed();
         });
