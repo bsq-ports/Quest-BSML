@@ -6,9 +6,7 @@
 #include "BSML/Components/ExternalComponents.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/RectTransform.hpp"
-#include "UnityEngine/Component.hpp"
 #include "UnityEngine/Object.hpp"
-#include "TMPro/TextMeshProUGUI.hpp"
 #include "beatsaber-hook/shared/safeptr.hpp"
 #include <string_view>
 
@@ -18,6 +16,12 @@ namespace GlobalNamespace {
 namespace BeatSaber::Haptics {
     class HapticPresetSO;
     class HapticFeedbackManager;
+}
+namespace UnityEngine {
+    class Component;
+}
+namespace TMPro {
+    class TextMeshProUGUI;
 }
 
 namespace BSML::Lite {

@@ -1,6 +1,8 @@
 #include "BSML-Lite/ComponentCreation.hpp"
 
 #include "BGLib/Polyglot/LocalizedTextMeshProUGUI.hpp"
+#include "TMPro/TextMeshProUGUI.hpp"
+#include "UnityEngine/Component.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
 #include "UnityEngine/UI/LayoutGroup.hpp"
