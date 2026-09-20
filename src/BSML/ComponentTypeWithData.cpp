@@ -1,5 +1,27 @@
 #include "BSML/ComponentTypeWithData.hpp"
+#include "BSML/Parsing/ParseException.hpp"
 #include "logging.hpp"
+#include "System/IConvertible.hpp"
+#include "System/Globalization/CultureInfo.hpp"
+
+namespace {
+    StringW ObjectToInvariantString(System::Object* object) {
+        if (!i2c::try_cast<System::IConvertible*>(object)) return object->ToString();
+
+        auto slot = i2c::metadata_getter<&System::IConvertible::ToString>::method_info()->slot;
+        auto method = i2c::find_method(object->klass, {i2c::class_of<System::IConvertible*>(), slot});
+        if (!method) throw BSML::ParseException("Could not resolve IConvertible.ToString");
+
+        // runtime_invoke expects the payload for boxed value-type methods.
+        void* instance = i2c::functions::class_is_valuetype(method->klass)
+            ? i2c::functions::object_unbox(reinterpret_cast<Il2CppObject*>(object)) : static_cast<void*>(object);
+        void* args[] = {System::Globalization::CultureInfo::get_InvariantCulture()};
+        Il2CppException* exception = nullptr;
+        auto result = i2c::functions::runtime_invoke(method, instance, args, &exception);
+        if (exception) throw BSML::ParseException(i2c::exception_to_string(exception));
+        return reinterpret_cast<Il2CppString*>(result);
+    }
+}
 
 std::string BSMLValueToString(BSML::BSMLValue* v, Il2CppTypeEnum type);
 
@@ -16,17 +38,22 @@ namespace BSML {
                     auto key = itr->second.substr(1);
                     auto v = parserParams.TryGetValue(key);
                     if (v) {
-                        if (v->fieldInfo) {
-                            result[prop] = BSMLValueToString(v, v->fieldInfo->type->type);
-                        } else if (v->getterInfo) {
-                            result[prop] = BSMLValueToString(v, v->getterInfo->return_type->type);
+                        try {
+                            if (v->fieldInfo) {
+                                result[prop] = BSMLValueToString(v, v->fieldInfo->type->type);
+                            } else if (v->getterInfo) {
+                                result[prop] = BSMLValueToString(v, v->getterInfo->return_type->type);
+                            } else {
+                                // Macro-defined and custom values use the virtual getter.
+                                result[prop] = BSMLValueToString(v, Il2CppTypeEnum::IL2CPP_TYPE_OBJECT);
+                            }
+                        } catch (const ParseException& error) {
+                            throw ParseException(fmt::format("Attribute '{}': {}", alias, error.what()));
                         }
-
-                        continue;
+                        break;
                     } else {
-                        ERROR("Could not find value for '{}'", key);
+                        throw ParseException(fmt::format("Attribute '{}': could not find value '{}'", alias, key));
                     }
-                    // if the value was not found we assign the actual name to the prop so it can at least try to be used
                 }
                 result[prop] = itr->second;
                 break;
@@ -69,8 +96,11 @@ std::string BSMLValueToString(BSML::BSMLValue* v, Il2CppTypeEnum type) {
             return fmt::format("{}", v->GetValue<float>());
         case Il2CppTypeEnum::IL2CPP_TYPE_R8:
             return fmt::format("{}", v->GetValue<double>());
-        case Il2CppTypeEnum::IL2CPP_TYPE_STRING:
-            return v->GetValue<StringW>();
+        case Il2CppTypeEnum::IL2CPP_TYPE_STRING: {
+            auto value = v->GetValue<StringW>();
+            if (!value) throw BSML::ParseException(fmt::format("Value '{}' is null", v->name));
+            return value;
+        }
         case Il2CppTypeEnum::IL2CPP_TYPE_PTR: [[fallthrough]];
         case Il2CppTypeEnum::IL2CPP_TYPE_BYREF: [[fallthrough]];
         case Il2CppTypeEnum::IL2CPP_TYPE_VALUETYPE: [[fallthrough]];
@@ -88,8 +118,10 @@ std::string BSMLValueToString(BSML::BSMLValue* v, Il2CppTypeEnum type) {
         case Il2CppTypeEnum::IL2CPP_TYPE_CLASS: [[fallthrough]];
         case Il2CppTypeEnum::IL2CPP_TYPE_OBJECT: {
             auto obj = v->GetValue();
-            if (!obj) return "NULL";
-            return obj->ToString();
+            if (!obj) throw BSML::ParseException(fmt::format("Value '{}' is null", v->name));
+            auto text = ObjectToInvariantString(obj);
+            if (!text) throw BSML::ParseException(fmt::format("Value '{}' converted to a null string", v->name));
+            return text;
         }
         case Il2CppTypeEnum::IL2CPP_TYPE_SZARRAY: [[fallthrough]];
         case Il2CppTypeEnum::IL2CPP_TYPE_MVAR: [[fallthrough]];

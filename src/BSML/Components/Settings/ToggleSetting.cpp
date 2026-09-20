@@ -12,8 +12,7 @@ namespace BSML {
     }
 
     void ToggleSetting::Setup() {
-        auto onValueChangedInfo = i2c::functions::class_get_method_from_name(this->klass, "OnValueChanged", 1);
-        auto delegate = MakeUnityAction<bool>(this, onValueChangedInfo);
+        auto delegate = MakeUnityAction(std::function<void(bool)>(std::bind(&ToggleSetting::OnValueChanged, this, std::placeholders::_1)));
         toggle->onValueChanged->AddListener(delegate);
 
         ReceiveValue();

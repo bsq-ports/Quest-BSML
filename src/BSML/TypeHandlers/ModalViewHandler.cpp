@@ -21,7 +21,12 @@ namespace BSML {
     }
 
     void ModalViewHandler::HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
-        auto modalView = reinterpret_cast<BSML::ModalView*>(componentType.component);
+        Base::HandleType(componentType, parserParams);
+        auto modalView = i2c::try_cast<BSML::ModalView*>(componentType.component);
+        if (!modalView) {
+            ERROR("ModalViewHandler::HandleType given a component that is not a ModalView");
+            return;
+        }
         auto& data = componentType.data;
 
         // Match PC's markup default; the setter below still honors an explicit false.
@@ -46,6 +51,5 @@ namespace BSML {
             if (showMinfo) parserParams.AddAction(id + "#Show", new BSMLAction(modalView, showMinfo));
             if (hideMinfo) parserParams.AddAction(id + "#Hide", new BSMLAction(modalView, hideMinfo));
         }
-        Base::HandleType(componentType, parserParams);
     }
 }

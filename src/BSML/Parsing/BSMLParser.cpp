@@ -2,6 +2,7 @@
 #include "BSML/Parsing/BSMLDocParser.hpp"
 #include "BSML/Parsing/BSMLNodeParser.hpp"
 #include "BSML/TypeHandlers/TypeHandler.hpp"
+#include "BSML/Parsing/ParseException.hpp"
 #include "logging.hpp"
 
 namespace BSML {
@@ -17,10 +18,12 @@ namespace BSML {
         // we use the data & size here so even if the string view is not null terminated it works right/if it's a view into part of a string it doesn't read too far
         auto error = doc.Parse(str.data(), str.size());
         if (error != tinyxml2::XML_SUCCESS) {
-            ERROR("Error parsing BSML document: {}", tinyxml2::XMLDocument::ErrorIDToName(error));
-            DEBUG("Printing the XML file:\n{}", str);
-            std::string validString = fmt::format("<vertical bg='round-rect-panel' pad='5' spacing='4' pref-height='20' vertical-fit='PreferredSize'><text font-size='6' text='ERROR PARSING BSML FILE' align='Center'/><text text='{}' align='Center'/></vertical>", tinyxml2::XMLDocument::ErrorIDToName(error));
-            doc.Parse(validString.c_str(), validString.size());
+            throw ParseException(fmt::format("Invalid BSML XML at line {}: {}", doc.ErrorLineNum(), doc.ErrorStr()));
+        }
+
+        if (!doc.FirstChildElement()) throw ParseException("Invalid BSML XML: no root element");
+        for (auto node = doc.FirstChild(); node; node = node->NextSibling()) {
+            if (node->ToText()) throw ParseException(fmt::format("Invalid BSML XML at line {}: text outside an element", node->GetLineNum()));
         }
 
         auto root = parser->root;
@@ -48,7 +51,7 @@ namespace BSML {
 
     void BSMLParser::Construct(UnityEngine::Transform* parent, System::Object* host) {
         parserParams->host = host;
-        std::vector<ComponentTypeWithData*> components;
+        std::vector<std::unique_ptr<ComponentTypeWithData>> components;
 
         INFO("Making values from host fields, props and methods");
         auto values = host ? BSMLValue::MakeValues(host) : std::map<std::string, BSML::BSMLValue *>{};
@@ -69,13 +72,10 @@ namespace BSML {
         /// when making from a new "root" we skip the root itself
         root->HandleChildren(parent, *parserParams, components);
 
-        for (auto comp : components) {
+        for (const auto& comp : components) {
             comp->typeHandler->HandleTypeAfterParse(*comp, *parserParams);
         }
 
-        for (auto component : components) {
-            delete component;
-        }
 
         components.clear();
 
@@ -87,7 +87,7 @@ namespace BSML {
     std::shared_ptr<BSMLParserParams> BSMLParser::Construct(const BSMLNode* root, UnityEngine::Transform* parent, System::Object* host) {
         auto parserParams = std::make_shared<BSMLParserParams>();
         parserParams->host = host;
-        std::vector<ComponentTypeWithData*> components;
+        std::vector<std::unique_ptr<ComponentTypeWithData>> components;
 
         INFO("Making values from host fields, props and methods");
         auto values = host ? BSMLValue::MakeValues(host) : std::map<std::string, BSML::BSMLValue *>{};
@@ -103,13 +103,10 @@ namespace BSML {
         }
 
         root->HandleChildren(parent, *parserParams, components);
-        for (auto comp : components) {
+        for (const auto& comp : components) {
             comp->typeHandler->HandleTypeAfterParse(*comp, *parserParams);
         }
 
-        for (auto component : components) {
-            delete component;
-        }
         components.clear();
 
         if (host) {

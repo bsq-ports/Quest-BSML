@@ -1,12 +1,10 @@
 #include "BSML-Lite/Creation/Image.hpp"
+#include "BSML-Lite/ComponentCreation.hpp"
+#include "Helpers/getters.hpp"
 
-#define protected public
-#include "BSML/Tags/ImageTag.hpp"
-#include "BSML/Tags/RawImageTag.hpp"
-#include "BSML/Tags/ClickableImageTag.hpp"
-#undef protected
-
+#include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/RectTransform.hpp"
+#include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/SpriteMeshType.hpp"
 #include "UnityEngine/ImageConversion.hpp"
 #include "UnityEngine/TextureFormat.hpp"
@@ -15,40 +13,60 @@
 #include "cppcodec/base64_rfc4648.hpp"
 #include <fstream>
 
+// Note: BSML-Lite owns image-component creation logic directly here. It no
+// longer reaches into BSML::{Image,RawImage,ClickableImage}Tag's protected
+// CreateObject (previously via `#define protected public`).
+
 namespace BSML::Lite {
-    HMUI::ImageView* CreateImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta) {
-        auto go = BSML::ImageTag{}.CreateObject(parent);
-        auto imageView = go->GetComponent<HMUI::ImageView*>();
-        imageView->set_sprite(sprite);
+    HMUI::ImageView* CreateImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, const ImageOptions& options) {
+        auto gameObject = UnityEngine::GameObject::New_ctor("BSMLImage");
+        auto image = gameObject->AddComponent<HMUI::ImageView*>();
+        image->set_material(Helpers::GetUINoGlowMat());
+        image->set_sprite(sprite);
 
-        auto rect = go->GetComponent<UnityEngine::RectTransform*>();
-        rect->set_anchoredPosition(anchoredPosition);
-        rect->set_sizeDelta(sizeDelta);
-        return imageView;
+        auto rectTransform = image->get_rectTransform();
+        rectTransform->SetParent(parent, false);
+        rectTransform->set_anchoredPosition(options.anchoredPosition);
+        rectTransform->set_sizeDelta(options.sizeDelta);
+
+        gameObject->AddComponent<UnityEngine::UI::LayoutElement*>();
+        return image;
     }
 
-    BSML::ClickableImage* CreateClickableImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, std::function<void()> onClick, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta) {
-        auto go = BSML::ClickableImageTag{}.CreateObject(parent);
-        auto clickableImage = go->GetComponent<BSML::ClickableImage*>();
-        clickableImage->set_sprite(sprite);
+    BSML::ClickableImage* CreateClickableImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, const ClickableImageOptions& options) {
+        auto gameObject = UnityEngine::GameObject::New_ctor("BSMLClickableImage");
+        auto image = gameObject->AddComponent<BSML::ClickableImage*>();
+        image->set_material(Helpers::GetUINoGlowMat());
+        image->set_sprite(sprite);
 
-        auto rect = go->GetComponent<UnityEngine::RectTransform*>();
-        rect->set_anchoredPosition(anchoredPosition);
-        rect->set_sizeDelta(sizeDelta);
+        auto rectTransform = image->get_rectTransform();
+        rectTransform->SetParent(parent, false);
+        rectTransform->set_anchoredPosition(options.anchoredPosition);
+        rectTransform->set_sizeDelta(options.sizeDelta);
 
-        if (onClick) clickableImage->onClick += {onClick};
-        return clickableImage;
+        image->buttonClickedSignal = GetClickedSignal();
+        image->hapticFeedbackPresetSO = GetClickHapticPreset();
+        image->hapticFeedbackManager = GetClickHapticFeedbackManager();
+
+        gameObject->AddComponent<UnityEngine::UI::LayoutElement*>();
+
+        if (options.onClick) image->onClick += {options.onClick};
+        return image;
     }
 
-    UnityEngine::UI::RawImage* CreateRawImage(const TransformWrapper& parent, UnityEngine::Texture* texture, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta) {
-        auto go = BSML::ImageTag{}.CreateObject(parent);
-        auto rawImage = go->GetComponent<UnityEngine::UI::RawImage*>();
-        rawImage->set_texture(texture);
+    UnityEngine::UI::RawImage* CreateRawImage(const TransformWrapper& parent, UnityEngine::Texture* texture, const RawImageOptions& options) {
+        auto gameObject = UnityEngine::GameObject::New_ctor("BSMLRawImage");
+        auto image = gameObject->AddComponent<UnityEngine::UI::RawImage*>();
+        image->set_material(Helpers::GetUINoGlowMat());
+        image->set_texture(texture);
 
-        auto rect = go->GetComponent<UnityEngine::RectTransform*>();
-        rect->set_anchoredPosition(anchoredPosition);
-        rect->set_sizeDelta(sizeDelta);
-        return rawImage;
+        auto rectTransform = image->get_rectTransform();
+        rectTransform->SetParent(parent, false);
+        rectTransform->set_anchoredPosition(options.anchoredPosition);
+        rectTransform->set_sizeDelta(options.sizeDelta);
+
+        gameObject->AddComponent<UnityEngine::UI::LayoutElement*>();
+        return image;
     }
 
     UnityEngine::Sprite* FileToSprite(const std::string_view& filePath) {
@@ -61,7 +79,7 @@ namespace BSML::Lite {
     }
 
     UnityEngine::Sprite* TextureToSprite(UnityEngine::Texture2D* tex) {
-        return (tex && tex->m_CachedPtr.m_value) ? UnityEngine::Sprite::Create(tex, UnityEngine::Rect(0.0f, 0.0f, (float)tex->get_width(), (float)tex->get_height()), UnityEngine::Vector2(0.5f,0.5f), 100.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false) : nullptr;
+        return (tex && tex->m_CachedPtr.m_value) ? UnityEngine::Sprite::Create(tex, UnityEngine::Rect(0.0f, 0.0f, (float)tex->get_width(), (float)tex->get_height()), UnityEngine::Vector2(0.5f, 0.5f), 100.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false) : nullptr;
     }
 
     UnityEngine::Sprite* Base64ToSprite(const std::string_view& base64Str) {
@@ -86,5 +104,4 @@ namespace BSML::Lite {
         UnityEngine::Object::DestroyImmediate(texture);
         return nullptr;
     }
-
 }

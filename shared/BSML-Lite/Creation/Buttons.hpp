@@ -8,63 +8,34 @@
 #define DEFAULT_BUTTONTEMPLATE "PracticeButton"
 
 namespace BSML::Lite {
-    /// @brief Create a button with text
-    /// @param parent what to parent it to
-    /// @param buttonText the text on the button
-    /// @param buttonTemplate button template to use for instantiation
-    /// @param anchoredPosition position of the anchor relative to the parent
-    /// @param sizeDelta how much smaller this thing is relative to the parent
-    /// @param onClick what to run when it's clicked
-    /// @return created button
-    BSML_EXPORT UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, const std::string_view& buttonTemplate, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::function<void()> onClick = nullptr);
+    /// @brief Options for CreateUIButton.
+    struct BSML_EXPORT ButtonOptions {
+        /// @brief button template to use for instantiation: "PracticeButton" (default,
+        /// small button), "PlayButton" (large primary button), or the exact name of
+        /// any other in-game Button to copy.
+        std::string_view buttonTemplate = DEFAULT_BUTTONTEMPLATE;
+        /// @brief position of the anchor relative to the parent
+        UnityEngine::Vector2 anchoredPosition = {0, 0};
+        /// @brief how much smaller this thing is relative to the parent
+        UnityEngine::Vector2 sizeDelta = {0, 0};
+        /// @brief what to run when it's clicked
+        std::function<void()> onClick = nullptr;
+    };
 
     /// @brief Create a button with text
     /// @param parent what to parent it to
     /// @param buttonText the text on the button
-    /// @param buttonTemplate button template to use for instantiation
-    /// @param anchoredPosition position of the anchor relative to the parent
-    /// @param onClick what to run when it's clicked
+    /// @param options creation options (template, position, size, click handler)
     /// @return created button
-    static inline UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, const std::string_view& buttonTemplate, UnityEngine::Vector2 anchoredPosition, std::function<void()> onClick = nullptr) {
-        return CreateUIButton(parent, buttonText, buttonTemplate, anchoredPosition, {0, 0}, onClick);
-    }
+    BSML_EXPORT UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, const ButtonOptions& options = {});
 
-    /// @brief Create a button with text
-    /// @param parent what to parent it to
-    /// @param buttonText the text on the button
-    /// @param buttonTemplate button template to use for instantiation
-    /// @param onClick what to run when it's clicked
-    /// @return created button
-    static inline UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, const std::string_view& buttonTemplate, std::function<void()> onClick = nullptr) {
-        return CreateUIButton(parent, buttonText, buttonTemplate, {0, 0}, {0, 0}, onClick);
-    }
-
-    /// @brief Create a button with text
-    /// @param parent what to parent it to
-    /// @param buttonText the text on the button
-    /// @param anchoredPosition position of the anchor relative to the parent
-    /// @param sizeDelta how much smaller this thing is relative to the parent
-    /// @param onClick what to run when it's clicked
-    /// @return created button
-    BSML_EXPORT UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::function<void()> onClick = nullptr);
-
-    /// @brief Create a button with text
-    /// @param parent what to parent it to
-    /// @param buttonText the text on the button
-    /// @param anchoredPosition position of the anchor relative to the parent
-    /// @param onClick what to run when it's clicked
-    /// @return created button
-    static inline UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, UnityEngine::Vector2 anchoredPosition, std::function<void()> onClick = nullptr) {
-        return CreateUIButton(parent, buttonText, anchoredPosition, {0, 0}, onClick);
-    }
-
-    /// @brief Create a button with text
+    /// @brief Create a button with text and a click handler (convenience overload for the common case)
     /// @param parent what to parent it to
     /// @param buttonText the text on the button
     /// @param onClick what to run when it's clicked
     /// @return created button
-    static inline UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, std::function<void()> onClick = nullptr) {
-        return CreateUIButton(parent, buttonText, UnityEngine::Vector2({0, 0}), {0, 0}, onClick);
+    static inline UnityEngine::UI::Button* CreateUIButton(const TransformWrapper& parent, StringW buttonText, std::function<void()> onClick) {
+        return CreateUIButton(parent, buttonText, ButtonOptions{.onClick = std::move(onClick)});
     }
 
     /// @brief set the button text on the passed in button
@@ -97,4 +68,16 @@ namespace BSML::Lite {
     /// @param inactive, for when not hovering over the button
     /// @param active for when hovering over the button
     BSML_EXPORT void SetButtonSprites(UnityEngine::UI::Button* button, UnityEngine::Sprite* inactive, UnityEngine::Sprite* active);
+
+    /// @brief Creates an icon-only button (copied from the level detail "practice" button, with its
+    /// text stripped and an icon image added in its place). Defaults to the pencil/edit icon; use
+    /// SetButtonIcon to change it.
+    /// @param parent what to parent it to
+    /// @return the created button's GameObject (has a BSML::ButtonIconImage and BSML::ExternalComponents on it)
+    BSML_EXPORT UnityEngine::GameObject* CreateIconButton(const TransformWrapper& parent);
+
+    /// @brief Creates a small icon button matching the style of the settings panel's page up/down buttons
+    /// @param parent what to parent it to
+    /// @return the created button's GameObject (has a BSML::PageButton, BSML::ButtonIconImage and BSML::ExternalComponents on it)
+    BSML_EXPORT UnityEngine::GameObject* CreatePageButton(const TransformWrapper& parent);
 }

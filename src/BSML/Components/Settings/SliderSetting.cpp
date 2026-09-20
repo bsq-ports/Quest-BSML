@@ -43,8 +43,7 @@ namespace BSML {
             slider->set_numberOfSteps(steps + 1);
             ReceiveValue();
 
-            auto onChangeInfo = i2c::functions::class_get_method_from_name(this->klass, "OnChange", 2);
-            auto delegate = MakeSystemAction<UnityW<HMUI::RangeValuesTextSlider>, float>(this, onChangeInfo);
+            auto delegate = MakeSystemAction(std::function<void(UnityW<HMUI::RangeValuesTextSlider>, float)>(std::bind(&SliderSetting::OnChange, this, std::placeholders::_1, std::placeholders::_2)));
 
             slider->add_valueDidChangeEvent(delegate);
         }

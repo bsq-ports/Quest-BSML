@@ -1,6 +1,5 @@
 #include "BSML/Parsing/BSMLAction.hpp"
-
-extern void collect_minfos(Il2CppClass* klass, std::vector<const MethodInfo*>& minfos);
+#include "BSML/Parsing/BSMLValue.hpp"
 
 namespace BSML {
     BSMLAction::BSMLAction(System::Object* host, const MethodInfo* methodInfo) : host(host), methodInfo(methodInfo) {}

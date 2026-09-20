@@ -7,6 +7,6 @@ namespace BSML {
     class BSML_EXPORT AsHostMacro : public BSMLMacro {
         public:
             PropMap get_props() const override;
-            void Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams, std::vector<ComponentTypeWithData*>& componentInfo) const override;
+            void Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams, std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const override;
     };
 }

@@ -74,8 +74,7 @@ namespace BSML {
         DEBUG("left button: {}, right button: {}", leftButton != nullptr, rightButton != nullptr);
         Refresh();
 
-        auto tabSelectedInfo = i2c::functions::class_get_method_from_name(this->klass, "TabSelected", 2);
-        auto delegate = MakeSystemAction<UnityW<HMUI::SegmentedControl>, int>(this, tabSelectedInfo);
+        auto delegate = MakeSystemAction(std::function<void(UnityW<HMUI::SegmentedControl>, int)>(std::bind(&TabSelector::TabSelected, this, std::placeholders::_1, std::placeholders::_2)));
         textSegmentedControl->add_didSelectCellEvent(delegate);
         textSegmentedControl->SelectCellWithNumber(0);
         TabSelected(textSegmentedControl, 0);

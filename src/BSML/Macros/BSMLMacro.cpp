@@ -1,8 +1,7 @@
 #include "BSML/Macros/BSMLMacro.hpp"
 
 #include "BSML/Parsing/BSMLParserParams.hpp"
-
-extern std::string BSMLValueToString(BSML::BSMLValue* v, Il2CppTypeEnum type);
+#include "BSML/ComponentTypeWithData.hpp"
 
 namespace BSML {
     BSMLMacro::BSMLMacro() : BSMLNode() {
@@ -17,36 +16,8 @@ namespace BSML {
         return cachedProps;
     }
 
-    void BSMLMacro::Handle(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<ComponentTypeWithData*>& componentInfo) const {
-        std::map<std::string, std::string> data;
-
-        // for each property in this macro
-        for (const auto& [key, aliases] : get_cachedProps()) {
-            // try to find it's aliases in the data
-            for (const auto& alias : aliases) {
-                auto itr = attributes.find(alias);
-                // not found -> continue;
-                if (itr == attributes.end()) continue;
-                // if value starts with ~ get value from parser params
-                if (!itr->second.empty() && itr->second[0] == '~') {
-                    // if start with ~ look the value up in the parserParams values
-                    auto key = itr->second.substr(1);
-                    auto v = parserParams.TryGetValue(key);
-                    if (v) {
-                        if (v->fieldInfo) {
-                            data[key] = BSMLValueToString(v, v->fieldInfo->type->type);
-                        } else if (v->getterInfo) {
-                            data[key] = BSMLValueToString(v, v->getterInfo->return_type->type);
-                        }
-                        break;
-                    }
-                    // if the value was not found we assign the actual name to the prop so it can at least try to be used
-                } 
-                    data[key] = itr->second;
-                    break;
-                }
-        }
-
+    void BSMLMacro::Handle(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const {
+        auto data = ComponentTypeWithData::GetParameters(attributes, parserParams, get_cachedProps());
         Execute(parent, data, parserParams, componentInfo);
     }
 }

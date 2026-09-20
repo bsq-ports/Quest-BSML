@@ -17,7 +17,12 @@ namespace BSML {
     }
 
     void ListSliderSettingHandler::HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
-        auto component = reinterpret_cast<ListSliderSetting*>(componentType.component);
+        Base::HandleType(componentType, parserParams);
+        auto component = i2c::try_cast<ListSliderSetting*>(componentType.component);
+        if (!component) {
+            ERROR("ListSliderSettingHandler::HandleType given a component that is not a ListSliderSetting");
+            return;
+        }
         auto& data = componentType.data;
 
         auto optionsItr = data.find("options");
@@ -29,7 +34,5 @@ namespace BSML {
         if (!component->values || component->values->get_Count() == 0) {
             ERROR("Did not give options for dropdown list! this is required!");
         }
-
-        Base::HandleType(componentType, parserParams);
     }
 }

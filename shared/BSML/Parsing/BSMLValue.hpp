@@ -3,8 +3,15 @@
 #include "../../_config.h"
 #include "System/Object.hpp"
 #include <map>
+#include <vector>
+
 
 namespace BSML {
+    /// @brief Recursively collects every MethodInfo* declared on klass and its whole parent
+    /// chain into minfos. Defined in BSMLValue.cpp; also used by BSMLAction.cpp.
+    void collect_minfos(Il2CppClass* klass, std::vector<const MethodInfo*>& minfos);
+
+
     struct BSML_EXPORT BSMLValue {
         std::string name;
         System::Object* host;

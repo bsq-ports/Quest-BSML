@@ -23,7 +23,11 @@ namespace BSML {
 
     void TabSelectorHandler::HandleTypeAfterParse(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
         Base::HandleTypeAfterParse(componentType, parserParams);
-        auto tabSelector = reinterpret_cast<TabSelector*>(componentType.component);
+        auto tabSelector = i2c::try_cast<TabSelector*>(componentType.component);
+        if (!tabSelector) {
+            ERROR("TabSelectorHandler::HandleTypeAfterParse given a component that is not a TabSelector");
+            return;
+        }
 
         tabSelector->Setup(parserParams);
     }

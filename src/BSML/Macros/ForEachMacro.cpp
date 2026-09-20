@@ -15,7 +15,7 @@ namespace BSML {
         };
     }
 
-    void ForEachMacro::Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams,  std::vector<ComponentTypeWithData*>& componentInfo) const {
+    void ForEachMacro::Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams,  std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const {
         INFO("Executing foreach macro");
         auto hostsItr = data.find("hosts");
         if (hostsItr != data.end()) {

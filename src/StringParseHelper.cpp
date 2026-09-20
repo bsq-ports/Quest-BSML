@@ -1,12 +1,51 @@
 #include "StringParseHelper.hpp"
+#include "BSML/Parsing/ParseException.hpp"
 #include "Helpers/utilities.hpp"
 #include "logging.hpp"
 
 #include <array>
 #include <charconv>
+#include <cmath>
+#include <concepts>
+#include <limits>
+
+namespace {
+    std::string_view TrimParseWhitespace(std::string_view input) noexcept {
+        auto first = input.find_first_not_of(" \t\r\n\v\f");
+        if (first == std::string_view::npos) return {};
+        return input.substr(first, input.find_last_not_of(" \t\r\n\v\f") - first + 1);
+    }
+
+    // Shared "unwrap or throw" body for the implicit-conversion operators below —
+    // `message` is only invoked (and only builds the fmt::format string) on the
+    // failure path, so this doesn't cost anything extra on a successful parse.
+    template<typename T>
+    T ParseOrThrow(std::optional<T> result, std::invocable auto message) {
+        if (!result) throw BSML::ParseException(message());
+        return *result;
+    }
+
+    template<std::size_t N>
+    std::optional<std::pair<std::array<float, N>, std::size_t>> ParseVectorComponents(std::string_view input) noexcept {
+        std::array<float, N> values{};
+        std::size_t count = 0;
+        while (!input.empty()) {
+            auto end = input.find(' ');
+            auto token = input.substr(0, end);
+            input = end == std::string_view::npos ? std::string_view{} : input.substr(end + 1);
+            if (token.empty()) continue; // PC splits on spaces and removes empty entries.
+            if (count == N) return std::nullopt;
+            auto value = StringParseHelper(TrimParseWhitespace(token)).tryParseFloat();
+            if (!value) return std::nullopt;
+            values[count++] = *value;
+        }
+        if (count == 0) return std::nullopt;
+        return std::pair{values, count};
+    }
+}
 
 // splits this view into a vector of views into the different parts
-std::vector<std::string_view> StringParseHelper::split(char split) const {
+std::vector<std::string_view> StringParseHelper::split(char split) const noexcept {
     std::vector<std::string_view> parts;
     std::size_t start = 0, end;
     while((end = this->find(split, start)) != std::string::npos) {
@@ -24,19 +63,19 @@ std::vector<std::string_view> StringParseHelper::split(char split) const {
     return parts;
 }
 /// makes a string thats lowercase
-std::string StringParseHelper::toLower() const {
+std::string StringParseHelper::toLower() const noexcept {
     std::string ret{data(), size()};
     std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
     return ret;
 }
 
-std::string StringParseHelper::toUpper() const {
+std::string StringParseHelper::toUpper() const noexcept {
     std::string ret{data(), size()};
     std::transform(ret.begin(), ret.end(), ret.begin(), ::toupper);
     return ret;
 }
 
-std::optional<bool> StringParseHelper::tryParseBool() const {
+std::optional<bool> StringParseHelper::tryParseBool() const noexcept {
     auto lower = toLower();
     if (lower == "true")
         return true;
@@ -45,102 +84,76 @@ std::optional<bool> StringParseHelper::tryParseBool() const {
     return std::nullopt;
 }
 
-std::optional<int> StringParseHelper::tryParseInt() const {
-    // strtol requires a terminated string; this view may be one part of a vector.
-    const std::string input(data(), size());
-    const char* begin = input.c_str();
-    char* end = nullptr;
-    int result = strtol(begin, &end, 10);
-    if (*begin == '\0') return std::nullopt;
-    if (end == begin || *end != '\0') return std::nullopt;
-    return result;
+std::optional<int> StringParseHelper::tryParseInt() const noexcept {
+    auto input = TrimParseWhitespace(*this);
+    if (input.empty()) return std::nullopt;
+    if (input.front() == '+') {
+        input.remove_prefix(1);
+        if (input.empty() || input.front() == '-') return std::nullopt;
+    }
+    int value;
+    auto result = std::from_chars(input.data(), input.data() + input.size(), value);
+    if (result.ec != std::errc{} || result.ptr != input.data() + input.size()) return std::nullopt;
+    return value;
 }
-std::optional<float> StringParseHelper::tryParseFloat() const {
-    auto d = tryParseDouble();
-    return d.has_value() ? std::make_optional<float>(d.value()) : std::nullopt;
+std::optional<float> StringParseHelper::tryParseFloat() const noexcept {
+    auto value = tryParseDouble();
+    if (!value) return std::nullopt;
+    // Check the rounded result so decimal representations of FLT_MAX remain valid.
+    auto result = static_cast<float>(*value);
+    if (std::isfinite(*value) && std::isinf(result)) return std::nullopt;
+    return result;
 }
 
-std::optional<double> StringParseHelper::tryParseDouble() const {
-    // Bound strtod to this view rather than the rest of its backing string.
-    const std::string input(data(), size());
-    const char* begin = input.c_str();
-    char* end = nullptr;
-    double result = strtod(begin, &end);
-    if (*begin == '\0') return std::nullopt;
-    if (end == begin || *end != '\0') return std::nullopt;
-    return result;
+std::optional<double> StringParseHelper::tryParseDouble() const noexcept {
+    auto input = TrimParseWhitespace(*this);
+    // Invariant .NET numeric syntax; do not accept strtod's hex numbers or NaN payloads.
+    if (input == "NaN") return std::numeric_limits<double>::quiet_NaN();
+    if (input == "Infinity") return std::numeric_limits<double>::infinity();
+    if (input == "-Infinity") return -std::numeric_limits<double>::infinity();
+    if (input.empty()) return std::nullopt;
+    if (input.front() == '+') {
+        input.remove_prefix(1);
+        if (input.empty() || input.front() == '-') return std::nullopt;
+    }
+    if (input.find_first_not_of("0123456789.eE+-") != std::string_view::npos) return std::nullopt;
+    double value;
+    auto result = std::from_chars(input.data(), input.data() + input.size(), value, std::chars_format::general);
+    if (result.ec != std::errc{} || result.ptr != input.data() + input.size()) return std::nullopt;
+    return value;
 }
-std::optional<UnityEngine::Color> StringParseHelper::tryParseColor() const {
+
+UnityEngine::Vector3 StringParseHelper::parseVector3(float defaultZ) const {
+    return ParseOrThrow(tryParseVector3(defaultZ), [this]{ return fmt::format("Could not parse Vector3 from '{}': expected one to three numbers", *this); });
+}
+std::optional<UnityEngine::Color> StringParseHelper::tryParseColor() const noexcept {
     return BSML::Utilities::ParseHTMLColorOpt(*this);
 }
-std::optional<UnityEngine::Color32> StringParseHelper::tryParseColor32() const {
+std::optional<UnityEngine::Color32> StringParseHelper::tryParseColor32() const noexcept {
     return BSML::Utilities::ParseHTMLColor32Opt(*this);
 }
-std::optional<UnityEngine::Vector2> StringParseHelper::tryParseVector2(float defaultValue) const {
-    auto parts = split(' ');
-    switch (parts.size()) {
-        case 1: {
-            auto v = tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector2{v, v};
-        } break;
-        case 2: {
-            auto x = StringParseHelper(parts[0]).tryParseFloat().value_or(defaultValue);
-            auto y = StringParseHelper(parts[1]).tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector2{x, y};
-        } break;
-        default: return std::nullopt;
-    }
+std::optional<UnityEngine::Vector2> StringParseHelper::tryParseVector2() const noexcept {
+    auto values = ParseVectorComponents<2>(*this);
+    if (!values) return std::nullopt;
+    auto& [components, count] = *values;
+    return UnityEngine::Vector2{components[0], count == 1 ? components[0] : components[1]};
 }
-std::optional<UnityEngine::Vector3> StringParseHelper::tryParseVector3(float defaultValue) const {
-    auto parts = split(' ');
-    switch (parts.size()) {
-        case 1: {
-            auto v = tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector3{v, v, v};
-        } break;
-        case 2: {
-            auto x = StringParseHelper(parts[0]).tryParseFloat().value_or(defaultValue);
-            auto y = StringParseHelper(parts[1]).tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector3{x, y, defaultValue};
-        } break;
-        case 3: {
-            auto x = StringParseHelper(parts[0]).tryParseFloat().value_or(defaultValue);
-            auto y = StringParseHelper(parts[1]).tryParseFloat().value_or(defaultValue);
-            auto z = StringParseHelper(parts[2]).tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector3{x, y, z};
-        } break;
-        default: return std::nullopt;
-    }
+std::optional<UnityEngine::Vector3> StringParseHelper::tryParseVector3(float defaultZ) const noexcept {
+    auto values = ParseVectorComponents<3>(*this);
+    if (!values) return std::nullopt;
+    auto& [components, count] = *values;
+    if (count == 1) return UnityEngine::Vector3{components[0], components[0], components[0]};
+    return UnityEngine::Vector3{components[0], components[1], count == 2 ? defaultZ : components[2]};
 }
-std::optional<UnityEngine::Vector4> StringParseHelper::tryParseVector4(float defaultValue) const {
-    auto parts = split(' ');
-    switch (parts.size()) {
-        case 1: {
-            auto v = tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector4{v, v, v, v};
-        } break;
-        case 2: {
-            auto x = StringParseHelper(parts[0]).tryParseFloat().value_or(defaultValue);
-            auto y = StringParseHelper(parts[1]).tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector4{x, y, x, y};
-        } break;
-        case 3: {
-            auto x = StringParseHelper(parts[0]).tryParseFloat().value_or(defaultValue);
-            auto y = StringParseHelper(parts[1]).tryParseFloat().value_or(defaultValue);
-            auto z = StringParseHelper(parts[2]).tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector4{x, y, z, defaultValue};
-        } break;
-        case 4: {
-            auto x = StringParseHelper(parts[0]).tryParseFloat().value_or(defaultValue);
-            auto y = StringParseHelper(parts[1]).tryParseFloat().value_or(defaultValue);
-            auto z = StringParseHelper(parts[2]).tryParseFloat().value_or(defaultValue);
-            auto w = StringParseHelper(parts[3]).tryParseFloat().value_or(defaultValue);
-            return UnityEngine::Vector4{x, y, z, defaultValue};
-        } break;
-        default: return std::nullopt;
-    }
+std::optional<UnityEngine::Vector4> StringParseHelper::tryParseVector4() const noexcept {
+    auto values = ParseVectorComponents<4>(*this);
+    if (!values) return std::nullopt;
+    auto& [components, count] = *values;
+    auto x = components[0];
+    auto y = count > 1 ? components[1] : x;
+    return UnityEngine::Vector4{x, y, count > 2 ? components[2] : x, count > 3 ? components[3] : y};
 }
-std::optional<StringParseHelper::Padding> StringParseHelper::tryParsePadding() const {
+std::optional<StringParseHelper::Padding> StringParseHelper::tryParsePadding() const noexcept {
     std::array<int, 4> values{};
     std::size_t count = 0;
     std::string_view input = *this;
@@ -202,75 +215,27 @@ StringParseHelper::operator std::string() const {
 }
 
 StringParseHelper::operator bool() const {
-    auto result = tryParseBool();
-    if (!result.has_value()) {
-        ERROR("Could not parse bool from input '{}'", *this);
-        return false;
-    }
-    return result.value();
+    return ParseOrThrow(StringParseHelper(TrimParseWhitespace(*this)).tryParseBool(), [this]{ return fmt::format("Could not parse bool from '{}'", *this); });
 }
-
 StringParseHelper::operator int() const {
-    auto result = tryParseInt();
-    if (!result.has_value()) {
-        ERROR("Could not parse int from input '{}'", *this);
-        return 0;
-    }
-    return result.value();
+    return ParseOrThrow(tryParseInt(), [this]{ return fmt::format("Could not parse integer from '{}'", *this); });
 }
 StringParseHelper::operator float() const {
-    auto result = tryParseFloat();
-    if (!result.has_value()) {
-        ERROR("Could not parse float from input '{}'", *this);
-        return 0;
-    }
-    return result.value();
+    return ParseOrThrow(StringParseHelper(TrimParseWhitespace(*this)).tryParseFloat(), [this]{ return fmt::format("Could not parse float from '{}'", *this); });
 }
 StringParseHelper::operator double() const {
-    auto result = tryParseDouble();
-    if (!result.has_value()) {
-        ERROR("Could not parse double from input '{}'", *this);
-        return 0;
-    }
-    return result.value();
+    return ParseOrThrow(tryParseDouble(), [this]{ return fmt::format("Could not parse double from '{}'", *this); });
 }
 StringParseHelper::operator UnityEngine::Color() const {
-    auto result = tryParseColor();
-    if (!result.has_value()) {
-        ERROR("Could not parse color from input '{}'", *this);
-        return {1.0, 1.0, 1.0, 1.0};
-    }
-    return result.value();
+    return ParseOrThrow(tryParseColor(), [this]{ return fmt::format("Invalid color '{}'", *this); });
 }
 StringParseHelper::operator UnityEngine::Color32() const {
-    auto result = tryParseColor32();
-    if (!result.has_value()) {
-        ERROR("Could not parse color from input '{}'", *this);
-        return {0, 255, 255, 255, 255};
-    }
-    return result.value();
+    return ParseOrThrow(tryParseColor32(), [this]{ return fmt::format("Invalid color '{}'", *this); });
 }
 StringParseHelper::operator UnityEngine::Vector2() const {
-    auto result = tryParseVector2();
-    if (!result.has_value()) {
-        ERROR("Could not parse Vector2 from input '{}'", *this);
-        return {0, 0};
-    }
-    return result.value();
+    return ParseOrThrow(tryParseVector2(), [this]{ return fmt::format("Could not parse Vector2 from '{}': expected one or two numbers", *this); });
 }
-StringParseHelper::operator UnityEngine::Vector3() const {
-    auto result = tryParseVector3();
-    if (!result.has_value()) {
-        ERROR("Could not parse Vector3 from input '{}'", *this);
-        return {0, 0, 0};
-    }
-    return result.value();
-}
+StringParseHelper::operator UnityEngine::Vector3() const { return parseVector3(); }
 StringParseHelper::operator UnityEngine::Vector4() const {
-    auto result = tryParseVector4();
-    if (!result.has_value()) {
-        ERROR("Could not parse Vector4 from input '{}'", *this);
-        return {0, 0, 0, 0};
-    }
-    return result.value();
+    return ParseOrThrow(tryParseVector4(), [this]{ return fmt::format("Could not parse Vector4 from '{}': expected one to four numbers", *this); });
 }

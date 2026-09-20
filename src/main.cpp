@@ -33,7 +33,7 @@ BSML_EXPORT_FUNC void load() {
     if (isLoaded) return;
     isLoaded = true;
 
-    INFO("Loading BSML built from branch '" GIT_BRANCH "' and commit {}", GIT_COMMIT);
+    INFO("Loading BSML built from branch '{}' and commit {}", GIT_BRANCH, GIT_COMMIT);
 
     if (!LoadConfig())
         SaveConfig();

@@ -25,7 +25,11 @@ namespace BSML {
 
     void ScrollableContainerHandler::HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
         Base::HandleType(componentType, parserParams);
-        auto scrollView = reinterpret_cast<ScrollableContainer*>(componentType.component);
+        auto scrollView = i2c::try_cast<ScrollableContainer*>(componentType.component);
+        if (!scrollView) {
+            ERROR("ScrollableContainerHandler::HandleType given a component that is not a ScrollableContainer");
+            return;
+        }
         auto& data = componentType.data;
         auto idItr = data.find("id");
         if (idItr != data.end() && !idItr->second.empty()) {
@@ -47,7 +51,11 @@ namespace BSML {
 
     void ScrollableContainerHandler::HandleTypeAfterParse(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
         INFO("After parse");
-        auto scrollView = reinterpret_cast<ScrollableContainer*>(componentType.component);
+        auto scrollView = i2c::try_cast<ScrollableContainer*>(componentType.component);
+        if (!scrollView) {
+            ERROR("ScrollableContainerHandler::HandleTypeAfterParse given a component that is not a ScrollableContainer");
+            return;
+        }
         auto& data = componentType.data;
 
         auto idItr = data.find("id");

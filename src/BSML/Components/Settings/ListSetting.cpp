@@ -82,6 +82,12 @@ namespace BSML {
         return values[index];
     }
 
+    std::optional<System::Object*> ListSetting::TryGetValue() {
+        ValidateRange();
+        if (values.size() == 0) return std::nullopt;
+        return values[index];
+    }
+
     void ListSetting::set_Value(System::Object* value) {
         index = 0;
         for (auto& v : values) {

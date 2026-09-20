@@ -17,7 +17,11 @@ namespace BSML {
     }
 
     void ModalColorPickerHandler::HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
-        auto colorPicker = reinterpret_cast<ModalColorPicker*>(componentType.component);
+        auto colorPicker = i2c::try_cast<ModalColorPicker*>(componentType.component);
+        if (!colorPicker) {
+            ERROR("Component was not a ModalColorPicker");
+            return;
+        }
         auto host = parserParams.get_host();
         auto& data = componentType.data;
 
@@ -39,36 +43,31 @@ namespace BSML {
 
     void ModalColorPickerHandler::HandleTypeAfterParse(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
         Base::HandleTypeAfterParse(componentType, parserParams);
-        auto colorPicker = reinterpret_cast<ModalColorPicker*>(componentType.component);
+        auto colorPicker = i2c::try_cast<ModalColorPicker*>(componentType.component);
+        if (!colorPicker) {
+            ERROR("Component was not a ModalColorPicker");
+            return;
+        }
         auto& data = componentType.data;
 
         auto onCancelItr = data.find("onCancel");
         if (onCancelItr != data.end() && !onCancelItr->second.empty()) {
             auto action = parserParams.TryGetAction(onCancelItr->second);
-            if (action) {
-                colorPicker->onCancelHost = action->host;
-                colorPicker->onCancelInfo = action->methodInfo;
-            }
+            if (action) colorPicker->cancel = action->GetFunction<>();
             else ERROR("Action '{}' could not be found", onCancelItr->second);
         }
 
         auto onDoneItr = data.find("onDone");
         if (onDoneItr != data.end() && !onDoneItr->second.empty()) {
             auto action = parserParams.TryGetAction(onDoneItr->second);
-            if (action) {
-                colorPicker->onDoneHost = action->host;
-                colorPicker->onDoneInfo = action->methodInfo;
-            }
+            if (action) colorPicker->done = action->GetFunction<UnityEngine::Color>();
             else ERROR("Action '{}' could not be found", onDoneItr->second);
         }
 
         auto onChangeItr = data.find("onChange");
         if (onChangeItr != data.end() && !onChangeItr->second.empty()) {
             auto action = parserParams.TryGetAction(onChangeItr->second);
-            if (action) {
-                colorPicker->colorChangeHost = action->host;
-                colorPicker->colorChangeInfo = action->methodInfo;
-            }
+            if (action) colorPicker->onChange = action->GetFunction<UnityEngine::Color>();
             else ERROR("Action '{}' could not be found", onChangeItr->second);
         }
     }

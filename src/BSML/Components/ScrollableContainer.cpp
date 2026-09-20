@@ -63,12 +63,12 @@ namespace BSML {
         _buttonBinder->ClearBindings();
         if (_pageUpButton) {
             if (!upButtonAction)
-                upButtonAction = MakeSystemAction(this, i2c::functions::class_get_method_from_name(klass, "PageUpButtonPressed", 0));
+                upButtonAction = MakeSystemAction(std::bind(&ScrollableContainer::PageUpButtonPressed, this));
             _buttonBinder->AddBinding(_pageUpButton, upButtonAction);
         }
         if (_pageDownButton) {
             if (!downButtonAction)
-                downButtonAction = MakeSystemAction(this, i2c::functions::class_get_method_from_name(klass, "PageDownButtonPressed", 0));
+                downButtonAction = MakeSystemAction(std::bind(&ScrollableContainer::PageDownButtonPressed, this));
             _buttonBinder->AddBinding(_pageDownButton, downButtonAction);
         }
     }

@@ -33,8 +33,7 @@ namespace BSML {
             text = slider->get_gameObject()->GetComponentInChildren<TMPro::TextMeshProUGUI*>();
             ReceiveValue();
 
-            auto onChangeInfo = i2c::functions::class_get_method_from_name(this->klass, "OnChange", 2);
-            auto delegate = MakeSystemAction<UnityW<HMUI::RangeValuesTextSlider>, float>(this, onChangeInfo);
+            auto delegate = MakeSystemAction(std::function<void(UnityW<HMUI::RangeValuesTextSlider>, float)>(std::bind(&ListSliderSetting::OnChange, this, std::placeholders::_1, std::placeholders::_2)));
             slider->add_valueDidChangeEvent(delegate);
         }
     }
@@ -70,6 +69,11 @@ namespace BSML {
         if (values.size() > 0)
             return values[get_index()];
         return nullptr;
+    }
+
+    std::optional<System::Object*> ListSliderSetting::TryGetValue() {
+        if (values.size() == 0) return std::nullopt;
+        return values[get_index()];
     }
 
     void ListSliderSetting::set_Value(System::Object* value) {
