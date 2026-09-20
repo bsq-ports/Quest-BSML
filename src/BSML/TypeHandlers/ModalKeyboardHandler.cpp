@@ -18,7 +18,12 @@ namespace BSML {
     }
 
     void ModalKeyboardHandler::HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
-        auto modalKeyboard = reinterpret_cast<BSML::ModalKeyboard*>(componentType.component);
+        Base::HandleType(componentType, parserParams);
+        auto modalKeyboard = i2c::try_cast<BSML::ModalKeyboard*>(componentType.component);
+        if (!modalKeyboard) {
+            ERROR("ModalKeyboardHandler::HandleType given a component that is not a ModalKeyboard");
+            return;
+        }
         auto& data = componentType.data;
 
         auto valueItr = data.find("value");
@@ -32,13 +37,15 @@ namespace BSML {
                 genericSetting->setterInfo = val->setterInfo;
             }
         }
-
-        Base::HandleType(componentType, parserParams);
     }
 
     void ModalKeyboardHandler::HandleTypeAfterParse(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
         Base::HandleTypeAfterParse(componentType, parserParams);
-        auto modalKeyboard = reinterpret_cast<BSML::ModalKeyboard*>(componentType.component);
+        auto modalKeyboard = i2c::try_cast<BSML::ModalKeyboard*>(componentType.component);
+        if (!modalKeyboard) {
+            ERROR("ModalKeyboardHandler::HandleTypeAfterParse given a component that is not a ModalKeyboard");
+            return;
+        }
         auto& data = componentType.data;
     
         auto onEnterItr = data.find("onEnter");

@@ -12,6 +12,14 @@
 #include "beatsaber-hook/shared/safeptr.hpp"
 #include <string_view>
 
+namespace GlobalNamespace {
+    class Signal;
+}
+namespace BeatSaber::Haptics {
+    class HapticPresetSO;
+    class HapticFeedbackManager;
+}
+
 namespace BSML::Lite {
     /// @brief Aggregate result of InstantiatePrefab: the instantiated component plus the
     /// GameObject/RectTransform/ExternalComponents created alongside it. Fields are
@@ -72,4 +80,15 @@ namespace BSML::Lite {
     /// @param strayLayoutElementParent transform to strip an existing LayoutElement from
     /// before adding the fitter (nullptr to skip; e.g. the "Content" child on buttons)
     BSML_EXPORT void ApplyStandardSizingFixups(UnityEngine::GameObject* gameObject, UnityEngine::Transform* strayLayoutElementParent, UnityEngine::Component* searchLayoutGroupRoot, BSML::ExternalComponents* externalComponents);
+
+    /// @brief The scene's shared "menu shockwave" click signal, used by clickable
+    /// text/image components for their click feedback effect. Looked up once and cached.
+    BSML_EXPORT GlobalNamespace::Signal* GetClickedSignal();
+
+    /// @brief The shared low-intensity haptic preset used by clickable text/image
+    /// components' click feedback. Created once and cached.
+    BSML_EXPORT BeatSaber::Haptics::HapticPresetSO* GetClickHapticPreset();
+
+    /// @brief The scene's HapticFeedbackManager, used to play GetClickHapticPreset().
+    BSML_EXPORT BeatSaber::Haptics::HapticFeedbackManager* GetClickHapticFeedbackManager();
 }

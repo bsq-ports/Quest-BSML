@@ -6,6 +6,8 @@
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "UnityEngine/UI/Image.hpp"
 #include "UnityEngine/UI/LayoutElement.hpp"
+#include "UnityEngine/UI/LayoutGroup.hpp"
+#include "UnityEngine/UI/ContentSizeFitter.hpp"
 #include "UnityEngine/Sprite.hpp"
 #include "UnityEngine/TextureWrapMode.hpp"
 #include "UnityEngine/Texture2D.hpp"
@@ -13,13 +15,22 @@
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Events/UnityAction.hpp"
 #include "HMUI/ButtonSpriteSwap.hpp"
+#include "HMUI/HoverHint.hpp"
+#include "HMUI/ImageView.hpp"
+#include "HMUI/ScrollView.hpp"
 
 #include "Helpers/getters.hpp"
+#include "Helpers/utilities.hpp"
 #include "GlobalNamespace/StandardLevelDetailView.hpp"
 #include "GlobalNamespace/StandardLevelDetailViewController.hpp"
 #include "GlobalNamespace/PracticeViewController.hpp"
+#include "GlobalNamespace/PlayerOptionsViewController.hpp"
+#include "GlobalNamespace/PlayerSettingsPanelController.hpp"
+#include "GlobalNamespace/LocalizedHoverHint.hpp"
 
 #include "BSML/Components/ExternalComponents.hpp"
+#include "BSML/Components/ButtonIconImage.hpp"
+#include "BSML/Components/PageButton.hpp"
 #include "beatsaber-hook/shared/safeptr.hpp"
 
 // Note: BSML-Lite owns button-prefab resolution and creation directly here.
@@ -133,4 +144,103 @@ namespace BSML::Lite {
         spriteSwap->_normalStateSprite = inactive;
     }
 
+    UnityEngine::GameObject* CreateIconButton(const TransformWrapper& parent) {
+        auto button = UnityEngine::Object::Instantiate(GetPracticeButtonPrefab(), parent, false);
+        button->set_name("BSMLIconButton");
+        button->set_interactable(true);
+        auto transform = button->transform.cast<UnityEngine::RectTransform>();
+        auto gameObject = button->get_gameObject();
+        gameObject->SetActive(false);
+
+        UnityEngine::Object::Destroy(button->GetComponent<HMUI::HoverHint*>());
+        UnityEngine::Object::Destroy(button->GetComponent<GlobalNamespace::LocalizedHoverHint*>());
+
+        auto externalComponents = gameObject->AddComponent<BSML::ExternalComponents*>();
+        externalComponents->Add(button);
+        externalComponents->Add(transform);
+
+        auto contentTransform = transform->Find("Content");
+        UnityEngine::Object::Destroy(contentTransform->GetComponent<UnityEngine::UI::LayoutElement*>());
+
+        UnityEngine::Object::Destroy(contentTransform->Find("Text")->get_gameObject());
+
+        auto iconImage = UnityEngine::GameObject::New_ctor("Icon")->AddComponent<HMUI::ImageView*>();
+        iconImage->set_material(Helpers::GetUINoGlowMat());
+        auto iconRectTransform = iconImage->get_rectTransform();
+        iconRectTransform->SetParent(contentTransform, false);
+        iconRectTransform->set_anchoredPosition({0, 0});
+        iconRectTransform->set_sizeDelta({20, 20});
+        iconRectTransform->set_anchorMin({0.5f, 0.f});
+        iconRectTransform->set_anchorMax({0.5f, 0.5f});
+        iconImage->set_preserveAspect(true);
+        iconImage->set_sprite(Utilities::FindSpriteCached("EditIcon"));
+
+        auto btnIcon = gameObject->AddComponent<BSML::ButtonIconImage*>();
+        btnIcon->button = UnityW<UnityEngine::UI::Button>(button).cast<HMUI::NoTransitionsButton>();
+        btnIcon->image = iconImage;
+        btnIcon->underline = transform->Find("Underline")->get_gameObject();
+        btnIcon->SetSkew(transform->Find("BG")->GetComponent<HMUI::ImageView*>()->get_skew());
+        externalComponents->Add(btnIcon);
+
+        auto buttonSizeFitter = gameObject->AddComponent<UnityEngine::UI::ContentSizeFitter*>();
+        buttonSizeFitter->set_verticalFit(UnityEngine::UI::ContentSizeFitter::FitMode::PreferredSize);
+        buttonSizeFitter->set_horizontalFit(UnityEngine::UI::ContentSizeFitter::FitMode::PreferredSize);
+        externalComponents->Add(buttonSizeFitter);
+
+        auto stackLayoutGroup = button->GetComponentInChildren<UnityEngine::UI::LayoutGroup*>();
+        if (stackLayoutGroup) externalComponents->Add(stackLayoutGroup);
+
+        auto layoutElement = gameObject->GetComponent<UnityEngine::UI::LayoutElement*>();
+        if (!layoutElement) layoutElement = gameObject->AddComponent<UnityEngine::UI::LayoutElement*>();
+        externalComponents->Add(layoutElement);
+
+        gameObject->SetActive(true);
+        return gameObject;
+    }
+
+    UnityEngine::GameObject* CreatePageButton(const TransformWrapper& parent) {
+        static safe_ptr<UnityEngine::UI::Button*> pageButtonTemplate;
+        if (!pageButtonTemplate)
+            pageButtonTemplate = Helpers::GetDiContainer()->Resolve<GlobalNamespace::PlayerOptionsViewController*>()->_playerSettingsPanelController->GetComponent<HMUI::ScrollView*>()->_pageUpButton;
+
+        auto button = UnityEngine::Object::Instantiate(pageButtonTemplate.ptr(), parent, false);
+        auto gameObject = button->get_gameObject();
+        gameObject->SetActive(false);
+        gameObject->set_name("BSMLPageButton");
+        button->set_interactable(true);
+
+        auto transform = button->transform.cast<UnityEngine::RectTransform>();
+        auto pageButton = gameObject->AddComponent<BSML::PageButton*>();
+
+        auto externalComponents = gameObject->AddComponent<BSML::ExternalComponents*>();
+        externalComponents->Add(button);
+        externalComponents->Add(transform);
+        externalComponents->Add(pageButton);
+
+        auto btnIcon = gameObject->AddComponent<BSML::ButtonIconImage*>();
+        btnIcon->button = UnityW<UnityEngine::UI::Button>(button).cast<HMUI::NoTransitionsButton>();
+        btnIcon->image = gameObject->GetComponentsInChildren<UnityEngine::UI::Image*>(true).front_or_default([](auto x) { return x->get_name() == "Icon"; });
+        externalComponents->Add(btnIcon);
+
+        auto buttonSizeFitter = gameObject->AddComponent<UnityEngine::UI::ContentSizeFitter*>();
+        buttonSizeFitter->set_verticalFit(UnityEngine::UI::ContentSizeFitter::FitMode::PreferredSize);
+        buttonSizeFitter->set_horizontalFit(UnityEngine::UI::ContentSizeFitter::FitMode::PreferredSize);
+        externalComponents->Add(buttonSizeFitter);
+
+        auto layoutElement = gameObject->AddComponent<UnityEngine::UI::LayoutElement*>();
+        layoutElement->set_preferredWidth(-1);
+        layoutElement->set_preferredHeight(-1);
+        layoutElement->set_flexibleHeight(0);
+        layoutElement->set_flexibleWidth(0);
+
+        auto buttonTransform = transform->GetChild(0).cast<UnityEngine::RectTransform>();
+        buttonTransform->set_anchorMin({0, 0});
+        buttonTransform->set_anchorMax({1, 1});
+        buttonTransform->set_sizeDelta({0, 0});
+        transform->set_pivot({0.5f, 0.5f});
+        externalComponents->Add(layoutElement);
+
+        gameObject->SetActive(true);
+        return gameObject;
+    }
 }

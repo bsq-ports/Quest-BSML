@@ -14,34 +14,30 @@
 
 DEFINE_TYPE(BSML, Backgroundable);
 
-std::map<std::string, std::string> backgrounds = {
-    { "round-rect-panel", "RoundRect10" },
-    { "panel-top", "RoundRect10" },
-    { "panel-fade-gradient", "RoundRect10Thin" },
-    { "panel-top-gradient", "RoundRect10" },
-    { "title-gradient", "RoundRect10" }
-};
+namespace {
+    // Was previously 3 separate std::map<std::string, std::string>s keyed by the
+    // same background name (backgrounds/objectNames/objectParentNames) — one
+    // struct per name instead of three parallel maps that could silently drift
+    // out of sync with each other.
+    struct BackgroundTemplateNames {
+        std::string_view spriteName;
+        std::string_view objectName;
+        std::string_view parentName;
+    };
 
-std::map<std::string, std::string> objectNames = {
-    { "round-rect-panel", "KeyboardWrapper" },
-    { "panel-top", "BG" },
-    { "panel-fade-gradient", "Background" },
-    { "panel-top-gradient", "BG" },
-    { "title-gradient", "BG" }
-};
+    const std::map<std::string, BackgroundTemplateNames> backgroundTemplates = {
+        { "round-rect-panel", {"RoundRect10", "KeyboardWrapper", "Wrapper"} },
+        { "panel-top", {"RoundRect10", "BG", "PracticeButton"} },
+        { "panel-fade-gradient", {"RoundRect10Thin", "Background", "LevelListTableCell"} },
+        { "panel-top-gradient", {"RoundRect10", "BG", "ActionButton"} },
+        { "title-gradient", {"RoundRect10", "BG", "TitleViewController"} },
+    };
 
-std::map<std::string, std::string> objectParentNames = {
-    { "round-rect-panel", "Wrapper" },
-    { "panel-top", "PracticeButton" },
-    { "panel-fade-gradient", "LevelListTableCell" },
-    { "panel-top-gradient", "ActionButton" },
-    { "title-gradient", "TitleViewController" }
-};
+    template<typename T, typename U>
+    using Dictionary = System::Collections::Generic::Dictionary_2<T, U>;
 
-template<typename T, typename U>
-using Dictionary = System::Collections::Generic::Dictionary_2<T, U>;
-
-safe_ptr<Dictionary<StringW, HMUI::ImageView*>*> backgroundCache;
+    safe_ptr<Dictionary<StringW, HMUI::ImageView*>*> backgroundCache;
+}
 
 using namespace UnityEngine;
 
@@ -52,8 +48,8 @@ namespace BSML {
             return;
         }
 
-        auto backgroundNameItr = backgrounds.find(name);
-        if (backgroundNameItr == backgrounds.end()) {
+        auto templateNamesItr = backgroundTemplates.find(name);
+        if (templateNamesItr == backgroundTemplates.end()) {
             ERROR("Unknown background name: {}, Skipping!", name);
             return;
         }
@@ -67,7 +63,8 @@ namespace BSML {
                 backgroundCache->Remove(name);
             }
 
-            bgTemplate = FindTemplate(name, backgroundNameItr->second);
+            const auto& templateNames = templateNamesItr->second;
+            bgTemplate = FindTemplate(templateNames.spriteName, templateNames.objectName, templateNames.parentName);
             backgroundCache->Add(name, bgTemplate);
         }
 
@@ -162,15 +159,12 @@ namespace BSML {
         background->set_color(col);
     }
 
-    HMUI::ImageView* Backgroundable::FindTemplate(StringW name, StringW backgroundName) {
-        auto objectName = objectNames.find(name)->second;
-        auto parentName = objectParentNames.find(name)->second;
-
+    HMUI::ImageView* Backgroundable::FindTemplate(std::string_view spriteName, std::string_view objectName, std::string_view parentName) {
         auto images = Resources::FindObjectsOfTypeAll<HMUI::ImageView*>();
 
         for (auto image : images) {
             auto sprite = image->get_sprite();
-            if (!sprite || sprite->get_name() != backgroundName) continue;
+            if (!sprite || sprite->get_name() != spriteName) continue;
 
             auto parent = image->get_transform()->get_parent();
             if (!parent || parent->get_name() != parentName) continue;

@@ -3,6 +3,7 @@
 #include "custom-types/shared/macros.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "HMUI/ImageView.hpp"
+#include <string_view>
 
 DECLARE_CLASS_CODEGEN(BSML, Backgroundable, UnityEngine::MonoBehaviour) {
     DECLARE_INSTANCE_FIELD(HMUI::ImageView*, background);
@@ -15,5 +16,5 @@ DECLARE_CLASS_CODEGEN(BSML, Backgroundable, UnityEngine::MonoBehaviour) {
     DECLARE_INSTANCE_METHOD(void, ApplyAlpha, float alpha);
 
     private:
-        static HMUI::ImageView* FindTemplate(StringW name, StringW backgroundName); 
+        static HMUI::ImageView* FindTemplate(std::string_view spriteName, std::string_view objectName, std::string_view parentName);
 };

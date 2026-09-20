@@ -21,7 +21,11 @@ namespace BSML {
     void InputFieldViewHandler::HandleType(const BSML::ComponentTypeWithData& componentType, BSML::BSMLParserParams& parserParams) {
         Base::HandleType(componentType, parserParams);
 
-        auto fieldView = reinterpret_cast<HMUI::InputFieldView*>(componentType.component);
+        auto fieldView = i2c::try_cast<HMUI::InputFieldView*>(componentType.component);
+        if (!fieldView) {
+            ERROR("InputFieldViewHandler::HandleType given a component that is not an InputFieldView");
+            return;
+        }
         auto& data = componentType.data;
 
         auto onChangeItr = data.find("onChange");

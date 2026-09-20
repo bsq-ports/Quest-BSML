@@ -19,7 +19,13 @@ namespace BSML {
     }
 
     void ClickableTextHandler::HandleTypeAfterParse(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
-        auto clickableText = reinterpret_cast<ClickableText*>(componentType.component);
+        Base::HandleTypeAfterParse(componentType, parserParams);
+
+        auto clickableText = i2c::try_cast<ClickableText*>(componentType.component);
+        if (!clickableText) {
+            ERROR("ClickableTextHandler::HandleTypeAfterParse given a component that is not a ClickableText");
+            return;
+        }
 
         auto onClickItr = componentType.data.find("onClick");
         if (onClickItr != componentType.data.end() && !onClickItr->second.empty()) {
@@ -39,7 +45,5 @@ namespace BSML {
                 }
             };
         }
-
-        Base::HandleTypeAfterParse(componentType, parserParams);
     }
 }

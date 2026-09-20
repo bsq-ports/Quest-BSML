@@ -1,30 +1,33 @@
 #include "BSML/Parsing/BSMLValue.hpp"
 
-void collect_finfos(Il2CppClass* klass, std::vector<FieldInfo*>& finfos) {
-    if (!klass) return;
-    void* iter = nullptr;
-    FieldInfo* finfo = nullptr;
-    while ((finfo = i2c::functions::class_get_fields(klass, &iter))) finfos.push_back(finfo);
-    collect_finfos(i2c::functions::class_get_parent(klass), finfos);
-}
-
-void collect_pinfos(Il2CppClass* klass, std::vector<const PropertyInfo*>& pinfos) {
-    if (!klass) return;
-    void* iter = nullptr;
-    const PropertyInfo* pinfo = nullptr;
-    while ((pinfo = i2c::functions::class_get_properties(klass, &iter))) pinfos.push_back(pinfo);
-    collect_pinfos(i2c::functions::class_get_parent(klass), pinfos);
-}
-
-void collect_minfos(Il2CppClass* klass, std::vector<const MethodInfo*>& minfos) {
-    if (!klass) return;
-    void* iter = nullptr;
-    const MethodInfo* minfo = nullptr;
-    while ((minfo = i2c::functions::class_get_methods(klass, &iter))) minfos.push_back(minfo);
-    collect_minfos(i2c::functions::class_get_parent(klass), minfos);
-}
-
 namespace BSML {
+    void collect_minfos(Il2CppClass* klass, std::vector<const MethodInfo*>& minfos) {
+        if (!klass) return;
+        void* iter = nullptr;
+        const MethodInfo* minfo = nullptr;
+        while ((minfo = i2c::functions::class_get_methods(klass, &iter)))
+            minfos.push_back(minfo);
+        collect_minfos(i2c::functions::class_get_parent(klass), minfos);
+    }
+
+    void collect_finfos(Il2CppClass* klass, std::vector<FieldInfo*>& finfos) {
+        if (!klass) return;
+        void* iter = nullptr;
+        FieldInfo* finfo = nullptr;
+        while ((finfo = i2c::functions::class_get_fields(klass, &iter)))
+            finfos.push_back(finfo);
+        collect_finfos(i2c::functions::class_get_parent(klass), finfos);
+    }
+
+    void collect_pinfos(Il2CppClass* klass, std::vector<const PropertyInfo*>& pinfos) {
+        if (!klass) return;
+        void* iter = nullptr;
+        const PropertyInfo* pinfo = nullptr;
+        while ((pinfo = i2c::functions::class_get_properties(klass, &iter)))
+            pinfos.push_back(pinfo);
+        collect_pinfos(i2c::functions::class_get_parent(klass), pinfos);
+    }
+
     std::map<std::string, BSMLValue*> BSMLValue::MakeValues(System::Object* host) {
         std::vector<FieldInfo*> finfos{};
         std::vector<const PropertyInfo*> pinfos{};
@@ -73,14 +76,18 @@ namespace BSML {
             auto itr = values.find(rest);
             if (itr != values.end()) { // if the value existed
                 auto val = itr->second;
-                if (set) val->setterInfo = minfo;
-                else if (get) val->getterInfo = minfo;
+                if (set)
+                    val->setterInfo = minfo;
+                else if (get)
+                    val->getterInfo = minfo;
             } else { // if it did not exist
                 auto val = new BSMLValue();
                 val->host = host;
                 val->name = rest;
-                if (set) val->setterInfo = minfo;
-                else if (get) val->getterInfo = minfo;
+                if (set)
+                    val->setterInfo = minfo;
+                else if (get)
+                    val->getterInfo = minfo;
                 values.emplace(rest, val);
             }
         }

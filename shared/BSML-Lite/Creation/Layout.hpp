@@ -6,7 +6,9 @@
 #include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 #include "UnityEngine/UI/GridLayoutGroup.hpp"
 #include "HMUI/StackLayoutGroup.hpp"
+#include "HMUI/TextPageScrollView.hpp"
 #include "../../BSML/Components/ModalView.hpp"
+#include "../../BSML/Components/ScrollableContainer.hpp"
 
 namespace BSML::Lite {
 
@@ -85,4 +87,16 @@ namespace BSML::Lite {
     /// @param parent what to parent it to
     /// @return vertical layout group to parent things to
     BSML_EXPORT UnityEngine::UI::VerticalLayoutGroup* CreateModifierContainer(const TransformWrapper& parent);
+
+    /// @brief Creates a scrollable container (a masked vertical scrolling area) fit to the parent
+    /// @param parent what to parent it to
+    /// @return the "Content Wrapper" GameObject to parent content to
+    BSML_EXPORT UnityEngine::GameObject* CreateScrollableContainer(const TransformWrapper& parent);
+
+    /// @brief The shared "blank scroll view" template instantiated by CreateScrollView and
+    /// CreateTextPageScrollView, and by the CustomListTableData/CustomCellListTableData
+    /// TypeHandlers. Looked up once and cached. Not part of the public API contract, but
+    /// needs real cross-TU visibility, so it's declared here rather than forward-declared
+    /// in each consumer's .cpp.
+    HMUI::TextPageScrollView* GetScrollViewTemplate();
 }

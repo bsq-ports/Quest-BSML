@@ -35,7 +35,12 @@ namespace BSML {
     }
 
     void LayoutGroupHandler::HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
-        auto layoutGroup = reinterpret_cast<UnityEngine::UI::LayoutGroup*>(componentType.component);
+        Base::HandleType(componentType, parserParams);
+        auto layoutGroup = i2c::try_cast<UnityEngine::UI::LayoutGroup*>(componentType.component);
+        if (!layoutGroup) {
+            ERROR("LayoutGroupHandler::HandleType given a component that is not a LayoutGroup");
+            return;
+        }
         auto& data = componentType.data;
 
         auto padItr = data.find("pad");
@@ -65,7 +70,5 @@ namespace BSML {
         if (childAlignItr != data.end()) {
             layoutGroup->set_childAlignment(ParseEnum(childAlignItr->second, stringToTextAnchorMap, "child-alignment"));
         }
-
-        Base::HandleType(componentType, parserParams);
     }
 }

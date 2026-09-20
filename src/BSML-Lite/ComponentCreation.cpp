@@ -4,6 +4,12 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
 #include "UnityEngine/UI/LayoutGroup.hpp"
+#include "UnityEngine/Resources.hpp"
+#include "UnityEngine/ScriptableObject.hpp"
+#include "GlobalNamespace/Signal.hpp"
+#include "GlobalNamespace/MenuShockwave.hpp"
+#include "BeatSaber/Haptics/HapticFeedbackManager.hpp"
+#include "BeatSaber/Haptics/HapticPresetSO.hpp"
 
 namespace BSML::Lite {
     TMPro::TextMeshProUGUI* StripLocalizedTextAndSet(UnityEngine::Transform* root, std::string_view relativePath, StringW text, BSML::ExternalComponents* externalComponents) {
@@ -43,5 +49,34 @@ namespace BSML::Lite {
         auto layoutElement = gameObject->GetComponent<UnityEngine::UI::LayoutElement*>();
         if (!layoutElement) layoutElement = gameObject->AddComponent<UnityEngine::UI::LayoutElement*>();
         externalComponents->Add(layoutElement);
+    }
+
+    GlobalNamespace::Signal* GetClickedSignal() {
+        static safe_ptr<GlobalNamespace::Signal*> clickedSignal;
+        if (!clickedSignal) {
+            auto menuShockWave = UnityEngine::Resources::FindObjectsOfTypeAll<GlobalNamespace::MenuShockwave*>().front_or_default();
+            clickedSignal = menuShockWave ? menuShockWave->_buttonClickEvents.back_or_default() : nullptr;
+        }
+        return clickedSignal.ptr();
+    }
+
+    BeatSaber::Haptics::HapticPresetSO* GetClickHapticPreset() {
+        static safe_ptr<BeatSaber::Haptics::HapticPresetSO*> hapticPreset;
+        if (!hapticPreset) {
+            hapticPreset = UnityEngine::ScriptableObject::CreateInstance<BeatSaber::Haptics::HapticPresetSO*>();
+            hapticPreset->_duration = 0.02f;
+            hapticPreset->_strength = 1.0f;
+            hapticPreset->_frequency = 0.2f;
+            UnityEngine::Object::DontDestroyOnLoad(hapticPreset.ptr());
+        }
+        return hapticPreset.ptr();
+    }
+
+    BeatSaber::Haptics::HapticFeedbackManager* GetClickHapticFeedbackManager() {
+        static safe_ptr<BeatSaber::Haptics::HapticFeedbackManager*> hapticFeedbackManager;
+        if (!hapticFeedbackManager) {
+            hapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<BeatSaber::Haptics::HapticFeedbackManager*>().front();
+        }
+        return hapticFeedbackManager.ptr();
     }
 }

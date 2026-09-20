@@ -13,6 +13,7 @@
 #include "../../BSML/Components/Settings/DropdownListSetting.hpp"
 #include "../../BSML/Components/Settings/ToggleSetting.hpp"
 #include "../../BSML/Components/ModalColorPicker.hpp"
+#include <optional>
 
 namespace BSML::Lite {
     /// @brief creates a string setting allowing users to input a string with a keyboard
@@ -50,20 +51,10 @@ namespace BSML::Lite {
     /// @param parent what to parent it to
     /// @param buttonText the text to display on the button
     /// @param currentValue is the toggle true or false at this moment
-    /// @param iconSprite the sprite for the icon
+    /// @param iconSprite the sprite for the icon; leave null (default) to keep the template's icon
     /// @param onClick what to run when the button is clicked
-    /// @param anchoredPosition the position of the button
-    BSML_EXPORT UnityEngine::UI::Toggle* CreateModifierButton(const TransformWrapper& parent, StringW buttonText, bool currentValue, UnityEngine::Sprite* iconSprite, std::function<void(bool)> onClick = nullptr, UnityEngine::Vector2 anchoredPosition = {0, 0});
-
-    /// @brief Creates a toggle that looks like the modifier buttons seen in the gameplay setup menu
-    /// @param parent what to parent it to
-    /// @param buttonText the text to display on the button
-    /// @param currentValue is the toggle true or false at this moment
-    /// @param onClick what to run when the button is clicked
-    /// @param anchoredPosition the position of the button
-    static inline UnityEngine::UI::Toggle* CreateModifierButton(const TransformWrapper& parent, StringW buttonText, bool currentValue, std::function<void(bool)> onClick = nullptr, UnityEngine::Vector2 anchoredPosition = {0, 0}) {
-        return CreateModifierButton(parent, buttonText, currentValue, nullptr, onClick, anchoredPosition);
-    }
+    /// @param anchoredPosition position override; leave unset (default) to keep the template's natural position
+    BSML_EXPORT UnityEngine::UI::Toggle* CreateModifierButton(const TransformWrapper& parent, StringW buttonText = "BSMLModifier", bool currentValue = false, UnityEngine::Sprite* iconSprite = nullptr, std::function<void(bool)> onClick = nullptr, std::optional<UnityEngine::Vector2> anchoredPosition = std::nullopt);
 
     /// @brief Creates an incerement setting, meaning a float value with arrows to go up and down
     /// @param parent what to parent it to
@@ -220,10 +211,11 @@ namespace BSML::Lite {
     /// @param parent what to parent it to
     /// @param label label of the setting
     /// @param currentValue what to display as currently selected
-    /// @param values the possible string values that can be displayed
+    /// @param values the possible string values that can be displayed; leave empty (default) to
+    /// create the dropdown without populating/finalizing it yet (nothing to select from)
     /// @param onValueChange callback ran when the value changes
     /// @return the created dropdown
-    BSML_EXPORT BSML::DropdownListSetting* CreateDropdown(const TransformWrapper& parent, StringW label, StringW currentValue, std::span<std::string_view> values, std::function<void(StringW)> onValueChange = nullptr);
+    BSML_EXPORT BSML::DropdownListSetting* CreateDropdown(const TransformWrapper& parent, StringW label = "BSMLDropdownSetting", StringW currentValue = "", std::span<std::string_view> values = {}, std::function<void(StringW)> onValueChange = nullptr);
 
     /// @brief creates a dropdown menu to select from a set of pre-known strings (like an enum)
     /// @param parent what to parent it to
@@ -246,7 +238,7 @@ namespace BSML::Lite {
     /// @param onCancel the callback to call when the user cancels
     /// @param onChange the callback to call when the color changes at all
     /// @return the created color picker object
-    BSML_EXPORT BSML::ColorSetting* CreateColorPicker(const TransformWrapper& parent, StringW label, UnityEngine::Color defaultColor, std::function<void(UnityEngine::Color)> onDone = nullptr, std::function<void()> onCancel = nullptr, std::function<void(UnityEngine::Color)> onChange = nullptr);
+    BSML_EXPORT BSML::ColorSetting* CreateColorPicker(const TransformWrapper& parent, StringW label = "BSMLColorSetting", UnityEngine::Color defaultColor = {}, std::function<void(UnityEngine::Color)> onDone = nullptr, std::function<void()> onCancel = nullptr, std::function<void(UnityEngine::Color)> onChange = nullptr);
 
     /// @brief Creates a color picker modal
     /// @param parent what to parent it to
@@ -262,37 +254,18 @@ namespace BSML::Lite {
     /// @param parent what to parent it to
     /// @param text the label to give to the toggle
     /// @param currentValue the current value of the toggle
-    /// @param anchoredPosition the position of the toggle
+    /// @param anchoredPosition position override; leave unset (default) to keep the template's natural position
     /// @param onToggle what to do when the toggle is clicked
     /// @return the created toggle
-    BSML_EXPORT BSML::ToggleSetting* CreateToggle(const TransformWrapper& parent, StringW text, bool currentValue, UnityEngine::Vector2 anchoredPosition, std::function<void(bool)> onToggle = nullptr);
+    BSML_EXPORT BSML::ToggleSetting* CreateToggle(const TransformWrapper& parent, StringW text = "BSML Toggle", bool currentValue = false, std::optional<UnityEngine::Vector2> anchoredPosition = std::nullopt, std::function<void(bool)> onToggle = nullptr);
 
-    /// @brief creates a toggle to turn things off / on
-    /// @param parent what to parent it to
-    /// @param text the label to give to the toggle
-    /// @param currentValue the current value of the toggle
-    /// @param onToggle what to do when the toggle is clicked
-    /// @return the created toggle
-    inline BSML::ToggleSetting* CreateToggle(const TransformWrapper& parent, StringW text, bool currentValue, std::function<void(bool)> onToggle = nullptr) {
-        return CreateToggle(parent, text, currentValue, {0, 0}, onToggle);
-    }
-
-    /// @brief creates a toggle to turn things off / on
-    /// @param parent what to parent it to
-    /// @param text the label to give to the toggle
-    /// @param anchoredPosition the position of the toggle
-    /// @param onToggle what to do when the toggle is clicked
-    /// @return the created toggle
-    inline BSML::ToggleSetting* CreateToggle(const TransformWrapper& parent, StringW text, UnityEngine::Vector2 anchoredPosition, std::function<void(bool)> onToggle = nullptr) {
-        return CreateToggle(parent, text, false, anchoredPosition, onToggle);
-    }
-
-    /// @brief creates a toggle to turn things off / on
-    /// @param parent what to parent it to
-    /// @param text the label to give to the toggle
-    /// @param onToggle what to do when the toggle is clicked
-    /// @return the created toggle
-    inline BSML::ToggleSetting* CreateToggle(const TransformWrapper& parent, StringW text, std::function<void(bool)> onToggle = nullptr) {
-        return CreateToggle(parent, text, false, {0, 0}, onToggle);
-    }
+    /* -- Internal creation steps, defined in Settings.cpp -- --
+     * IncDecSetting/SliderSetting need a runtime System::Type* (the concrete leaf
+     * component type isn't known at these shared call sites), so unlike the other
+     * Create* functions above, these two stay as separate internal steps rather
+     * than folding into CreateIncrementSetting/CreateSliderSetting directly. Not
+     * part of the public API contract, but declared here (not forward-declared in
+     * each Tag's .cpp). */
+    BSML::IncDecSetting* CreateIncDecSettingBase(System::Type* type, const TransformWrapper& parent);
+    BSML::SliderSettingBase* CreateGenericSliderSettingBase(System::Type* type, const TransformWrapper& parent);
 }

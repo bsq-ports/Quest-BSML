@@ -6,6 +6,7 @@
 #include <array>
 #include <charconv>
 #include <cmath>
+#include <concepts>
 #include <limits>
 
 namespace {
@@ -13,6 +14,15 @@ namespace {
         auto first = input.find_first_not_of(" \t\r\n\v\f");
         if (first == std::string_view::npos) return {};
         return input.substr(first, input.find_last_not_of(" \t\r\n\v\f") - first + 1);
+    }
+
+    // Shared "unwrap or throw" body for the implicit-conversion operators below —
+    // `message` is only invoked (and only builds the fmt::format string) on the
+    // failure path, so this doesn't cost anything extra on a successful parse.
+    template<typename T>
+    T ParseOrThrow(std::optional<T> result, std::invocable auto message) {
+        if (!result) throw BSML::ParseException(message());
+        return *result;
     }
 
     template<std::size_t N>
@@ -114,9 +124,7 @@ std::optional<double> StringParseHelper::tryParseDouble() const {
 }
 
 UnityEngine::Vector3 StringParseHelper::parseVector3(float defaultZ) const {
-    auto result = tryParseVector3(defaultZ);
-    if (!result) throw BSML::ParseException(fmt::format("Could not parse Vector3 from '{}': expected one to three numbers", *this));
-    return *result;
+    return ParseOrThrow(tryParseVector3(defaultZ), [this]{ return fmt::format("Could not parse Vector3 from '{}': expected one to three numbers", *this); });
 }
 std::optional<UnityEngine::Color> StringParseHelper::tryParseColor() const {
     return BSML::Utilities::ParseHTMLColorOpt(*this);
@@ -207,43 +215,27 @@ StringParseHelper::operator std::string() const {
 }
 
 StringParseHelper::operator bool() const {
-    auto result = StringParseHelper(TrimParseWhitespace(*this)).tryParseBool();
-    if (!result) throw BSML::ParseException(fmt::format("Could not parse bool from '{}'", *this));
-    return *result;
+    return ParseOrThrow(StringParseHelper(TrimParseWhitespace(*this)).tryParseBool(), [this]{ return fmt::format("Could not parse bool from '{}'", *this); });
 }
 StringParseHelper::operator int() const {
-    auto result = tryParseInt();
-    if (!result) throw BSML::ParseException(fmt::format("Could not parse integer from '{}'", *this));
-    return *result;
+    return ParseOrThrow(tryParseInt(), [this]{ return fmt::format("Could not parse integer from '{}'", *this); });
 }
 StringParseHelper::operator float() const {
-    auto result = StringParseHelper(TrimParseWhitespace(*this)).tryParseFloat();
-    if (!result) throw BSML::ParseException(fmt::format("Could not parse float from '{}'", *this));
-    return *result;
+    return ParseOrThrow(StringParseHelper(TrimParseWhitespace(*this)).tryParseFloat(), [this]{ return fmt::format("Could not parse float from '{}'", *this); });
 }
 StringParseHelper::operator double() const {
-    auto result = tryParseDouble();
-    if (!result) throw BSML::ParseException(fmt::format("Could not parse double from '{}'", *this));
-    return *result;
+    return ParseOrThrow(tryParseDouble(), [this]{ return fmt::format("Could not parse double from '{}'", *this); });
 }
 StringParseHelper::operator UnityEngine::Color() const {
-    auto result = tryParseColor();
-    if (!result) throw BSML::ParseException(fmt::format("Invalid color '{}'", *this));
-    return *result;
+    return ParseOrThrow(tryParseColor(), [this]{ return fmt::format("Invalid color '{}'", *this); });
 }
 StringParseHelper::operator UnityEngine::Color32() const {
-    auto result = tryParseColor32();
-    if (!result) throw BSML::ParseException(fmt::format("Invalid color '{}'", *this));
-    return *result;
+    return ParseOrThrow(tryParseColor32(), [this]{ return fmt::format("Invalid color '{}'", *this); });
 }
 StringParseHelper::operator UnityEngine::Vector2() const {
-    auto result = tryParseVector2();
-    if (!result) throw BSML::ParseException(fmt::format("Could not parse Vector2 from '{}': expected one or two numbers", *this));
-    return *result;
+    return ParseOrThrow(tryParseVector2(), [this]{ return fmt::format("Could not parse Vector2 from '{}': expected one or two numbers", *this); });
 }
 StringParseHelper::operator UnityEngine::Vector3() const { return parseVector3(); }
 StringParseHelper::operator UnityEngine::Vector4() const {
-    auto result = tryParseVector4();
-    if (!result) throw BSML::ParseException(fmt::format("Could not parse Vector4 from '{}': expected one to four numbers", *this));
-    return *result;
+    return ParseOrThrow(tryParseVector4(), [this]{ return fmt::format("Could not parse Vector4 from '{}': expected one to four numbers", *this); });
 }

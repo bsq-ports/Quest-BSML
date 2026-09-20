@@ -7,6 +7,7 @@
 #include "TMPro/FontStyles.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "../../BSML/Components/ClickableText.hpp"
+#include "../../BSML/Components/TextGradientUpdater.hpp"
 
 namespace BSML::Lite {
     /// @brief Options for CreateText.
@@ -57,4 +58,10 @@ namespace BSML::Lite {
     static inline BSML::ClickableText* CreateClickableText(const TransformWrapper& parent, StringW text, std::function<void()> onClick) {
         return CreateClickableText(parent, text, ClickableTextOptions{.onClick = std::move(onClick)});
     }
+
+    /// @brief Creates text with a scrolling gradient applied to it
+    /// @param parent parent transform to parent text to
+    /// @param text the text to display
+    /// @return the created gradient updater (its `text` field is the underlying HMUI::CurvedTextMeshPro)
+    BSML_EXPORT BSML::TextGradientUpdater* CreateGradientText(const TransformWrapper& parent, StringW text = "BSMLText");
 }

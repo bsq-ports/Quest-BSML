@@ -5,8 +5,14 @@
 #include "../TransformWrapper.hpp"
 #include "HMUI/HoverHint.hpp"
 #include "HMUI/TextSegmentedControl.hpp"
+#include "HMUI/IconSegmentedControl.hpp"
+#include "HMUI/TextPageScrollView.hpp"
 #include "../../BSML/FloatingScreen/FloatingScreen.hpp"
 #include "../../BSML/Components/ProgressBar.hpp"
+#include "../../BSML/Components/ScrollIndicator.hpp"
+#include "../../BSML/Components/Tab.hpp"
+#include "GlobalNamespace/LeaderboardTableView.hpp"
+#include <optional>
 
 namespace BSML::Lite {
     /// @brief Adds a hover hint to an object so that when it is hovered a message displays
@@ -60,23 +66,11 @@ namespace BSML::Lite {
     /// @brief creates a text segmented control like the one on the gameplay setup view controller
     /// @param parent what to parent it to
     /// @param anchoredPosition the position
-    /// @param sizeDelta the sizeDelta
+    /// @param sizeDelta size override; leave unset (default) to keep the template's natural size
     /// @param values list of text values to give to the controller
     /// @param onCellWithIdxClicked callback called when a cell is clicked
     /// @return the created text segmented control
-    BSML_EXPORT HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::span<std::string_view> values, std::function<void(int)> onCellWithIdxClicked = nullptr);
-
-    /// @brief creates a text segmented control like the one on the gameplay setup view controller
-    /// @param parent what to parent it to
-    /// @param sizeDelta the sizeDelta
-    /// @param values list of text values to give to the controller
-    /// @param onCellWithIdxClicked callback called when a cell is clicked
-    /// @return the created text segmented control
-    template<typename T>
-    requires(std::is_constructible_v<std::span<std::string_view>, T>)
-    static inline HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, UnityEngine::Vector2 sizeDelta, std::span<std::string_view> values, std::function<void(int)> onCellWithIdxClicked = nullptr) {
-        return CreateTextSegmentedControl(parent, {0, 0}, sizeDelta, std::span<std::string_view>(values), onCellWithIdxClicked);
-    }
+    BSML_EXPORT HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, UnityEngine::Vector2 anchoredPosition = {0, 0}, std::optional<UnityEngine::Vector2> sizeDelta = std::nullopt, std::span<std::string_view> values = {}, std::function<void(int)> onCellWithIdxClicked = nullptr);
 
     /// @brief creates a text segmented control like the one on the gameplay setup view controller
     /// @param parent what to parent it to
@@ -85,19 +79,52 @@ namespace BSML::Lite {
     /// @return the created text segmented control
     template<typename T>
     requires(std::is_constructible_v<std::span<std::string_view>, T>)
-    static inline HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, T values, std::function<void(int)> onCellWithIdxClicked) {
-        return CreateTextSegmentedControl(parent, {0, 0}, {90.0f, 10.0f}, std::span<std::string_view>(values), onCellWithIdxClicked);
-    }
-
-    /// @brief creates a text segmented control like the one on the gameplay setup view controller
-    /// @param parent what to parent it to
-    /// @param onCellWithIdxClicked callback called when a cell is clicked
-    /// @return the created text segmented control
-    static inline HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, std::function<void(int)> onCellWithIdxClicked) {
-        return CreateTextSegmentedControl(parent, {0, 0}, {90.0f, 10.0f}, {}, onCellWithIdxClicked);
+    static inline HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, T values, std::function<void(int)> onCellWithIdxClicked = nullptr) {
+        return CreateTextSegmentedControl(parent, {0, 0}, std::nullopt, std::span<std::string_view>(values), onCellWithIdxClicked);
     }
 
     /// @brief creates a Unity canvas gameobject that's setup for beat saber UI
     /// @return the created canvas gameobject
     BSML_EXPORT UnityEngine::GameObject* CreateCanvas();
+
+    /// @brief creates a copy of the in-game level-loading spinner
+    /// @param parent what to parent it to
+    /// @return created loading indicator GameObject
+    BSML_EXPORT UnityEngine::GameObject* CreateLoadingIndicator(const TransformWrapper& parent);
+
+    /// @brief creates a vertical scroll indicator, like the one used by scrollable lists
+    /// @param parent what to parent it to
+    /// @return the created scroll indicator
+    BSML_EXPORT BSML::ScrollIndicator* CreateScrollIndicator(const TransformWrapper& parent);
+
+    /// @brief creates an icon segmented control, like the one used for beatmap characteristic selection
+    /// @param parent what to parent it to
+    /// @return the created icon segmented control (with all template segments removed; add your own via its dataSource)
+    BSML_EXPORT HMUI::IconSegmentedControl* CreateIconSegmentedControl(const TransformWrapper& parent);
+
+    /// @brief creates a vertical icon segmented control, like the one used on the leaderboard scope selector
+    /// @param parent what to parent it to
+    /// @return the created icon segmented control (with all template segments removed; add your own via its dataSource)
+    BSML_EXPORT HMUI::IconSegmentedControl* CreateVerticalIconSegmentedControl(const TransformWrapper& parent);
+
+    /// @brief creates a leaderboard table view, copied from the in-game leaderboard
+    /// @param parent what to parent it to
+    /// @return the created leaderboard
+    BSML_EXPORT GlobalNamespace::LeaderboardTableView* CreateLeaderboard(const TransformWrapper& parent);
+
+    /// @brief creates a tab selector (a text segmented control paired with a BSML::TabSelector) with all
+    /// template segments removed; feed it BSML::Tab objects (see CreateTab) via SetSegmentedControlTexts
+    /// @param parent what to parent it to
+    /// @return the created tab selector's GameObject
+    BSML_EXPORT UnityEngine::GameObject* CreateTabSelector(const TransformWrapper& parent);
+
+    /// @brief creates a bare BSML::Tab-tagged background panel, for use as a page inside a BSML::TabSelector
+    /// @param parent what to parent it to
+    /// @return the created tab
+    BSML_EXPORT BSML::Tab* CreateTab(const TransformWrapper& parent);
+
+    /// @brief creates a scrollable text page, like the one used for the EULA/credits screens
+    /// @param parent what to parent it to
+    /// @return the created text page scroll view
+    BSML_EXPORT HMUI::TextPageScrollView* CreateTextPageScrollView(const TransformWrapper& parent);
 }

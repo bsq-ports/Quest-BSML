@@ -14,7 +14,12 @@ namespace BSML {
     }
 
     void ListSettingHandler::HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
-        auto component = reinterpret_cast<ListSetting*>(componentType.component);
+        Base::HandleType(componentType, parserParams);
+        auto component = i2c::try_cast<ListSetting*>(componentType.component);
+        if (!component) {
+            ERROR("ListSettingHandler::HandleType given a component that is not a ListSetting");
+            return;
+        }
         auto& data = componentType.data;
 
         auto optionsItr = data.find("options");
@@ -27,7 +32,5 @@ namespace BSML {
         if (!component->values || component->values->get_Count() == 0) {
             ERROR("Did not give options for list setting! this is required!");
         }
-
-        Base::HandleType(componentType, parserParams);
     }
 }

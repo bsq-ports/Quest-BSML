@@ -16,10 +16,6 @@ namespace BSML {
 
     static BSMLNodeParser<SubmenuTag> submenuTagParser({"settings-submenu"});
 
-    extern GlobalNamespace::Signal* get_textClickedSignal();
-    extern BeatSaber::Haptics::HapticPresetSO* get_textHapticPreset();
-    extern BeatSaber::Haptics::HapticFeedbackManager* get_textHapticFeedbackManager();
-
     ModSettingsFlowCoordinator* get_flow() {
         static safe_ptr<ModSettingsFlowCoordinator*> flow;
         if (!flow) {

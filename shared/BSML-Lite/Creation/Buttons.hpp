@@ -68,4 +68,16 @@ namespace BSML::Lite {
     /// @param inactive, for when not hovering over the button
     /// @param active for when hovering over the button
     BSML_EXPORT void SetButtonSprites(UnityEngine::UI::Button* button, UnityEngine::Sprite* inactive, UnityEngine::Sprite* active);
+
+    /// @brief Creates an icon-only button (copied from the level detail "practice" button, with its
+    /// text stripped and an icon image added in its place). Defaults to the pencil/edit icon; use
+    /// SetButtonIcon to change it.
+    /// @param parent what to parent it to
+    /// @return the created button's GameObject (has a BSML::ButtonIconImage and BSML::ExternalComponents on it)
+    BSML_EXPORT UnityEngine::GameObject* CreateIconButton(const TransformWrapper& parent);
+
+    /// @brief Creates a small icon button matching the style of the settings panel's page up/down buttons
+    /// @param parent what to parent it to
+    /// @return the created button's GameObject (has a BSML::PageButton, BSML::ButtonIconImage and BSML::ExternalComponents on it)
+    BSML_EXPORT UnityEngine::GameObject* CreatePageButton(const TransformWrapper& parent);
 }

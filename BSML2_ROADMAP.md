@@ -186,11 +186,18 @@ scope-creeping the pass in progress.
 | Backlog #3: `TableView` base-call idiom | ✅ Done | this session | `ReloadData`/`DidSelectCellWithIdx` now use `i2c::metadata_getter<&HMUI::TableView::X>::method_info()` instead of a string lookup. |
 | Backlog #4: registry consolidation | ⚠️ Investigated, merge deferred | this session | Real merge blocked by Unity-rendering-pinned storage types + public API risk (details below). Applied the one safe fix found: `MenuButtons.cpp`'s `reinterpret_cast` → `i2c::try_cast`. |
 | Backlog #5: `BSMLViewController` shim | ✅ Done (corrected twice) | this session | First pass cached the `MethodInfo*`; a second pass wrongly concluded the shim pattern couldn't apply here at all (conflated "the game's IL2CPP-generated classes, genuinely unknown at compile time" with "another mod's C++ code, compiled with the same NDK toolchain and dynamically linked like any shared library" — the latter supports ordinary C++ virtual dispatch across the .so boundary just fine). **Corrected**: added `BSMLContentProvider` (`shared/BSML/ViewControllers/BSMLContentProvider.hpp`/`.cpp`), a pure-virtual interface (`GetContent()` required, `GetFallbackContent()` optional with a default) that `BSMLViewController` now holds via `std::unique_ptr<BSMLContentProvider> contentProvider`. `ParseWithFallback()` prefers `contentProvider` (real virtual call, signature-checked at compile time, zero reflection) and only falls back to the legacy by-name `get_Content`/`get_FallbackContent` resolution when `contentProvider` isn't set, so existing mods keep working unmodified. |
-| Backlog #6: `Text`/`ClickableText` migration to `BSML::Lite` | ✅ Done (1 of ~38) | this session | First component migrated per the pattern below — `shared/BSML-Lite/Creation/Text.hpp`/`.cpp` rewritten: `TextOptions`/`ClickableTextOptions` structs replace the ~13-overload pyramid, `#define protected public` + `Tags/{TextTag,ClickableTextTag}.hpp` includes removed, creation logic (font/material/color/rect setup, the click-signal/haptics singletons) now owned directly. Tags left untouched (same deliberate duplication as the Button pass, resolved when Tags are later flipped to call `BSML::Lite`). Full build verified. ~37 component types remain — do NOT batch them; one (or one small related cluster) per pass, per the note at the top of backlog #6. |
+| Backlog #6: `Text`/`ClickableText` migration to `BSML::Lite` | ✅ Done (1 of ~38) | earlier session | First component migrated per the pattern below — `shared/BSML-Lite/Creation/Text.hpp`/`.cpp` rewritten: `TextOptions`/`ClickableTextOptions` structs replace the ~13-overload pyramid, `#define protected public` + `Tags/{TextTag,ClickableTextTag}.hpp` includes removed, creation logic (font/material/color/rect setup, the click-signal/haptics singletons) now owned directly. Tags left untouched at the time (same deliberate duplication as the Button pass) — **now flipped, see next row.** |
+| Backlog #6: Image/Layout/Misc/Lists clusters, and flipping Tags to call `BSML::Lite` | ✅ Done (16 of ~38 tags total) | this session | Extends backlog #6 a full step further than Button/Text did: not just extracting creation logic into `BSML::Lite`, but also flipping each Tag's `CreateObject` to call it (step 2 of the backlog #6 plan), while deliberately leaving each `TypeHandler` in place (steps 3/4 are a later pass — XML attribute-driven property setting via the broadcast+RTTI system still needs them until each component's full XML-settable surface is captured in its `*Options` struct too). Covered, each with a real NDK build verified: **Image family** (`ImageTag`, `RawImageTag`, `ClickableImageTag` → `ImageOptions`/`ClickableImageOptions`/`RawImageOptions` in `Image.hpp`/`.cpp`; found and fixed a real pre-existing bug — `CreateRawImage` was instantiating `ImageTag` instead of `RawImageTag`, so `GetComponent<RawImage*>()` always returned null). **Layout family** (`VerticalTag`, `HorizontalTag`, `GridLayoutTag`, `StackLayoutTag`, `ScrollViewTag`, `SettingsContainerTag`, `ModalTag`, `ModifierContainerTag` → all own their creation directly in `Layout.cpp` now; `get_scrollViewTemplate()` kept as a `namespace BSML` free function since it's also forward-declared and called directly by `TextPageScrollViewTag.cpp` and two `TypeHandlers` — moving or duplicating it would've broken those). **Misc**: `TextSegmentedControlTag` → `Misc.cpp`. **Lists**: `ListTag` → `Lists.cpp`. Also extracted a genuinely-duplicated (not one-off) click-signal/haptics-preset singleton helper — previously copy-pasted per-component (`ClickableImageTag`, and `Text.cpp`'s own copy from the earlier Text pass) — into shared `BSML::Lite::GetClickedSignal()`/`GetClickHapticPreset()`/`GetClickHapticFeedbackManager()` in `ComponentCreation.hpp`/`.cpp`, and switched both callers to it. **New idiom established this session**: where a component's `BSML::Lite::Create*` function has always unconditionally overridden position/size (pre-existing behavior, safe for direct C++ callers who pass real values), but the Tag never touched that dimension at all (relying on a separate generic `RectTransformHandler` XML attribute to size it later) — don't route the Tag through the full public function with a made-up `{0,0}`, since that forces a zero-size default the original Tag never had. Instead split out a `Create*Base()` (no position/size override) that both the Tag and the public function build on — done for `CreateListBase`/`CreateTextSegmentedControlBase`, forward-declared cross-TU the same way as `get_scrollViewTemplate()` rather than added to the public header (they're not part of BSML::Lite's public API). All builds verified via real `ninja -C build` after each cluster. |
+| Backlog #6: `Settings/` cluster migration | ✅ Done (24 of ~38 tags total; 0 active hack usages remain anywhere) | this session | The biggest remaining cluster, migrated in full: `TextFieldTag`/`ModifierTag`/`ToggleSettingTag`/`IncrementSettingTag`+`ListSettingTag` (via `IncDecSettingTagBase`)/`SliderSettingTag`+`ListSliderSettingTag` (via `GenericSliderSettingTagBase`)/`DropdownListSettingTag`/`ColorSettingTag`/`ModalColorPickerTag` — 8 Tags backing 7 public `Settings.hpp` functions. Two real design subtleties found and handled, both worth remembering for the remaining ~14 Tags: **(1) virtual override points** — `TextFieldTag::get_fieldViewPrefab()` is `virtual` and `protected`, a genuine XML-Tag-subclassing extensibility point for downstream mods; routing `BSML::Lite::CreateStringSetting` through it would've required calling through the Tag (defeating the point of removing the hack) or losing the override hook, so `CreateStringSetting` reimplements the same default-prefab lookup independently and `TextFieldTag.cpp` was left **completely untouched** — check for `virtual` protected members on any Tag before assuming it's safe to fully absorb into `BSML::Lite`. **(2) state-initialization, not just position/size, needs the `Create*Base()` split** — `CreateDropdown`/`CreateColorPicker`/`CreateModifierButton`/`CreateIncrementSetting`/`CreateSliderSetting`/`CreateToggle` all call some combination of `Setup()`/`values`-population/`index`/`UpdateState()`/position that the bare XML-driven Tag never did (left for the `TypeHandler` to trigger via attributes later) — confirmed via `grep -n "\\->Setup()"` that these `Setup()` calls have *always* only existed in the `BSML::Lite` C++-facing wrapper, even before this session, so this isn't a new risk introduced by the migration, but it does mean **every** `Create*`/`Create*Base` split in this cluster needed the same care as the sizing-only cases from the previous cluster. Also fixed a genuine idiom #3 violation found while porting `ModalColorPickerTag`: `i2c::functions::class_get_method_from_name(colorPicker->klass, "OnChange", 2)` reflectively resolving `BSML::ModalColorPicker`'s own statically-known `OnChange` method (confirmed callable directly — `DECLARE_INSTANCE_METHOD` self-inserts `public:`, so no access-control issue) → replaced with `MakeSystemAction(std::bind(&BSML::ModalColorPicker::OnChange, colorPicker, ...))`, matching the established idiom #3 pattern. `ColorSettingTag` (which composes `ModalColorPickerTag` via inheritance, not the hack) was also flipped to call the new `CreateColorPickerBase()` for DRY, even though it didn't strictly need to for hack-removal. Full build (`ninja -C build`) links clean. **`grep -rn "define protected public\|define private public" $(find src -name "*.cpp")` now matches zero active `#define`s anywhere in the codebase** — only explanatory comments remain. |
+| Backlog #6: remaining ~14 standalone Tags | ✅ Done (38 of ~38 tags total — step 1+2 complete for every Tag) | this session | Designed and landed a brand-new `BSML::Lite::Create*` for each of the 14 Tags that had no existing facade to extend (real API design, not mechanical hack-removal — none of these had ever used `#define protected public`, they built their GameObjects directly): `CreateGradientText` (`Text.hpp`/`.cpp`), `CreateIconButton`/`CreatePageButton` (`Buttons.hpp`/`.cpp`), `CreateCustomList` (`Lists.hpp`/`.cpp`, takes a raw BSML XML string — the component's data source is inherently XML-shaped, not a hack), `CreateScrollableContainer` (`Layout.hpp`/`.cpp`), and `CreateLoadingIndicator`/`CreateScrollIndicator`/`CreateIconSegmentedControl`/`CreateVerticalIconSegmentedControl`/`CreateLeaderboard`/`CreateTabSelector`/`CreateTab`/`CreateTextPageScrollView` plus an internal-only `CreateProgressBarBase` (`Misc.hpp`/`.cpp`). Each is a faithful line-for-line port of the original Tag's `CreateObject` body — confirmed via `grep` that none of the absorbed `get_*Template()` singleton helpers (`get_loadingTemplate`, `get_scrollIndicatorTemplate`, `get_pageButtonTemplate`, `get_buttonWithIconTemplate`, `get_customListCanvasTemplate`, `get_iconSegmentedControlTemplate`, `get_verticalIconSegmentedControlTemplate`, `get_leaderboardTemplate`, `get_tabSelectorTagTemplate`) had any other callers before deleting them. Two components reused an *already-identical* existing template lookup instead of duplicating it: `CreateCustomList` reuses Lists.cpp's `GetListCanvasTemplate()` (verified byte-for-byte identical DI-resolve chain to the old `get_customListCanvasTemplate()`), and `CreateIconButton` reuses Buttons.cpp's existing `GetPracticeButtonPrefab()` (same prefab source as `ButtonWithIconTag` always used). `TabTag` still nominally extends `BackgroundTag` in its header (untouched, zero risk) but its `CreateObject` no longer calls `Base::CreateObject` — it calls the new `BSML::Lite::CreateTab`, which independently re-implements `BackgroundTag`'s bare body (same accepted duplication tradeoff as `GradientTextTag`/`TextTag` from the previous cluster, since a free function can't call a `protected` inherited method without the hack). **Not yet verified with a real build** — the verifying `ninja -C build` was interrupted (exit 137) and not re-run at the user's request; next session (or whenever a build is next run) should treat this row as the first thing to compile-check. Steps 3/4 (delete each `TypeHandler` once nothing calls `HandleType` for it, then delete `ComponentTypeWithData`/`TypeHandlerBase`) remain untouched for every component migrated so far, including this cluster — see the rewritten backlog #6 section below for why that's a bigger step than it sounds. |
 | Idiom #6 follow-through: `ModalColorPicker` fully reflection-free | ✅ Done | this session | Correction on top of backlog #2 — deleted the `MethodInfo*`/host fields entirely, routed through `BSMLAction::GetFunction<Targs...>()` instead. See idiom #6 and backlog #2 above. |
 | Idiom #5 correction: `BSMLContentProvider` shim | ✅ Done | this session | `shared/BSML/ViewControllers/BSMLContentProvider.hpp`/`.cpp` (new) — a real pure-virtual interface (`GetContent()` required, `GetFallbackContent()` optional), held via `std::unique_ptr` on `BSMLViewController`, dispatched with a plain virtual call instead of reflection. Legacy by-name path kept as a fallback for existing mods. See backlog #5 above (rewritten — the original conclusion that this pattern couldn't apply was wrong). |
 | Idiom #9 (new): `std::string`/`std::string_view` over `StringW` | ✅ Done (1 example) | this session | Added as core idiom #9 above. Fixed `Helpers::IsAnimated` (`src/Helpers/utilities.cpp`) as the first concrete example — took `StringW` purely to make 4 IL2CPP `EndsWith` calls for a file-extension check; now `std::string_view` with a plain C++ suffix check. ~150 other `StringW` usages exist codebase-wide; most already fit the "final result becomes StringW" exception — audit opportunistically per-function, not as a sweep. |
 | Idiom #10 (new): header/include hygiene | 📝 Documented only | this session | Added as core idiom #10 + backlog #9 above, at the user's request, deliberately scoped to low-risk moves (forward-declare over include, don't widen widely-included headers) — no PCH/unity-build/header-splitting. Not yet applied anywhere; no baseline build-time measurement taken yet either (see backlog #9). |
+| `Create*Base()` split eliminated (user-directed redesign) | ✅ Done | this session | User feedback: "base methods should not be necessary, just use default options." Merged all 6 position/state-only `Create*Base()` functions into their public `Create*()` counterpart, so there's exactly one function per component and Tags just call it with (mostly) default arguments instead of a separate internal-only function: `CreateList`/`CreateListBase` (Lists.cpp), `CreateTextSegmentedControl`/`...Base` and `CreateProgressBar`/`...Base` (Misc.cpp — the ProgressBar case needed no merge at all, the Tag now just calls the existing public `CreateProgressBar({0,0,0}, {0,0,0}, {1,1,1}, "")` directly and reparents itself), `CreateModifierButton`/`...Base`, `CreateToggle`/`...Base`, `CreateDropdown`/`...Base`, `CreateColorPicker`/`...Base` (all in Settings.cpp). Mechanism, confirmed with the user via two clarifying questions before implementing: **position/size fields became `std::optional<UnityEngine::Vector2>` defaulting to `std::nullopt`** ("don't touch, keep the template's natural value" — exactly reproduces old Base behavior; a direct caller who wants `{0,0}` still just passes it), while **state fields (label text, values lists, current-value) got real default values matching what Base already hardcoded** (e.g. `label = "BSMLDropdownSetting"`), and `Setup()`/finalization calls now run unconditionally *except* `CreateDropdown`, which only calls `Setup()`/selects an index when `values` is non-empty (calling `SelectCellWithIdx` on an empty dropdown looked like a real out-of-bounds risk, unlike the other Setup() calls) — the Tag gets this by simply not passing `values`, no separate flag needed. `CreateList` also gained a plain (non-optional) `bool activate = true` parameter, since "is the list left inactive so a TypeHandler can finish sizing/populating it before it's shown" is a genuine timing need, not a "leave at natural value" case — `ListTag` passes `false`. `CreateDropdown`'s return type stays `BSML::DropdownListSetting*` (best for C++ callers) even though the component lives on a child GameObject, not the wrapper `DropdownListSettingTag` needs to return — resolved with `dropdownSetting->GetComponentInParent<BSML::ExternalComponents*>()->get_gameObject()` in the Tag, cleaner than the old two-different-return-types split. **Deliberately NOT merged**: `CreateIncDecSettingBase`/`CreateGenericSliderSettingBase` — these aren't a "Tag needs bare defaults" case at all; they're shared across *two* Tag leaf types each (`IncrementSettingTag`+`ListSettingTag`; `SliderSettingTag`+`ListSliderSettingTag`) via a runtime `System::Type*` the concrete public functions (`CreateIncrementSetting`/`CreateSliderSetting`) never need, since those Tags never call the public wrapper at all — a genuine type-genericity reason to stay separate, not a default-value problem. All Tag `.cpp` call sites updated; grepped for every removed function name across `src`/`shared` to confirm zero remaining references. **Not yet build-verified** — this is a substantial, multi-file signature change and the highest-risk unverified work of the session; should be the first thing compiled. |
+| Idiom #10 header hygiene attempt on `Misc.hpp`/`Layout.hpp`/`Text.hpp` | ⚠️ Mostly reverted — 1 real fix landed | this session | Tried forward-declaring `Create*` return types (`HMUI::IconSegmentedControl`/`TextPageScrollView`, `GlobalNamespace::LeaderboardTableView`, `BSML::TextGradientUpdater`) in place of full includes, per idiom #10. **Turned out unsafe for this specific family of headers**: every `BSML::Tag::CreateObject` that delegates to a `BSML::Lite::Create*` function typically does `return BSML::Lite::CreateX(parent)->get_gameObject();` in one expression, in a `.cpp` that only includes the `Creation/*.hpp` header — a forward declaration there makes the member-function call on an incomplete type fail. Caught by grepping each consumer `.cpp` for a direct dereference after the `Create*` call, not by a build (none available this session) — reverted all 4 attempts back to full includes before this could land as a real regression. **One genuine, safe win survived**: `Misc.hpp` had a full `#include` for `BSML/Components/TabSelector.hpp` that was never actually used in any signature (only in a `///` doc comment) — `CreateTabSelector` returns `UnityEngine::GameObject*`, not `TabSelector*` — so that one's gone for real, no forward-declare needed since nothing references the type at all. Recorded as a feedback memory so this isn't attempted again the same way. **Not yet build-verified** (the one real removal, specifically). |
+| TypeHandler `reinterpret_cast` → `i2c::try_cast` sweep | ✅ Done | this session | `ButtonHandler.cpp` got this fix long ago (idiom #4), but ~15 sibling `TypeHandler`s doing the exact same `reinterpret_cast<X*>(componentType.component)` pattern were left behind — found via a full `reinterpret_cast` grep across `src/BSML/TypeHandlers`. `componentType.component` is precisely idiom #4's stated case (RTTI-broadcast-matched, "whose exact type isn't locally, statically obvious"), unlike the `GameplaySetup.cpp`/`SettingsMenu`-family casts investigated and correctly left alone elsewhere in this table. Fixed all of them, matching `ButtonHandler.cpp`'s exact idiom (`Base::HandleType(...)` called *first*, then `i2c::try_cast` + `if (!x) { ERROR(...); return; }`): `ModalKeyboardHandler` (both overrides), `ClickableImageHandler`, `ClickableTextHandler`, `CustomCellListTableDataHandler`, `CustomListTableDataHandler`, `IconSegmentedControlHandler`, `InputFieldViewHandler`, `LayoutGroupHandler`, `ModalViewHandler`, `ScrollableContainerHandler` (both overrides), `TabSelectorHandler`, `TextSegmentedControlHandler`, and the 3 `Settings/` handlers (`DropDownListSettingHandler`, `ListSettingHandler`, `ListSliderSettingHandler`). Several of these called `Base::HandleType`/`HandleTypeAfterParse` *after* their type-specific logic instead of before — reordered to match `ButtonHandler.cpp`'s convention (call `Base::X` first) since an early return after a failed cast must not skip it. `TextSegmentedControlHandler.cpp`'s other 2 `reinterpret_cast`s (converting between `List_1<System::Object*>*`/`List_1<StringW>*` IL2CPP generic instantiations) are a different, legitimate pattern — left alone, not part of this fix. Also checked every other `TypeHandler` (23 more, including ones that looked like candidates by filename — `ScrollIndicatorHandler`, `TextGradientUpdaterHandler`, `TabHandler`, etc.): none of them touch `componentType.component` directly at all — they only implement `get_props()`/`get_setters()`, and the generic `TypeHandler<T>::HandleType` in `TypeHandler.hpp` (base class) does the one remaining `reinterpret_cast<T>(componentType.component)` for the whole codebase, immediately after its own `i2c::functions::class_is_assignable_from(...)` check earlier in the *same function* — a provably-safe, locally-verified cast (unlike a "three frames up" assumption), so this one correctly stays a `reinterpret_cast` per idiom #4's own stated exception. One consequence worth noting: for the `HandleType`-overriding files in this fix, `Base::HandleType` already re-verifies the same assignability before the override's own `try_cast` runs, so that particular `try_cast` is defense-in-depth rather than the *only* check (matches `ButtonHandler.cpp`'s own established pattern, so not a problem) — but for every `HandleTypeAfterParse` override fixed here, `TypeHandlerBase::HandleTypeAfterParse`'s default body is empty (no RTTI check at all), so those `try_cast`s are the *only* safety net and are a real fix, not redundant. **Not yet build-verified.** |
+| Cross-TU forward-declare cleanup | ✅ Done | this session | User correction: internal helpers shared across translation units (`Create*Base()` functions, `get_scrollViewTemplate()`, `stringToTableType()`, `collect_minfos()`) were being forward-declared locally inside each calling `.cpp` instead of getting a real header declaration — including one pre-existing instance of the same anti-pattern from before this session. Fixed by giving each a real declaration in the most relevant header (`Settings.hpp`/`Misc.hpp`/`Lists.hpp`/`Layout.hpp`, `CustomListTableDataHandler.hpp`, `BSMLValue.hpp`) marked as an internal (not-public-API) step where applicable, and switching every consumer to `#include` that header instead. `get_scrollViewTemplate()` also moved (not just re-declared) from `ScrollViewTag.cpp` into `BSML-Lite/Creation/Layout.cpp` as `BSML::Lite::GetScrollViewTemplate()` — it had no reason to live in Tags-land any more since `ScrollViewTag::CreateObject` already fully delegates to `BSML::Lite::CreateScrollView`; this also fixes the dependency direction (Tags/TypeHandlers → BSML-Lite, not the reverse) for the 2 TypeHandlers that use it. Also found and deleted 3 genuinely dead `extern` declarations in `SubmenuTag.cpp` (`get_textClickedSignal`/`get_textHapticPreset`/`get_textHapticFeedbackManager`) that referenced functions renamed away during this session's earlier Text.cpp work and were never actually called from that file. **Not yet build-verified.** |
 | Everything else below | 🔲 Not started | — | — |
 
 **Correction found while doing backlog #1**: `Settings/IncDecSetting.cpp`'s `BaseSetup()` reflects on `IncButtonPressed`/`DecButtonPressed` — but unlike the other 5 files, those methods are **not declared on `IncDecSetting` itself**; only its subclasses `IncrementSetting`/`ListSetting` declare them (each independently, no shared virtual base). `BaseSetup()` is called both from a concretely-typed call site (`BSML-Lite/Creation/Settings.cpp`, knows the real type) *and* reflectively from `BaseSettingHandler.cpp` (doesn't — dispatches whatever `TypeHandler` RTTI-matched). From inside `IncDecSetting::BaseSetup()`, `this` is statically only an `IncDecSetting*`, so there's no C++-visible `IncButtonPressed` to bind to — this is cross-subclass dispatch, not self-reflection, much closer to idiom #6 than idiom #3. Making it a real C++ `virtual` method was considered and rejected: none of the ~15 `DECLARE_CLASS_CUSTOM` hierarchies in this codebase use `virtual`/`override`, and adding a C++ vtable to an IL2CPP-visible type risks disturbing the object layout `custom-types` assumes — exactly the risk idiom #5's shim pattern exists to avoid, and not something to do as a drive-by fix. Left as-is; a real fix belongs with backlog #6's `BSMLViewController`-style shim work, not here.
@@ -305,43 +312,135 @@ is currently resolved by name against a *derived BSML type* (not the game's
 own generated code) is a candidate for the same fix — a real interface +
 `std::unique_ptr` field, not reflection. Worth checking for during backlog #6.
 
-### 6. Tags/TypeHandlers/Macros → `BSML::Lite` migration (the big one) — 1 of ~38 done
-This is the actual "BSML 2" migration; the Button pass (this session) is the
-template to repeat, and `Text`/`ClickableText` (`shared/BSML-Lite/Creation/Text.hpp`/`.cpp`,
-this session) is the second confirmation it generalizes cleanly to a
-non-prefab component. Per component type (~37 remaining):
+### 6. Tags/TypeHandlers/Macros → `BSML::Lite` migration (the big one) — steps 1+2 done for all ~38 tags
+This is the actual "BSML 2" migration. Button and `Text`/`ClickableText`
+(earlier sessions) proved step 1 below generalizes to both prefab-based and
+non-prefab components. Sessions since then extended the pattern through step 2
+for the **Image**, **Layout**, **Misc**, **Lists**, **`Settings/`** (8 Tags:
+`TextFieldTag`, `ModifierTag`, `ToggleSettingTag`,
+`IncrementSettingTag`/`ListSettingTag`, `SliderSettingTag`/`ListSliderSettingTag`,
+`DropdownListSettingTag`, `ColorSettingTag`, `ModalColorPickerTag`), and finally
+the **remaining 14 standalone Tags** (`ButtonWithIcon`, `CustomList`,
+`GradientText`, `IconSegmentedControl`, `Leaderboard`, `LoadingIndicator`,
+`PageButton`, `ProgressBar`, `ScrollableContainer`, `ScrollIndicator`,
+`TabSelector`, `Tab`, `TextPageScrollView`, `VerticalIconSegmentedControl`) —
+see the Status table entries above for full specifics, including two real
+bugs/violations found (`CreateRawImage` instantiating the wrong Tag; a genuine
+idiom #3 violation in `ModalColorPickerTag`'s reflective `OnChange` dispatch)
+and two idioms to watch for in every remaining component:
+- **The `Create*Base()` split** isn't only for position/size. Any
+  state-initialization the bare XML-driven Tag never did but the public
+  `BSML::Lite::Create*` wrapper unconditionally does (`Setup()`, populating
+  `values`, computing `index`, calling `UpdateState()`, applying
+  `anchoredPosition`/`sizeDelta`) needs the same base/public split — the
+  `Settings/` cluster needed it far more than the earlier ones did (see the
+  Status table row for the specific functions).
+- **Watch for `virtual`/`protected` Tag member functions** before assuming a
+  Tag can be fully absorbed into `BSML::Lite` — `TextFieldTag::get_fieldViewPrefab()`
+  is a genuine downstream-subclassing extensibility point and was left
+  completely untouched; `BSML::Lite::CreateStringSetting` reimplements the
+  same default lookup independently rather than routing through it.
+
+**Zero active `#define protected public`/`#define private public` uses
+remain anywhere in the codebase** (verified: `grep -rn "define protected
+public\|define private public" $(find src -name "*.cpp")` matches only
+explanatory comments) — every `BSML::Lite::Create*` function now owns its
+creation logic directly, and **all ~38 Tags now have a `BSML::Lite` facade
+and call it** (steps 1+2 of the plan below are complete for every component).
+Per component type:
 1. Extract/adapt the Tag's `CreateObject` body into a `BSML::Lite::Create*`
    function taking a typed `*Options` struct (reuse `ComponentCreation.hpp`
    helpers where the component is prefab-based; add new shared helpers there
-   if a new *pattern* — not a one-off — emerges).
+   if a new *pattern* — not a one-off — emerges). ✅ Done for all ~38.
 2. Flip the Tag to call the new `BSML::Lite::Create*` function and drop its
-   own duplicate creation/fixup logic.
+   own duplicate creation/fixup logic — watch for both idioms above. ✅ Done
+   for all ~38.
 3. Delete the corresponding `TypeHandler` once nothing calls its `HandleType`
    anymore (i.e. once the Tag's property-setting is inlined via the typed
-   options struct instead of the string-attribute broadcast).
+   options struct instead of the string-attribute broadcast). **Not yet done
+   for any component.** This is a bigger step than "delete a now-dead file" —
+   confirmed by re-reading a few handlers for the just-migrated Tags
+   (`ButtonHandler`-style ones): most `TypeHandler`s still do real work no
+   `*Options` struct replaces, because `*Options` only covers
+   *construction-time* parameters a direct C++ caller would pass, while
+   `TypeHandler::HandleTypeAfterParse` is what lets **XML** set those same
+   properties by attribute string (`interactable="false"`,
+   `on-click="MethodName"`, `text="~someValue"`) *after* construction, via
+   `BSMLValue`/`BSMLAction`'s host-binding reflection — which is legitimate
+   and stays (idiom #6). Deleting a `TypeHandler` outright would silently
+   drop XML support for every attribute it used to bind, not just remove
+   dead code. Doing this for real means either (a) confirming a given
+   `TypeHandler`'s `get_setters()` map is empty *and* its
+   `HandleTypeAfterParse` does nothing beyond what's now in the `*Options`
+   struct (a handful may already qualify — worth auditing one at a time,
+   starting with handlers for the simplest of the 14 just-migrated Tags), or
+   (b) designing how an XML attribute reaches a `*Options` field directly
+   without the broadcast+RTTI system, which is a real architecture question
+   deserving its own planning pass, not a drive-by deletion.
 4. Delete `ComponentTypeWithData` and `TypeHandlerBase`'s registry entirely
    once the last `TypeHandler` is gone.
 
-Do this one component (or one small related cluster, e.g. all the `Settings/`
-widgets together) per pass — not all ~38 at once. Suggested order: simple,
-non-prefab components first (`Text`, matching the plan's original secondary
-POC candidate), then prefab-based ones with existing `BSML::Lite` facades
-(`Image`, `Layout` variants), then the larger/more coupled ones (`Lists`,
-`Settings/*`) last.
+Do this one component (or one small related cluster) per pass — not all
+remaining ones at once.
 
 ### 7. Cosmetic/robustness cleanup (no urgency, do opportunistically)
-- `StringParseHelper`: collapse ~10 named implicit-conversion operators
-  (`operator bool()`, `operator int()`, `operator UnityEngine::Color()`, …)
+- ~~`StringParseHelper`: collapse ~10 named implicit-conversion operators
   into one `template<typename T> std::optional<T> TryParse(std::string_view)`
-  family. Only touches string→value parsing, not the reflection helpers
-  (`asMethodInfo`/`asSetter`/`asGetter`/`asFieldInfo`) on the same class,
-  which stay (core idiom #6).
-- `Components/Backgroundable.cpp`: hardcoded string→scene-path maps + a full
+  family.~~ **Done (narrower than originally scoped)**: the `tryParseX()`
+  named methods themselves turned out to have real, deliberate per-type
+  differences worth keeping distinct — `tryParseBool`/`tryParseFloat` rely on
+  their *caller* (the operator) to pre-trim whitespace, while
+  `tryParseInt`/`tryParseDouble` trim internally; `tryParseVector3` takes an
+  extra `defaultZ` parameter; `tryParsePadding` returns a distinct
+  `Padding` struct and does CSS-shorthand expansion. Collapsing all of that
+  into one generic `TryParse<T>()` would either lose those distinctions or
+  need per-type specializations that are no simpler than what's already
+  there — not worth the churn/risk for a cosmetic pass. What *was* genuinely
+  duplicated 9 times over (`parseVector3` + all 8 non-Vector3 conversion
+  operators) was the "unwrap the `optional` or throw `ParseException`"
+  wrapper shape — collapsed into a single `ParseOrThrow<T>(std::optional<T>,
+  std::invocable auto message)` helper in `StringParseHelper.cpp`'s
+  anonymous namespace (the `message` thunk is only invoked, and only builds
+  the `fmt::format` string, on the failure path, so this doesn't cost
+  anything extra on a successful parse — verified no other files call the
+  9 collapsed `operator T()`/`parseVector3()` bodies' old inline logic
+  directly, only `StringParseHelper` itself). **Not yet build-verified.**
+- ~~`Components/Backgroundable.cpp`: hardcoded string→scene-path maps + a full
   `Resources::FindObjectsOfTypeAll` scan + ~25 manual `set_X(get_X())` calls
-  to "clone" a found template. Not reflection, but the same brittle/hand-rolled
-  smell — worth a cached-typed-handle rewrite eventually.
-- `Settings/SettingsMenu.cpp`: one unchecked `reinterpret_cast<SettingsMenu*>`
-  — replace with `i2c::try_cast` per core idiom #4.
+  to "clone" a found template.~~ **Partially done**: the 3 separate
+  `std::map<std::string, std::string>` globals (`backgrounds`/`objectNames`/
+  `objectParentNames`), keyed by the same background name and easy to let
+  drift out of sync with each other, are now one
+  `std::map<std::string, BackgroundTemplateNames>` (a 3-field struct) —
+  `FindTemplate`'s signature changed from `(StringW name, StringW
+  backgroundName)` (re-deriving `objectName`/`parentName` via two more map
+  lookups inside the function) to `(std::string_view spriteName,
+  std::string_view objectName, std::string_view parentName)`, called once
+  with the already-looked-up struct's fields. Also gave the maps/cache/alias
+  internal linkage (moved into an anonymous namespace) — they were
+  file-scope globals with external linkage before, serving no external
+  caller. **Left alone, still real remaining work**: the full-scene
+  `Resources::FindObjectsOfTypeAll<HMUI::ImageView*>()` linear scan and the
+  ~25-line manual `set_X(get_X())` property clone in `ApplyBackground` — a
+  "cached-typed-handle rewrite" of those is a bigger, riskier change
+  (behavioral, not just structural) and wasn't attempted this pass. **Not
+  yet build-verified.**
+- ~~`Settings/SettingsMenu.cpp`: unchecked `reinterpret_cast<SettingsMenu*>`s
+  — replace with `i2c::try_cast` per core idiom #4.~~ **Investigated, no
+  change needed.** There are 5 of these, not 1, spread across
+  `BSMLSettings.cpp` (×3), `SettingsMenuListViewController.cpp`, and
+  `ModSettingsFlowCoordinator.cpp` — all downcasting an element of
+  `BSMLSettings::settingsMenus` (`ListW<BSML::CustomCellInfo*>`) back to
+  `SettingsMenu*`. Traced every write site: the list is only ever appended to
+  by `BSMLSettings::TryAddSettingsMenu(SettingsMenu*)` (`menus->Add(menu)`/
+  `menus->Insert(i, menu)`), so every element is provably a `SettingsMenu*`
+  by construction — this is BSML's own internal invariant, not a
+  broadcast/RTTI-matched external value. Exactly the same shape as the
+  `GameplaySetup.cpp` `_menus` casts backlog #4 already decided to leave
+  alone (see that section above) — doesn't fit idiom #4's own stated
+  rationale ("whose exact type isn't locally, statically obvious"), so
+  converting these to `try_cast` would just be defensive-cast churn with a
+  small per-call RTTI cost and no real safety gain. Left as-is.
 
 ### 8. Sweep for `std::optional`/`std::expected`/`noexcept` opportunities (idiom #8)
 Exploratory, do opportunistically alongside other passes rather than as one

@@ -1,5 +1,6 @@
 #include "EnumParseHelper.hpp"
 #include "BSML/TypeHandlers/CustomListTableDataHandler.hpp"
+#include "BSML-Lite/Creation/Layout.hpp"
 #include "Helpers/getters.hpp"
 #include "Helpers/delegates.hpp"
 
@@ -15,11 +16,8 @@
 
 using namespace UnityEngine;
 
-HMUI::TableView::TableType stringToTableType(const std::string& str);
-
 namespace BSML {
     static CustomListTableDataHandler customListTableDataHandler{};
-    HMUI::TextPageScrollView* get_scrollViewTemplate();
 
     CustomListTableDataHandler::Base::PropMap CustomListTableDataHandler::get_props() const {
         return {
@@ -54,7 +52,11 @@ namespace BSML {
 
     void CustomListTableDataHandler::HandleType(const ComponentTypeWithData& componentType, BSMLParserParams& parserParams) {
         Base::HandleType(componentType, parserParams);
-        auto tableData = reinterpret_cast<CustomListTableData*>(componentType.component);
+        auto tableData = i2c::try_cast<CustomListTableData*>(componentType.component);
+        if (!tableData) {
+            ERROR("CustomListTableDataHandler::HandleType given a component that is not a CustomListTableData");
+            return;
+        }
         auto tableView = tableData->tableView;
         auto scrollView = tableView->scrollView;
 
@@ -91,7 +93,7 @@ namespace BSML {
         if (verticalList && showScrollBarItr != data.end() && !showScrollBarItr->second.empty()) {
             auto arg = StringParseHelper(showScrollBarItr->second);
             if (static_cast<bool>(arg)) {
-                auto textScrollView = Object::Instantiate(get_scrollViewTemplate(), tableData->get_transform(), false);
+                auto textScrollView = Object::Instantiate(BSML::Lite::GetScrollViewTemplate(), tableData->get_transform(), false);
 
                 auto pageUpButton = textScrollView->_pageUpButton;
                 auto pageDownButton = textScrollView->_pageDownButton;

@@ -11,30 +11,45 @@
 #include "../../BSML/Components/ClickableImage.hpp"
 
 namespace BSML::Lite {
-    /// @brief Create an image
-    /// @param parent what to parent it to
-    /// @param sprite the sprite to display
-    /// @param anchoredPosition position of the anchor relative to the parent
-    /// @param sizeDelta how much smaller this thing is relative to the parent
-    /// @return the created image view
-    BSML_EXPORT HMUI::ImageView* CreateImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, UnityEngine::Vector2 anchoredPosition = {0, 0}, UnityEngine::Vector2 sizeDelta = {0, 0});
+    /// @brief Options for CreateImage.
+    struct BSML_EXPORT ImageOptions {
+        /// @brief position of the anchor relative to the parent
+        UnityEngine::Vector2 anchoredPosition = {0, 0};
+        /// @brief how much smaller this thing is relative to the parent
+        UnityEngine::Vector2 sizeDelta = {0, 0};
+    };
 
-    /// @brief Create an image
-    /// @param parent what to parent it to
-    /// @param sprite the sprite to display
-    /// @param onClick callback ran when image is clicked
-    /// @param anchoredPosition position of the anchor relative to the parent
-    /// @param sizeDelta how much smaller this thing is relative to the parent
-    /// @return the created image view
-    BSML_EXPORT BSML::ClickableImage* CreateClickableImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, std::function<void()> onClick = nullptr, UnityEngine::Vector2 anchoredPosition = {0, 0}, UnityEngine::Vector2 sizeDelta = {0, 0});
+    /// @brief Creates an image, parented to the passed parent
+    BSML_EXPORT HMUI::ImageView* CreateImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, const ImageOptions& options = {});
 
-    /// @brief Create a raw image
-    /// @param parent what to parent it to
-    /// @param texture the texture to display
-    /// @param anchoredPosition position of the anchor relative to the parent
-    /// @param sizeDelta how much smaller this thing is relative to the parent
-    /// @return the created image view
-    BSML_EXPORT UnityEngine::UI::RawImage* CreateRawImage(const TransformWrapper& parent, UnityEngine::Texture* texture, UnityEngine::Vector2 anchoredPosition = {0, 0}, UnityEngine::Vector2 sizeDelta = {0, 0});
+    /// @brief Options for CreateClickableImage.
+    struct BSML_EXPORT ClickableImageOptions {
+        /// @brief position of the anchor relative to the parent
+        UnityEngine::Vector2 anchoredPosition = {0, 0};
+        /// @brief how much smaller this thing is relative to the parent
+        UnityEngine::Vector2 sizeDelta = {0, 0};
+        /// @brief what to run when it's clicked
+        std::function<void()> onClick = nullptr;
+    };
+
+    /// @brief Creates a clickable image, parented to the passed parent
+    BSML_EXPORT BSML::ClickableImage* CreateClickableImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, const ClickableImageOptions& options = {});
+
+    /// @brief Creates a clickable image with a click handler (convenience overload for the common case)
+    static inline BSML::ClickableImage* CreateClickableImage(const TransformWrapper& parent, UnityEngine::Sprite* sprite, std::function<void()> onClick) {
+        return CreateClickableImage(parent, sprite, ClickableImageOptions{.onClick = std::move(onClick)});
+    }
+
+    /// @brief Options for CreateRawImage.
+    struct BSML_EXPORT RawImageOptions {
+        /// @brief position of the anchor relative to the parent
+        UnityEngine::Vector2 anchoredPosition = {0, 0};
+        /// @brief how much smaller this thing is relative to the parent
+        UnityEngine::Vector2 sizeDelta = {0, 0};
+    };
+
+    /// @brief Creates a raw image (backed by a Texture rather than a Sprite), parented to the passed parent
+    BSML_EXPORT UnityEngine::UI::RawImage* CreateRawImage(const TransformWrapper& parent, UnityEngine::Texture* texture, const RawImageOptions& options = {});
 
     /// @brief loads a sprite from a file path
     /// @param filePath path
