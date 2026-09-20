@@ -1,0 +1,43 @@
+---
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: c++20
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 0
+
+BreakBeforeBraces: Attach
+NamespaceIndentation: All
+
+PointerAlignment: Left
+ReferenceAlignment: Left
+QualifierAlignment: Leave
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortLambdasOnASingleLine: All
+AllowShortCaseLabelsOnASingleLine: false
+
+SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: ControlStatements
+Cpp11BracedListStyle: true
+
+SortIncludes: Never
+IncludeBlocks: Preserve
+FixNamespaceComments: false
+
+BreakConstructorInitializers: BeforeColon
+PackConstructorInitializers: NextLine
+
+# Note: custom-types class macros (DECLARE_CLASS_CODEGEN/CUSTOM) expand to a
+# real `class name : public base { ... };`, but clang-format doesn't know
+# that — it parses public:/private: inside them as plain labels, not access
+# specifiers. That's an accepted, isolated inaccuracy: teaching clang-format
+# via `Macros:` substitution was tried and rejected here, because combined
+# with NamespaceIndentation: All it over-indents unrelated namespaced
+# structs/classes elsewhere in the same file (a clang-format 18 quirk, not
+# specific to these macros).
