@@ -15,22 +15,56 @@ namespace {
         return input.substr(first, input.find_last_not_of(" \t\r\n\v\f") - first + 1);
     }
 
-    template<std::size_t N>
-    std::optional<std::pair<std::array<float, N>, std::size_t>> ParseVectorComponents(std::string_view input) {
-        std::array<float, N> values{};
-        std::size_t count = 0;
-        while (!input.empty()) {
-            auto end = input.find(' ');
-            auto token = input.substr(0, end);
-            input = end == std::string_view::npos ? std::string_view{} : input.substr(end + 1);
-            if (token.empty()) continue; // PC splits on spaces and removes empty entries.
-            if (count == N) return std::nullopt;
-            auto value = StringParseHelper(TrimParseWhitespace(token)).tryParseFloat();
-            if (!value) return std::nullopt;
-            values[count++] = *value;
+    template<class Number>
+    std::optional<Number> ParseNumber(std::string_view input) {
+        input = TrimParseWhitespace(input);
+        if (input.empty()) return std::nullopt;
+
+        // from_chars is locale-independent but does not accept a leading plus.
+        if (input.front() == '+') {
+            input.remove_prefix(1);
+            if (input.empty() || input.front() == '-') return std::nullopt;
         }
-        if (count == 0) return std::nullopt;
-        return std::pair{values, count};
+
+        Number value{};
+        const auto end = input.data() + input.size();
+        const auto result = std::from_chars(input.data(), end, value);
+        // A valid prefix is not enough: reject trailing text and out-of-range values.
+        if (result.ec != std::errc{} || result.ptr != end) return std::nullopt;
+        return value;
+    }
+
+    template<class T, std::size_t Capacity>
+    struct ParsedComponents {
+        std::array<T, Capacity> values{};
+        std::size_t count = 0;
+    };
+
+    template<class T, std::size_t Capacity, class ParseComponent>
+    std::optional<ParsedComponents<T, Capacity>> ParseSpaceSeparatedComponents(
+        std::string_view input, ParseComponent parseComponent) {
+        ParsedComponents<T, Capacity> components;
+        while (!input.empty()) {
+            const auto end = input.find(' ');
+            const auto token = input.substr(0, end);
+            input = end == std::string_view::npos ? std::string_view{} : input.substr(end + 1);
+            // PC separates components on spaces, not on every whitespace character.
+            if (token.empty()) continue;
+            if (components.count == Capacity) return std::nullopt;
+
+            auto value = parseComponent(token);
+            if (!value) return std::nullopt;
+            components.values[components.count++] = *value;
+        }
+        if (components.count == 0) return std::nullopt;
+        return components;
+    }
+
+    template<std::size_t Dimensions>
+    std::optional<ParsedComponents<float, Dimensions>> ParseVectorComponents(std::string_view input) {
+        return ParseSpaceSeparatedComponents<float, Dimensions>(input, [](std::string_view token) {
+            return StringParseHelper(token).tryParseFloat();
+        });
     }
 }
 
@@ -75,16 +109,7 @@ std::optional<bool> StringParseHelper::tryParseBool() const {
 }
 
 std::optional<int> StringParseHelper::tryParseInt() const {
-    auto input = TrimParseWhitespace(*this);
-    if (input.empty()) return std::nullopt;
-    if (input.front() == '+') {
-        input.remove_prefix(1);
-        if (input.empty() || input.front() == '-') return std::nullopt;
-    }
-    int value;
-    auto result = std::from_chars(input.data(), input.data() + input.size(), value);
-    if (result.ec != std::errc{} || result.ptr != input.data() + input.size()) return std::nullopt;
-    return value;
+    return ParseNumber<int>(*this);
 }
 std::optional<float> StringParseHelper::tryParseFloat() const {
     auto value = tryParseDouble();
@@ -97,20 +122,12 @@ std::optional<float> StringParseHelper::tryParseFloat() const {
 
 std::optional<double> StringParseHelper::tryParseDouble() const {
     auto input = TrimParseWhitespace(*this);
-    // Invariant .NET numeric syntax; do not accept strtod's hex numbers or NaN payloads.
+    // Keep .NET's special-value spellings; reject hex numbers and NaN payloads.
     if (input == "NaN") return std::numeric_limits<double>::quiet_NaN();
     if (input == "Infinity") return std::numeric_limits<double>::infinity();
     if (input == "-Infinity") return -std::numeric_limits<double>::infinity();
-    if (input.empty()) return std::nullopt;
-    if (input.front() == '+') {
-        input.remove_prefix(1);
-        if (input.empty() || input.front() == '-') return std::nullopt;
-    }
     if (input.find_first_not_of("0123456789.eE+-") != std::string_view::npos) return std::nullopt;
-    double value;
-    auto result = std::from_chars(input.data(), input.data() + input.size(), value, std::chars_format::general);
-    if (result.ec != std::errc{} || result.ptr != input.data() + input.size()) return std::nullopt;
-    return value;
+    return ParseNumber<double>(input);
 }
 
 UnityEngine::Vector3 StringParseHelper::parseVector3(float defaultZ) const {
@@ -125,50 +142,35 @@ std::optional<UnityEngine::Color32> StringParseHelper::tryParseColor32() const {
     return BSML::Utilities::ParseHTMLColor32Opt(*this);
 }
 std::optional<UnityEngine::Vector2> StringParseHelper::tryParseVector2() const {
-    auto values = ParseVectorComponents<2>(*this);
-    if (!values) return std::nullopt;
-    auto& [components, count] = *values;
+    auto parsed = ParseVectorComponents<2>(*this);
+    if (!parsed) return std::nullopt;
+    const auto& components = parsed->values;
+    const auto count = parsed->count;
     return UnityEngine::Vector2{components[0], count == 1 ? components[0] : components[1]};
 }
 std::optional<UnityEngine::Vector3> StringParseHelper::tryParseVector3(float defaultZ) const {
-    auto values = ParseVectorComponents<3>(*this);
-    if (!values) return std::nullopt;
-    auto& [components, count] = *values;
+    auto parsed = ParseVectorComponents<3>(*this);
+    if (!parsed) return std::nullopt;
+    const auto& components = parsed->values;
+    const auto count = parsed->count;
+    // A scalar fills every axis; defaultZ applies only to two-component input.
     if (count == 1) return UnityEngine::Vector3{components[0], components[0], components[0]};
     return UnityEngine::Vector3{components[0], components[1], count == 2 ? defaultZ : components[2]};
 }
 std::optional<UnityEngine::Vector4> StringParseHelper::tryParseVector4() const {
-    auto values = ParseVectorComponents<4>(*this);
-    if (!values) return std::nullopt;
-    auto& [components, count] = *values;
+    auto parsed = ParseVectorComponents<4>(*this);
+    if (!parsed) return std::nullopt;
+    const auto& components = parsed->values;
+    const auto count = parsed->count;
     auto x = components[0];
     auto y = count > 1 ? components[1] : x;
     return UnityEngine::Vector4{x, y, count > 2 ? components[2] : x, count > 3 ? components[3] : y};
 }
 std::optional<StringParseHelper::Padding> StringParseHelper::tryParsePadding() const {
-    std::array<int, 4> values{};
-    std::size_t count = 0;
-    std::string_view input = *this;
-    while (!input.empty()) {
-        auto end = input.find(' ');
-        auto token = input.substr(0, end);
-        input = end == std::string_view::npos ? std::string_view{} : input.substr(end + 1);
-        if (token.empty()) continue;
-        if (count == values.size()) return std::nullopt;
-
-        // Match Int parsing on PC, including a leading plus and surrounding whitespace.
-        auto first = token.find_first_not_of("\t\r\n\v\f");
-        if (first == std::string_view::npos) return std::nullopt;
-        token = token.substr(first, token.find_last_not_of("\t\r\n\v\f") - first + 1);
-        if (token.front() == '+') {
-            token.remove_prefix(1);
-            if (token.empty() || token.front() == '-') return std::nullopt;
-        }
-        auto result = std::from_chars(token.data(), token.data() + token.size(), values[count]);
-        if (result.ec != std::errc{} || result.ptr != token.data() + token.size()) return std::nullopt;
-        ++count;
-    }
-    if (count == 0) return std::nullopt;
+    auto parsed = ParseSpaceSeparatedComponents<int, 4>(*this, ParseNumber<int>);
+    if (!parsed) return std::nullopt;
+    const auto& values = parsed->values;
+    const auto count = parsed->count;
 
     // CSS shorthand: all; vertical horizontal; top horizontal bottom;
     // or top right bottom left. This also matches PC's actual output.
@@ -217,7 +219,7 @@ StringParseHelper::operator int() const {
     return *result;
 }
 StringParseHelper::operator float() const {
-    auto result = StringParseHelper(TrimParseWhitespace(*this)).tryParseFloat();
+    auto result = tryParseFloat();
     if (!result) throw BSML::ParseException(fmt::format("Could not parse float from '{}'", *this));
     return *result;
 }
