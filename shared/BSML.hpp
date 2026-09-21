@@ -31,7 +31,9 @@ namespace BSML {
     /// @param str the string to parse
     /// @param parent what to parent to
     /// @param host the host object, this would contain the various fields and properties your bsml expects to be able to access
-    /// @return parserparams result
+    /// @return parser containing the constructed UI's parser parameters
+    /// @throws ParseException If parsing, attribute conversion, or binding resolution fails.
+    /// @note Construction and handler exceptions also propagate to the caller; no fallback content is rendered.
     BSML_EXPORT std::shared_ptr<BSMLParser> parse_and_construct(std::string_view str, UnityEngine::Transform* parent, System::Object* host = nullptr);
 
     namespace Register {

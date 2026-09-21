@@ -1,7 +1,7 @@
 #include "BSML/Macros/AsHostMacro.hpp"
 #include "BSML/Parsing/BSMLDocParser.hpp"
 #include "BSML/Parsing/BSMLParser.hpp"
-#include "StringParseHelper.hpp"
+#include "BSML/Parsing/ParseException.hpp"
 #include "logging.hpp"
 
 namespace BSML {
@@ -13,16 +13,15 @@ namespace BSML {
         };
     }
 
-    void AsHostMacro::Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams,  std::vector<ComponentTypeWithData*>& componentInfo) const {
+    void AsHostMacro::Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams,  std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const {
         INFO("Executing ashost macro");
         auto hostItr = data.find("host");
         if (hostItr != data.end()) {
-            int count = StringParseHelper(hostItr->second);
             auto host = parserParams.TryGetValue(hostItr->second);
-            auto currentHost = host ? host->GetValue() : nullptr;
-            if (currentHost) {
-                BSMLParser::Construct(this, parent, currentHost);
-            }
+            if (!host) throw ParseException(fmt::format("Attribute 'host': could not find value '{}'", hostItr->second));
+            // A present value may contain null. PC still parses the children,
+            // using a fresh parser scope without a host in that case.
+            BSMLParser::Construct(this, parent, host->GetValue());
         }
     }
 }

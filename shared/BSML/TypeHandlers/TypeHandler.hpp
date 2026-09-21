@@ -4,6 +4,7 @@
 #include "../../StringParseHelper.hpp"
 #include "../ComponentTypeWithData.hpp"
 #include "../Parsing/BSMLParserParams.hpp"
+#include "../Parsing/ParseException.hpp"
 #include "UnityEngine/Component.hpp"
 #include "System/Type.hpp"
 #include <string>
@@ -88,7 +89,11 @@ namespace BSML {
                         if (itr != cachedSetters.end()) {
                             INFO("got a setter!");
                             // execute the setter!
-                            itr->second(reinterpret_cast<T>(componentType.component), value);
+                            try {
+                                itr->second(reinterpret_cast<T>(componentType.component), value);
+                            } catch (const ParseException& error) {
+                                throw ParseException(fmt::format("Property '{}' on {}: {}", key, klass->name, error.what()));
+                            }
                         }
                     }
                 } else {

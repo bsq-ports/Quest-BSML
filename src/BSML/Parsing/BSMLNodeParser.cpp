@@ -2,6 +2,7 @@
 #include "BSML/Parsing/BSMLDocParser.hpp"
 #include "BSML/Parsing/BSMLNode.hpp"
 #include "logging.hpp"
+#include <memory>
 
 
 namespace BSML {
@@ -14,11 +15,11 @@ namespace BSML {
     }
 
     BSMLNode* BSMLNodeParserBase::parse(const tinyxml2::XMLElement& elem) const {
-        auto tag = newNode();
+        auto tag = std::unique_ptr<BSMLNode>(newNode());
         tag->parse(elem);
         
-        ParseChildren(elem, tag);
-        return tag;
+        ParseChildren(elem, tag.get());
+        return tag.release();
     }
 
     void BSMLNodeParserBase::ParseChildren(const tinyxml2::XMLElement& elem, BSMLNode* parentNode) const {

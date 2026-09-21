@@ -4,6 +4,7 @@
 #include "tinyxml2/shared/tinyxml2.h"
 #include <string>
 #include <vector>
+#include <memory>
 #include <map>
 
 #include "UnityEngine/Transform.hpp"
@@ -17,10 +18,10 @@ namespace BSML {
     class BSML_EXPORT BSMLNode {
         public:
             BSMLNode();
-            ~BSMLNode();
+            virtual ~BSMLNode();
 
-            virtual void Handle(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<ComponentTypeWithData*>& componentInfo) const;
-            virtual void HandleChildren(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<ComponentTypeWithData*>& componentInfo) const;
+            virtual void Handle(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const;
+            virtual void HandleChildren(UnityEngine::Transform* parent, BSMLParserParams& parserParams, std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const;
             bool valid() const;
             void AddChild(BSMLNode* child);
 

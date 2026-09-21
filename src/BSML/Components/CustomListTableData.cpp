@@ -1,3 +1,4 @@
+#include "EnumParseHelper.hpp"
 #include "BSML/Components/CustomListTableData.hpp"
 #include "GlobalNamespace/AnnotatedBeatmapLevelCollectionsGridView.hpp"
 #include "GlobalNamespace/AnnotatedBeatmapLevelCollectionsViewController.hpp"
@@ -172,9 +173,7 @@ namespace BSML {
             { "Simple", CustomListTableData::ListStyle::Simple }
         };
 
-        auto itr = stringToListStyleMap.find(str);
-        if (itr == stringToListStyleMap.end()) return CustomListTableData::ListStyle::List;
-        return itr->second;
+        return ParseEnum(str, stringToListStyleMap, "list style");
     }
 
 }
