@@ -3,6 +3,7 @@
 #include "logging.hpp"
 #include "System/IConvertible.hpp"
 #include "System/Globalization/CultureInfo.hpp"
+#include <cstdint>
 
 std::string BSMLValueToString(BSML::BSMLValue* value, Il2CppTypeEnum type);
 
@@ -118,9 +119,10 @@ std::string BSMLValueToString(BSML::BSMLValue* value, Il2CppTypeEnum type) {
         case Il2CppTypeEnum::IL2CPP_TYPE_TYPEDBYREF:
             return "UNKNOWN TYPE VALUE";
         case Il2CppTypeEnum::IL2CPP_TYPE_I:
-            return fmt::format("{}", value->GetValue<int>());
+            // Native integers occupy a full pointer width in IL2CPP fields.
+            return fmt::format("{}", value->GetValue<std::intptr_t>());
         case Il2CppTypeEnum::IL2CPP_TYPE_U:
-            return fmt::format("{}", value->GetValue<uint>());
+            return fmt::format("{}", value->GetValue<std::uintptr_t>());
         case Il2CppTypeEnum::IL2CPP_TYPE_FNPTR:
             return "0";
         case Il2CppTypeEnum::IL2CPP_TYPE_CLASS: [[fallthrough]];
