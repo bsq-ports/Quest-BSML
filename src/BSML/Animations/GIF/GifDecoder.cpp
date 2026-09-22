@@ -1,12 +1,8 @@
+#include <cstring>
+#include "GifValidation.hpp"
 #include "BSML/Animations/GIF/GifDecoder.hpp"
 #include "logging.hpp"
 #include "beatsaber-hook/shared/threading.hpp"
-
-#include "Helpers/delegates.hpp"
-
-#include "UnityEngine/WaitUntil.hpp"
-
-#include "gif-lib/shared/gif_lib.h"
 
 #include "EasyGifReader.h"
 
@@ -28,13 +24,44 @@ std::string errToString(const EasyGifReader::Error& err) {
     }
 }
 
-/// @brief makes RGB (0, 0, 0) into transparent pixels
-inline uint32_t make_black_transparent(const uint32_t& v) {
-    return v >> 8 ? v : 0;
+namespace {
+    void DecodeFrames(ArrayW<uint8_t> gifData, BSML::AnimationInfo* animationInfo,
+        const std::function<void()>& onError, bool streaming = false);
+
+    // The worker and coroutine share ownership until both have stopped using the
+    // input and partial frames. Only the coroutine invokes user callbacks.
+    struct DecodeJob {
+        explicit DecodeJob(ArrayW<uint8_t> bytes) : data(bytes) {}
+        safe_ptr<ArrayW<uint8_t>> data;
+        std::unique_ptr<BSML::AnimationInfo> info = std::make_unique<BSML::AnimationInfo>();
+    };
 }
 
 namespace BSML {
+    custom_types::Helpers::Coroutine GifDecoder::ProcessStreaming(ArrayW<uint8_t> data,
+        std::function<custom_types::Helpers::Coroutine(std::shared_ptr<AnimationInfo>)> consume,
+        std::function<void()> onError) {
+        auto info = std::make_shared<AnimationInfo>();
+        detail::AnimationInfoConsumer consumer{info};
+        try {
+            il2cpp_thread([data = safe_ptr<ArrayW<uint8_t>>(data), info]() {
+                DecodeFrames(data.ptr(), info.get(), {}, true);
+            }).detach();
+        } catch (const std::exception& error) {
+            ERROR("Could not start GIF decoder: {}", error.what());
+            info->Finish(false);
+        }
 
+        while (info->GetState() == AnimationInfo::State::Starting) co_yield nullptr;
+        if (info->GetState() == AnimationInfo::State::Cancelled) co_return;
+        if (info->GetState() == AnimationInfo::State::Failed) {
+            if (onError) onError();
+            co_return;
+        }
+        // Once the consumer starts, it handles late decoder errors. Nesting the
+        // coroutine keeps cancellation attached to the entire loading pipeline.
+        if (consume) co_yield custom_types::Helpers::CoroutineHelper::New(consume(info));
+    }
     custom_types::Helpers::Coroutine GifDecoder::Process(ArrayW<uint8_t> data, std::function<void(AnimationInfo*)> onFinished) {
         co_yield custom_types::Helpers::CoroutineHelper::New(Process(data, onFinished, [](){
             ERROR("Unhandled gif processing error ocurred!");
@@ -43,20 +70,27 @@ namespace BSML {
     }
 
     custom_types::Helpers::Coroutine GifDecoder::Process(ArrayW<uint8_t> data, std::function<void(AnimationInfo*)> onFinished, std::function<void()> onError) {
-        auto animationInfo = new AnimationInfo();
+        auto job = std::make_shared<DecodeJob>(data);
+        try {
+            il2cpp_thread([job]() {
+                DecodeFrames(job->data.ptr(), job->info.get(), {});
+            }).detach();
+        } catch (const std::exception& error) {
+            ERROR("Could not start GIF decoder: {}", error.what());
+            job->info->Finish(false);
+        }
 
-        il2cpp_thread(
-            static_cast<void(*)(ArrayW<uint8_t>, AnimationInfo*, std::function<void()>)>(&GifDecoder::ProcessingThread),
-            data, animationInfo, onError
-        ).detach();
-
-        while (!animationInfo->isInitialized) co_yield nullptr;
-
-        if (onFinished)
-            onFinished(animationInfo);
-        else
-            ERROR("Nullptr onFinished given!");
-        co_return;
+        auto state = job->info->GetState();
+        while (state == AnimationInfo::State::Starting || state == AnimationInfo::State::Decoding) {
+            co_yield nullptr;
+            state = job->info->GetState();
+        }
+        if (state == AnimationInfo::State::Failed) {
+            if (onError) onError();
+        } else if (state == AnimationInfo::State::Completed && onFinished) {
+            // ProcessAnimationInfo takes ownership, including on failure.
+            onFinished(job->info.release());
+        }
     }
 
     void GifDecoder::ProcessingThread(ArrayW<uint8_t> gifData, AnimationInfo* animationInfo) {
@@ -66,19 +100,30 @@ namespace BSML {
     }
 
     void GifDecoder::ProcessingThread(ArrayW<uint8_t> gifData, AnimationInfo* animationInfo, std::function<void()> onError) {
+        DecodeFrames(gifData, animationInfo, onError);
+    }
+}
+
+namespace {
+    void DecodeFrames(ArrayW<uint8_t> gifData, BSML::AnimationInfo* animationInfo,
+        const std::function<void()>& onError, bool streaming) {
         DEBUG("Open gif");
         try {
+            if (!animationInfo || !gifData ||
+                !BSML::detail::ValidateGif({gifData->_values, static_cast<size_t>(gifData.size())}))
+                throw EasyGifReader::Error::INVALID_GIF_FILE;
             auto gifReader = EasyGifReader::openMemory(gifData->_values, gifData.size());
             int width = gifReader.width(), height = gifReader.height(), frameCount = gifReader.frameCount();
 
+            animationInfo->decodedFrames = 0;
             animationInfo->frameCount = frameCount;
-            animationInfo->isInitialized = true;
             animationInfo->width = width;
             animationInfo->height = height;
+            if (!animationInfo->Initialize(streaming)) return;
 
             DEBUG("iterating gif frames");
             for (const auto& gifFrame : gifReader) {
-                auto outputFrameInfo = animationInfo->AddFrame(gifFrame.width(), gifFrame.height());
+                auto outputFrameInfo = std::make_shared<BSML::FrameInfo>(gifFrame.width(), gifFrame.height());
 
                 const uint8_t* pixels = (const uint8_t*)gifFrame.pixels();
                 // get end of the data
@@ -89,21 +134,30 @@ namespace BSML {
                 for (int y = 0; y < height; y++) {
                     // pre-decrement because we start at end of data
                     colorData -= rowSize;
-                    // just copy all the data as is
-                    //memcpy(colorData, pixels, rowSize);
-                    // make black pixels transparent
-                    std::transform((uint32_t*)pixels, (uint32_t*)(pixels + rowSize), (uint32_t*)colorData, make_black_transparent);
+                    // EasyGifReader already composites transparency into RGBA.
+                    std::memcpy(colorData, pixels, rowSize);
                     pixels += rowSize;
                 }
 
                 // delay in millis
-                outputFrameInfo->delay = gifFrame.rawDuration().milliseconds();
+                outputFrameInfo->delay = gifFrame.duration().milliseconds();
 
-                // increase decoded frame count
-                animationInfo->decodedFrames++;
+                // Only publish complete pixels and delay data. Streaming waits
+                // here when the consumer has two frames queued already.
+                if (!animationInfo->PushFrame(std::move(outputFrameInfo))) return;
             }
+            animationInfo->Finish(true);
         } catch (EasyGifReader::Error gifError) {
             ERROR("Gif error: {}", errToString(gifError));
+            if (animationInfo) animationInfo->Finish(false);
+            if (onError) onError();
+        } catch (const std::exception& error) {
+            ERROR("GIF decode failed: {}", error.what());
+            if (animationInfo) animationInfo->Finish(false);
+            if (onError) onError();
+        } catch (...) {
+            ERROR("GIF decode failed with an unknown exception");
+            if (animationInfo) animationInfo->Finish(false);
             if (onError) onError();
         }
     }

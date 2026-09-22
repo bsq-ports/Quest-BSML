@@ -9,6 +9,9 @@
 namespace BSML {
     class BSML_EXPORT GifDecoder {
         public:
+            static custom_types::Helpers::Coroutine ProcessStreaming(ArrayW<uint8_t> data,
+                std::function<custom_types::Helpers::Coroutine(std::shared_ptr<AnimationInfo>)> consume,
+                std::function<void()> onError);
             static custom_types::Helpers::Coroutine Process(ArrayW<uint8_t> data, std::function<void(AnimationInfo*)> onFinished, std::function<void()> onError);
             static custom_types::Helpers::Coroutine Process(ArrayW<uint8_t> data, std::function<void(AnimationInfo*)> onFinished);
             static void ProcessingThread(ArrayW<uint8_t> gifData, AnimationInfo* animationInfo);
