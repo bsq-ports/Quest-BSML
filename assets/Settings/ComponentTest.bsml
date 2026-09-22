@@ -1,0 +1,416 @@
+<settings-container id='testScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+    <text text='BSML component test' font-size='5' align='Center'/>
+    <text text='Choose a test page. Use Back to return here; repeat after game reload.' font-size='3' word-wrapping='true'/>
+    <text id='status' text='Ready. Click a button or select a segment.' font-size='3' word-wrapping='true'/>
+
+    <settings-submenu text='Bindings and hot reload'>
+        <settings-container child-control-width='true' child-expand-width='true' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='Bindings are evaluated when the view is constructed. Hot reload polls for newer file timestamps.' font-size='3' word-wrapping='true'/>
+            <button text='Check snapshot bindings' on-click='CheckSnapshotBindings'/>
+            <text id='bindingResult' text='Binding checks have not run.' font-size='3' word-wrapping='true'/>
+            <button text='Check hot reload' on-click='CheckHotReload'/>
+            <text id='hotReloadStatus' text='Hot reload checks have not run.' font-size='3' word-wrapping='true'/>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='DI and lifecycle'>
+        <settings-container id='diScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='DI smoke checks' font-size='4'/>
+            <text text='Run before Solo, after visiting BSML Test, and after reload.' font-size='3' word-wrapping='true'/>
+            <button text='Check DI' on-click='CheckDI'/>
+            <text id='diStatus' text='Checks have not run.' font-size='3' word-wrapping='true'/>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Icon buttons'>
+        <settings-container id='iconScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='Icon state: enabled / disabled' font-size='4'/>
+            <horizontal spacing='4'>
+                <button-with-icon id='enabledIcon' icon='#OneLifeIcon' on-click='IconClicked' pref-width='20' pref-height='8'/>
+                <button-with-icon id='disabledIcon' icon='#OneLifeIcon' on-click='IconClicked' interactable='false' icon-skew='0' show-underline='false' pref-width='20' pref-height='8'/>
+            </horizontal>
+            <text text='Disabled: no clicks, 25% opacity on PC. Toggle left, move pointer away, then read state.' font-size='3' word-wrapping='true'/>
+            <horizontal spacing='2'>
+                <button text='Toggle left icon' on-click='ToggleIcon'/>
+                <button text='Read icon state' on-click='ReadIconState'/>
+            </horizontal>
+            <text id='iconStatus' text='Icon clicks: 0. Compare both icons, then read their state.' font-size='3' word-wrapping='true'/>
+        
+            <text text='Icon styling: +0.5 / -0.5' font-size='4'/>
+            <horizontal spacing='4'>
+                <button-with-icon id='positiveSkewIcon' icon='#OneLifeIcon' icon-skew='0.5' show-underline='true' pref-width='20' pref-height='8'/>
+                <button-with-icon id='negativeSkewIcon' icon='#OneLifeIcon' icon-skew='-0.5' show-underline='false' pref-width='20' pref-height='8'/>
+            </horizontal>
+            <text text='Left: underline shown. Right: hidden. Icons should lean in opposite directions.' font-size='3' word-wrapping='true'/>
+            <button text='Check icon styling' on-click='CheckIconStyling'/>
+            <text id='iconStyleStatus' text='Styling checks have not run.' font-size='3' word-wrapping='true'/>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Buttons and modals'>
+        <settings-container id='buttonScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='buttonStatus' text='Ready. Interact with the samples below.' font-size='3' word-wrapping='true'/>
+            <text text='Buttons and modals' font-size='4'/>
+            <horizontal spacing='2'>
+                <button text='Normal' on-click='Click' pref-width='28'/>
+                <primary-button text='Primary' on-click='Click' pref-width='28'/>
+                <button-with-icon icon='#OneLifeIcon' on-click='Click' pref-width='12' pref-height='8'/>
+            </horizontal>
+            <horizontal spacing='2'>
+                <button text='Modal' on-click='testModal#Show' pref-width='28'/>
+                <button text='Keyboard' on-click='testKeyboard#Show' pref-width='28'/>
+                <button text='Colors' on-click='testColors#Show' pref-width='28'/>
+            </horizontal>
+            <modal id='testModal' size-delta='70 36' click-off-closes='true' move-to-center='true'>
+                <vertical child-control-height='true' child-expand-height='false' pad='3' spacing='2'>
+                    <text text='Click inside; close and reopen; click outside.' font-size='3' word-wrapping='true'/>
+                    <text id='modalStatus' text='Raycaster clicks: 0' font-size='3'/>
+                    <button text='Test raycaster' on-click='Click'/>
+                    <button text='Close' on-click='testModal#Hide'/>
+                </vertical>
+            </modal>
+            <modal-keyboard id='testKeyboard' value='keyboardValue' on-enter='KeyboardEntered' clear-on-open='false' click-off-closes='true' move-to-center='true'/>
+            <modal-color-picker id='testColors' value='colorValue' color-change='ColorChanged' on-done='ColorDone' on-cancel='ColorCancelled' click-off-closes='true' move-to-center='true'/>
+            <text text='Keyboard: type, Clear, type, Enter, reopen. Colors: edit RGB/HSV, OK, reopen, edit, Cancel. Check callback results below. At black or gray, the hue slider should still move.' font-size='3' word-wrapping='true'/>
+            <text id='colorStatus' text='Color callbacks have not run.' font-size='3' word-wrapping='true'/>
+            <button text='Read stored values' on-click='ReadValues'/>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Click events'>
+        <settings-container id='eventScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='eventStatus' text='Ready. Interact with the samples below.' font-size='3' word-wrapping='true'/>
+            <text text='Click-event regression checks' font-size='4'/>
+            <text text='E1-E6 must each open the event modal AND increment the click counter below. This checks event emission alongside on-click. Close and repeat each case.' font-size='3' word-wrapping='true'/>
+            <button text='E1 - Button: click-event' on-click='Click' click-event='show-click-event-test'/>
+            <button text='E2 - Button: event-click' on-click='Click' event-click='show-click-event-test'/>
+            <clickable-text text='E3 - Clickable text: click-event' font-size='3' on-click='Click' click-event='show-click-event-test'/>
+            <clickable-text text='E4 - Clickable text: event-click' font-size='3' on-click='Click' event-click='show-click-event-test'/>
+            <text text='E5 - Clickable image: click-event (click the icon)' font-size='3'/>
+            <horizontal min-height='10' pref-height='10' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <clickable-image src='#OneLifeIcon' size-delta='10 10' on-click='Click' click-event='show-click-event-test'/>
+            </horizontal>
+            <text text='E6 - Clickable image: event-click (click the icon)' font-size='3'/>
+            <horizontal min-height='10' pref-height='10' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <clickable-image src='#OneLifeIcon' size-delta='10 10' on-click='Click' event-click='show-click-event-test'/>
+            </horizontal>
+            <modal size-delta='70 36' show-event='show-click-event-test' hide-event='hide-click-event-test' click-off-closes='true' move-to-center='true'>
+                <vertical child-control-height='true' child-expand-height='false' pad='3' spacing='2'>
+                    <text text='PASS: the BSML click event opened this modal.' font-size='3' word-wrapping='true'/>
+                    <button text='Close via click-event' click-event='hide-click-event-test'/>
+                </vertical>
+            </modal>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Padding and alignment'>
+        <settings-container id='paddingScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='Layout: CSS-style padding and alignment' font-size='4'/>
+            <text id='paddingParserStatus' text='Padding parser checks have not run.' font-size='3'/>
+            <text text='Padding uses CSS shorthand: all; vertical horizontal; top horizontal bottom; top right bottom left. Individual pad-side attributes override it.' font-size='3' word-wrapping='true'/>
+            <text text='D1 - pad=2: all sides 2.' font-size='3'/>
+            <horizontal pad='2' bg='round-rect-panel' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false'>
+                <button text='D1' pref-width='18' pref-height='8'/>
+            </horizontal>
+            <text text='D2 - padding=2 4: top/bottom 2, left/right 4; tests the padding alias.' font-size='3' word-wrapping='true'/>
+            <horizontal padding='2 4' bg='round-rect-panel' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false'>
+                <button text='D2' pref-width='18' pref-height='8'/>
+            </horizontal>
+            <text text='D3 - pad=1 2 3: top 1, left/right 2, bottom 3.' font-size='3'/>
+            <horizontal pad='1 2 3' bg='round-rect-panel' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false'>
+                <button text='D3' pref-width='18' pref-height='8'/>
+            </horizontal>
+            <text text='D4 - pad=1 2 3 4: top 1, right 2, bottom 3, left 4.' font-size='3'/>
+            <horizontal pad='1 2 3 4' bg='round-rect-panel' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false'>
+                <button text='D4' pref-width='18' pref-height='8'/>
+            </horizontal>
+            <text text='D5 - padding=1 2 3 4, pad-left=6, pad-bottom=7: top 1, right 2, bottom 7, left 6.' font-size='3' word-wrapping='true'/>
+            <horizontal padding='1 2 3 4' pad-left='6' pad-bottom='7' bg='round-rect-panel' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false'>
+                <button text='D5' pref-width='18' pref-height='8'/>
+            </horizontal>
+            <text text='A1 - child-alignment=UpperLeft: button at top left.' font-size='3'/>
+            <horizontal child-alignment='UpperLeft' pad='2' pref-height='20' min-height='20' flex-height='0' vertical-fit='Unconstrained' bg='round-rect-panel' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false'>
+                <button text='A1' pref-width='18' pref-height='8'/>
+            </horizontal>
+            <text text='A2 - child-alignment=LowerRight: button at bottom right.' font-size='3'/>
+            <horizontal child-alignment='LowerRight' pad='2' pref-height='20' min-height='20' flex-height='0' vertical-fit='Unconstrained' bg='round-rect-panel' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false'>
+                <button text='A2' pref-width='18' pref-height='8'/>
+            </horizontal>
+            <text text='A3 - child-align=LowerRight: same position as A2 using the original alias.' font-size='3' word-wrapping='true'/>
+            <horizontal child-align='LowerRight' pad='2' pref-height='20' min-height='20' flex-height='0' vertical-fit='Unconstrained' bg='round-rect-panel' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false'>
+                <button text='A3' pref-width='18' pref-height='8'/>
+            </horizontal>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Text spacing'>
+        <settings-container id='spacingScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='Text: PC spacing attributes' font-size='4'/>
+            <text text='S1 - line-spacing=0: baseline line gap.' font-size='3'/>
+            <text text='First line&lt;br&gt;Second line' font-size='4' line-spacing='0' paragraph-spacing='0'/>
+            <text text='S2 - line-spacing=20: larger line gap than S1.' font-size='3'/>
+            <text text='First line&lt;br&gt;Second line' font-size='4' line-spacing='20' paragraph-spacing='0'/>
+            <text text='S3 - paragraph-spacing=0: baseline newline gap.' font-size='3'/>
+            <text text='First paragraph&#10;Second paragraph' font-size='4' line-spacing='0' paragraph-spacing='0'/>
+            <text text='S4 - paragraph-spacing=20: larger newline gap than S3.' font-size='3'/>
+            <text text='First paragraph&#10;Second paragraph' font-size='4' line-spacing='0' paragraph-spacing='20'/>
+            <text text='S5 - line-spacing-adjustment=0: auto-sizing in a 40 x 10 box, font range 2-4.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='10' pref-height='10' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='Line one&lt;br&gt;Line two&lt;br&gt;Line three' size-delta='40 10' enable-auto-sizing='true' font-size='4' font-size-min='2' font-size-max='4' line-spacing='0' paragraph-spacing='0' line-spacing-adjustment='0'/>
+            </horizontal>
+            <text text='S6 - line-spacing-adjustment=-30: same box; allows tighter line gaps before reducing font size.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='10' pref-height='10' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='Line one&lt;br&gt;Line two&lt;br&gt;Line three' size-delta='40 10' enable-auto-sizing='true' font-size='4' font-size-min='2' font-size-max='4' line-spacing='0' paragraph-spacing='0' line-spacing-adjustment='-30'/>
+            </horizontal>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Text auto-sizing'>
+        <settings-container id='sizingScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='sizingStatus' text='Ready. Interact with the samples below.' font-size='3' word-wrapping='true'/>
+            <text text='Layout: text auto-sizing' font-size='4'/>
+            <text text='Text boxes are 40 x 10; buttons are 40 x 16. Wrapping is off. B1 uses visible overflow; other samples use ellipsis. Compare auto-sizing off, on, and a larger minimum.' font-size='3' word-wrapping='true'/>
+        
+            <text text='T1 - Text: enable-auto-sizing=false, font-size=6, min=2, max=6. Expect size 6 and ellipsis.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='10' pref-height='10' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='A long label that must fit inside this narrow box' size-delta='40 10' enable-auto-sizing='false' font-size='6' font-size-min='2' font-size-max='6' word-wrapping='false' overflow-mode='Ellipsis'/>
+            </horizontal>
+        
+            <text text='T2 - Text: enable-auto-sizing=true, font-size-min=2, font-size-max=6. Expect smaller text that fits.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='10' pref-height='10' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='A long label that must fit inside this narrow box' size-delta='40 10' enable-auto-sizing='true' font-size='6' font-size-min='2' font-size-max='6' word-wrapping='false' overflow-mode='Ellipsis'/>
+            </horizontal>
+        
+            <text text='T3 - Text minimum: auto=true, font-size-min=5, font-size-max=6. Expect no shrinking below 5; ellipsis is allowed.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='10' pref-height='10' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='A long label that must fit inside this narrow box' size-delta='40 10' enable-auto-sizing='true' font-size='6' font-size-min='5' font-size-max='6' word-wrapping='false' overflow-mode='Ellipsis'/>
+            </horizontal>
+        
+            <text text='T4 - Text maximum: auto=true, font-size-min=2, font-size-max=3. Expect size 3 despite spare space and font-size=6.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='10' pref-height='10' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='Short' size-delta='40 10' enable-auto-sizing='true' font-size='6' font-size-min='2' font-size-max='3' word-wrapping='false' overflow-mode='Ellipsis'/>
+            </horizontal>
+        
+            <text text='B1 - Button: enable-auto-sizing=false, font-size=6, min=2, max=6. Expect visible size 6 text extending beyond the button; no shrinking.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='16' pref-height='16' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <button text='A long label that must fit inside this narrow box' on-click='Click' pref-width='40' pref-height='16' enable-auto-sizing='false' font-size='6' font-size-min='2' font-size-max='6' word-wrapping='false' overflow-mode='Overflow'/>
+            </horizontal>
+        
+            <text text='B2 - Button: enable-auto-sizing=true, font-size-min=2, font-size-max=6. Expect smaller text; button stays 40 x 16.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='16' pref-height='16' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <button text='A long label that must fit inside this narrow box' on-click='Click' pref-width='40' pref-height='16' enable-auto-sizing='true' font-size='6' font-size-min='2' font-size-max='6' word-wrapping='false' overflow-mode='Ellipsis'/>
+            </horizontal>
+        
+            <text text='B3 - Button minimum: auto=true, font-size-min=5, font-size-max=6. Expect no shrinking below 5; ellipsis is allowed.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='16' pref-height='16' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <button text='A long label that must fit inside this narrow box' on-click='Click' pref-width='40' pref-height='16' enable-auto-sizing='true' font-size='6' font-size-min='5' font-size-max='6' word-wrapping='false' overflow-mode='Ellipsis'/>
+            </horizontal>
+        
+            <text text='B4 - Button maximum: auto=true, font-size-min=2, font-size-max=3. Expect size 3 despite spare space and font-size=6.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='16' pref-height='16' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <button text='Short' on-click='Click' pref-width='40' pref-height='16' enable-auto-sizing='true' font-size='6' font-size-min='2' font-size-max='3' word-wrapping='false' overflow-mode='Ellipsis'/>
+            </horizontal>
+        
+            <text text='P1 - Primary button: auto=true, font-size-min=2, font-size-max=6. Expect shrinking like B2; button stays 40 x 16.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='16' pref-height='16' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <primary-button text='A long label that must fit inside this narrow box' on-click='Click' pref-width='40' pref-height='16' enable-auto-sizing='true' font-size='6' font-size-min='2' font-size-max='6' word-wrapping='false' overflow-mode='Ellipsis'/>
+            </horizontal>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='BSML-Lite button sizes'>
+        <settings-container id='liteScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='Layout: BSML-Lite button sizes' font-size='4'/>
+            <text text='L1-L12: each overload gets 24 x 10, 48 x 10, 24 x 18, and automatic size. Text stays size 3. Click a sample to report its actual dimensions below; explicit sizes should PASS.' font-size='3' word-wrapping='true'/>
+            <vertical id='liteButtonTests' horizontal-fit='Unconstrained' vertical-fit='PreferredSize' child-control-width='true' child-control-height='true' child-expand-width='false' child-expand-height='false' spacing='2'/>
+            <text id='liteButtonStatus' text='Click a Lite button to measure its final width and height.' font-size='3' word-wrapping='true'/>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Segmented controls and modifiers'>
+        <settings-container id='segmentScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='segmentStatus' text='Ready. Interact with the samples below.' font-size='3' word-wrapping='true'/>
+            <text text='Segmented controls' font-size='4'/>
+            <!-- Size the rows themselves: cloned controls do not consistently have a LayoutElement. -->
+            <text text='Text selector: One / Two / Three' font-size='3'/>
+            <horizontal min-height='12' pref-height='12' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text-segments data='labels' select-cell='SegmentSelected' size-delta='80 8'/>
+            </horizontal>
+            <text text='Horizontal icon selector' font-size='3'/>
+            <horizontal min-height='14' pref-height='14' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <icon-segments data='icons' select-cell='SegmentSelected' size-delta='80 10'/>
+            </horizontal>
+            <text text='Vertical icon selector' font-size='3'/>
+            <horizontal min-height='34' pref-height='34' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <vertical-icon-segments data='icons' select-cell='SegmentSelected' size-delta='12 30'/>
+            </horizontal>
+            <text text='Modifier toggle' font-size='3'/>
+            <horizontal min-height='12' pref-height='12' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <modifier id='testModifier' text='Test modifier' value='modifierValue' apply-on-change='true' size-delta='80 10'/>
+            </horizontal>
+            <text text='Toggle twice; read values. Return from Solo; test both the menu button and Mod Settings entry.' font-size='3' word-wrapping='true'/>
+            <button text='Read stored values' on-click='ReadValues'/>
+        </settings-container>
+    </settings-submenu>
+
+    <text text='Lists and scrolling' font-size='4'/>
+    <settings-submenu text='Song list cells'>
+        <vertical vertical-fit='PreferredSize' child-control-width='true' child-control-height='true' child-expand-height='false' spacing='2' pad='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='listStatus' text='Select a song-style row' font-size='3'/>
+            <horizontal min-height='34' pref-height='34' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <list id='songList' data='rows' list-style='List' visible-cells='4' list-width='85' select-cell='ListSelected'/>
+            </horizontal>
+            <horizontal spacing='2'>
+                <page-button direction='Up' on-click='songList#PageUp'/>
+                <page-button direction='Down' on-click='songList#PageDown'/>
+            </horizontal>
+        </vertical>
+    </settings-submenu>
+    <settings-submenu text='Simple list cells'>
+        <vertical vertical-fit='PreferredSize' child-control-width='true' child-control-height='true' child-expand-height='false' spacing='2' pad='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='simpleStatus' text='Select a text row' font-size='3'/>
+            <horizontal min-height='32' pref-height='32' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <list id='simpleList' data='rows' list-style='Simple' visible-cells='4' list-width='85' select-cell='ListSelected' show-scrollbar='true'/>
+            </horizontal>
+        </vertical>
+    </settings-submenu>
+    <settings-submenu text='Box / level pack cells'>
+        <vertical vertical-fit='PreferredSize' child-control-width='true' child-control-height='true' child-expand-height='false' spacing='2' pad='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='boxStatus' text='Select a box; use left and right to scroll' font-size='3'/>
+            <horizontal min-height='28' pref-height='28' flex-height='0' vertical-fit='Unconstrained' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <list id='boxList' data='rows' list-style='Box' list-direction='Horizontal' visible-cells='3' cell-size='25' list-height='28' select-cell='ListSelected'/>
+            </horizontal>
+            <horizontal spacing='2'>
+                <page-button direction='Left' on-click='boxList#PageUp'/>
+                <page-button direction='Right' on-click='boxList#PageDown'/>
+            </horizontal>
+        </vertical>
+    </settings-submenu>
+
+    <settings-submenu text='Text page / EULA scroll template'>
+        <button text='Back' on-click='Back' anchor-min='0 1' anchor-max='1 1' size-delta='-4 8' anchor-pos-y='-4'/>
+        <!-- Stretch to the page, reserving the Back row and a small outer margin. -->
+        <div size-delta='-4 -14' anchor-pos-y='-5'>
+            <text-page text='~longText'/>
+        </div>
+    </settings-submenu>
+    <settings-submenu text='Scroll indicator and page buttons'>
+        <vertical child-control-height='true' child-expand-height='false' spacing='2' pad='2'>
+            <button text='Back' on-click='Back'/>
+            <horizontal pref-height='42' spacing='3'>
+                <scrollable-container child-control-height='true' id='indicatorScroll' pref-width='80'>
+                    <text text='~longText' font-size='4' word-wrapping='true'/>
+                </scrollable-container>
+                <scroll-indicator tags='IndicatorFor:indicatorScroll' pref-width='3' pref-height='42' handle-color='#33bbff'/>
+            </horizontal>
+            <horizontal spacing='2'>
+                <page-button direction='Up' tags='PageUpFor:indicatorScroll' on-click='indicatorScroll#PageUp'/>
+                <page-button direction='Down' tags='PageDownFor:indicatorScroll' on-click='indicatorScroll#PageDown'/>
+            </horizontal>
+        </vertical>
+    </settings-submenu>
+
+    <text text='Settings and object names' font-size='4'/>
+    <settings-submenu text='Settings values'>
+        <settings-container id='settingsScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='settingsStatus' text='Ready. Interact with the samples below.' font-size='3' word-wrapping='true'/>
+            <text text='Quest settings regression checks' font-size='4'/>
+            <toggle-setting text='Toggle' value='toggleValue' apply-on-change='true'/>
+            <increment-setting text='Number' value='numberValue' increment='0.1' min='0' max='5' apply-on-change='true'/>
+            <string-setting text='Text' value='keyboardValue' apply-on-change='true'/>
+            <button text='Read stored values' on-click='ReadValues'/>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Color settings'>
+        <settings-container id='colorScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text id='colorValuesStatus' text='Read stored values to inspect the saved settings.' font-size='3' word-wrapping='true'/>
+            <text text='Color setting save and preview checks' font-size='4'/>
+            <color-setting id='immediateColorSetting' text='Color: save on OK' value='immediateColor' on-change='ImmediateColorChanged' apply-on-change='true'/>
+            <color-setting id='boundColorPicker' text='Color: save on Apply' value='deferredColor' on-change='DeferredColorChanged' apply-on-change='false'/>
+            <text text='Dragging: previews increase, writes stay unchanged. Cancel restores the previous preview. OK: one write for the first row, none for the second. Reopen the second row before Apply: its draft should remain selected.' font-size='3' word-wrapping='true'/>
+            <horizontal spacing='2'>
+                <button text='Apply deferred' on-click='boundColorPicker#Apply'/>
+                <button text='Read color state' on-click='ReadColorSettings'/>
+            </horizontal>
+            <text id='colorSettingStatus' text='Edit either color, then read its state.' font-size='3' word-wrapping='true'/>
+            <button text='Check picker bindings' on-click='CheckColorBindings'/>
+            <text id='colorBindingStatus' text='Picker binding checks have not run.' font-size='3' word-wrapping='true'/>
+            <button text='Callback target test' on-click='targetColors#Show'/>
+            <modal-color-picker id='targetColors' on-cancel='boundColorPicker#Receive' move-to-center='true'/>
+            <text text='Target test: leave a deferred draft un-applied, open this picker, then Cancel. Its action belongs to the deferred setting: the draft should revert to the saved color.' font-size='3' word-wrapping='true'/>
+            <button text='Read stored values' on-click='ReadValues'/>
+        </settings-container>
+    </settings-submenu>
+
+    <settings-submenu text='Object names (PC parity)'>
+        <settings-container id='nameScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='Object names: name versus id' font-size='4'/>
+            <text text='PC expects name to rename the Unity object. The different id still binds it to the test host. Missing support should report FAIL, not be treated as a pass.' font-size='3' word-wrapping='true'/>
+            <text id='namedText' name='StatusLabel' text='Named text sample' font-size='3'/>
+            <button id='namedButton' name='RunNameChecks' text='Named button: run checks' on-click='CheckNames'/>
+            <vertical id='namedLayout' name='NameTestGroup' spacing='1'>
+                <text text='Named layout sample' font-size='3'/>
+            </vertical>
+            <text id='unnamedText' text='Control: no name attribute' font-size='3'/>
+            <button text='Check names and ID bindings' on-click='CheckNames'/>
+            <text id='nameStatus' text='Name checks have not run.' font-size='3' word-wrapping='true'/>
+        </settings-container>
+    </settings-submenu>
+    <settings-submenu text='View controller fallback (PC parity)'>
+        <settings-container id='fallbackScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='View controller parsing errors' font-size='4'/>
+            <text text='Run the checks, then show an error and restore valid content. The preview uses the same controller for both steps.' font-size='3' word-wrapping='true'/>
+            <button text='Run fallback checks' on-click='CheckViewControllerFallback'/>
+            <horizontal>
+                <button text='Show parsing error' on-click='ShowFallbackError'/>
+                <button text='Restore valid content' on-click='ShowFallbackRecovery'/>
+            </horizontal>
+            <text id='fallbackStatus' text='Fallback checks have not run. Choose Show parsing error to display the error page below.' font-size='3' word-wrapping='true'/>
+            <horizontal id='fallbackPreviewParent' min-height='70' pref-height='70' horizontal-fit='Unconstrained' vertical-fit='Unconstrained' child-control-width='true' child-control-height='true' child-expand-width='true' child-expand-height='true' bg='round-rect-panel'/>
+        </settings-container>
+    </settings-submenu>
+    <settings-submenu text='Anchors and alignment (PC parity)'>
+        <settings-container id='anchorScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+            <button text='Back' on-click='Back'/>
+            <text text='Names, pivots, anchors and alignment' font-size='4'/>
+            <button text='Run names, layout and error checks' on-click='CheckAnchors'/>
+            <text id='anchorStatus' text='Checks cover actual layout coordinates and parsing errors for invalid or null values. Expected errors are caught by the tests. Details are written to the log.' font-size='3' word-wrapping='true'/>
+            <text text='Free positioning: TL, C and BR sit at the top-left, center and bottom-right. Both anchor-position spellings are exercised. Their pivots keep labels inside the panel.' font-size='3' word-wrapping='true'/>
+            <horizontal min-height='40' pref-height='40' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <bg size-delta='80 40' bg='round-rect-panel'>
+                    <text text='TL' anchor-min='0 1' anchor-max='0 1' pivot='0 1' anchored-position='2 -2' size-delta='18 8' align='TopLeft'/>
+                    <text text='C' anchor-min='0.5 0.5' anchor-max='0.5 0.5' pivot='0.5 0.5' anchor-pos='0 0' size-delta='18 8' align='Center'/>
+                    <text text='BR' anchor-min='1 0' anchor-max='1 0' pivot='1 0' anchored-position-x='-2' anchored-position-y='2' size-delta='18 8' align='BottomRight'/>
+                </bg>
+            </horizontal>
+            <text text='Layout alignment: L, C and R sit at the top-left, middle-center and bottom-right of their panels. Layout groups intentionally override child anchor positions.' font-size='3' word-wrapping='true'/>
+            <horizontal child-alignment='UpperLeft' pad='2' min-height='20' pref-height='20' vertical-fit='Unconstrained' bg='round-rect-panel' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='L' size-delta='18 8' anchored-position='33 44' align='Center'/>
+            </horizontal>
+            <horizontal child-align='MiddleCenter' pad='2' min-height='20' pref-height='20' vertical-fit='Unconstrained' bg='round-rect-panel' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='C' size-delta='18 8' anchored-position='33 44' align='Center'/>
+            </horizontal>
+            <horizontal child-alignment='LowerRight' pad='2' min-height='20' pref-height='20' vertical-fit='Unconstrained' bg='round-rect-panel' child-control-width='false' child-control-height='false' child-expand-width='false' child-expand-height='false'>
+                <text text='R' size-delta='18 8' anchored-position='33 44' align='Center'/>
+            </horizontal>
+        </settings-container>
+    </settings-submenu>
+</settings-container>

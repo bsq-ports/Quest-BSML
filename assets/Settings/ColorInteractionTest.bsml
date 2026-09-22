@@ -1,0 +1,16 @@
+<settings-container id='testScroll' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false' spacing='2'>
+    <text text='Color interactions: BSML + Lite' font-size='5'/>
+    <text text='Scripted checks start on first open. Let the dialogs finish without touching them. Repeat after game reload. Then test real controller dragging, release, hover, OK/Cancel and placement on every picker.' font-size='3' word-wrapping='true'/>
+    <text id='results' text='Waiting to run...' font-size='3' word-wrapping='true'/>
+    <button text='Run scripted tests again' on-click='Run'/>
+    <color-setting id='immediate' text='BSML: save on OK' value='immediateColor' on-change='ImmediateChanged' apply-on-change='true'/>
+    <color-setting id='deferred' text='BSML: save on Apply' value='deferredColor' on-change='DeferredChanged' apply-on-change='false'/>
+    <button id='applyDeferred' text='Apply BSML draft' on-click='deferred#Apply'/>
+    <button text='Open BSML standalone' on-click='OpenStandalone'/>
+    <modal-color-picker id='standalone' value='standaloneColor'/>
+    <modal-color-picker id='uncentered' move-to-center='false' anchor-pos-x='12' anchor-pos-y='-8'/>
+    <vertical id='liteContainer' spacing='2' child-control-width='true' child-expand-width='true' child-control-height='true' child-expand-height='false'/>
+    <button text='Open Lite standalone' on-click='OpenLiteModal'/>
+    <button text='Toggle Lite row interactable' on-click='ToggleLite'/>
+    <text text='Unbound Lite standalone keeps its draft after Cancel; its caller owns persistence. Rows restore the previous preview. Try black/gray hue, reopen, disable/re-enable and repeat after game reload.' font-size='3' word-wrapping='true'/>
+</settings-container>

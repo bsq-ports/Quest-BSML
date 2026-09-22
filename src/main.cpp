@@ -18,6 +18,8 @@
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/HideFlags.hpp"
 
+namespace BSML { void RegisterComponentTestPage(); }
+
 using namespace BSML;
 
 modloader::ModInfo modInfo{MOD_ID, VERSION, GIT_COMMIT};
@@ -58,6 +60,8 @@ BSML_EXPORT_FUNC void late_load() {
     UnityEngine::Object::DontDestroyOnLoad(scs);
     scs->hideFlags = UnityEngine::HideFlags::DontUnloadUnusedAsset | UnityEngine::HideFlags::HideAndDontSave;
     scs->AddComponent<BSML::SharedCoroutineStarter*>();
+
+    RegisterComponentTestPage();
 }
 
 BSML_DATACACHE(settings_about) {
