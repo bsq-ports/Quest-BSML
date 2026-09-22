@@ -10,6 +10,7 @@
 #include "UnityEngine/Vector4.hpp"
 #include "System/Object.hpp"
 #include <chrono>
+#include "beatsaber-hook/shared/safeptr.hpp"
 
 DEFINE_TYPE(BSML, AnimationControllerData);
 
@@ -64,16 +65,23 @@ namespace BSML {
     }
 
     void AnimationControllerData::Finalize() {
-        BSML::MainThreadScheduler::Schedule([sprite = this->sprite](){
+        BSML::MainThreadScheduler::Schedule([
+            sprite = safe_ptr<UnityEngine::Sprite*, true>(this->sprite),
+            frames = safe_ptr<ArrayW<UnityEngine::Sprite*>>(this->sprites)]() {
+            if (frames.ptr()) {
+                for (auto frame : frames.ptr())
+                    if (frame && frame->m_CachedPtr.m_value) UnityEngine::Object::DestroyImmediate(frame);
+            }
             if (sprite && sprite->m_CachedPtr.m_value) {
                 auto tex = sprite->texture;
                 if (tex && tex->m_CachedPtr.m_value) {
                     UnityEngine::Object::DestroyImmediate(tex);
                 }
-                UnityEngine::Object::DestroyImmediate(sprite);
+                UnityEngine::Object::DestroyImmediate(sprite.ptr());
             }
         });
         sprite = nullptr;
+        sprites = nullptr;
 
         auto objectFinalize = i2c::metadata_getter<&System::Object::Finalize>::method_info();
         i2c::run_method(this, objectFinalize);
@@ -97,7 +105,8 @@ namespace BSML {
     }
 
     void AnimationControllerData::CheckFrame(unsigned long long now) {
-        if (activeImages.size() == 0) return;
+        auto images = _activeImages;
+        if (!images || images.size() == 0) return;
 
         auto diffMs = (now - lastSwitch);
         if (diffMs < delays[uvIndex]) return;
@@ -110,7 +119,18 @@ namespace BSML {
             if (uvIndex >= uvs.size()) uvIndex = 0;
         } while (!isDelayConsistent && delays[uvIndex] == 0);
 
-        for (auto image : activeImages) {
+        // Sprite callbacks can remove images or resize the list. Walk backwards
+        // and reread its size instead of retaining the backing array.
+        for (int index = static_cast<int>(images.size()); index > 0;) {
+            const int count = static_cast<int>(images.size());
+            if (index > count) index = count;
+            if (index == 0) break;
+
+            auto image = images[--index];
+            if (!image || !image->m_CachedPtr.m_value) {
+                images->RemoveAt(index);
+                continue;
+            }
             image->set_sprite(sprites[uvIndex]);
         }
     }
