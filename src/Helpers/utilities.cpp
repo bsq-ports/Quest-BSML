@@ -1,8 +1,10 @@
 #include "Helpers/utilities.hpp"
+#include "ImageLoadRequest.hpp"
 #include "BSMLDataCache_internal.hpp"
 #include "logging.hpp"
 
 #include "BSML/SharedCoroutineStarter.hpp"
+#include "BSML/MainThreadScheduler.hpp"
 #include "System/Collections/Generic/Dictionary_2.hpp"
 #include "UnityEngine/ImageConversion.hpp"
 #include "UnityEngine/Rect.hpp"
@@ -40,6 +42,7 @@
 #include "beatsaber-hook/shared/safeptr.hpp"
 #include "beatsaber-hook/shared/stringw.hpp"
 #include "beatsaber-hook/shared/byref.hpp"
+#include <memory>
 
 #define coro(coroutine) BSML::SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(coroutine))
 
@@ -265,26 +268,46 @@ namespace BSML::Utilities {
         return false;
     }
 
-    void SetAndLoadImageAnimated(UnityEngine::UI::Image* image, StringW path, bool loadingAnimation, std::pair<bool, System::Uri*> uri, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError) {
-        auto animationController = AnimationController::get_instance();
+    namespace {
+        using detail::ImageLoadRequest;
+        using detail::ImageDownload;
 
-        auto stateUpdater = image->gameObject->GetComponent<AnimationStateUpdater*>();
+        custom_types::Helpers::Coroutine DownloadImageData(std::shared_ptr<ImageLoadRequest> request, StringW uri, std::function<void(ArrayW<uint8_t>)> onFinished) {
+            if (!request->IsCurrent()) co_return;
+            ImageDownload owner{request, UnityWebRequest::Get(uri)};
+            request->stateUpdater->imageDownload = owner.download.ptr();
+            safe_ptr<UnityWebRequestAsyncOperation*> operation = owner.download->SendWebRequest();
+            while (!operation->get_isDone()) {
+                if (!request->IsCurrent()) {
+                    owner.download->Abort();
+                    co_return;
+                }
+                co_yield nullptr;
+            }
+            if (!request->IsCurrent()) co_return;
+            // Detach before callbacks, which can synchronously start a new request.
+            request->stateUpdater->imageDownload = nullptr;
+            onFinished(owner.download->GetError() == UnityWebRequest::UnityWebRequestError::OK
+                ? owner.download->get_downloadHandler()->GetData() : ArrayW<uint8_t>(nullptr));
+        }
+    }
 
-        // check if we already have it, union because easier
-        union {
-            System::Object* data = nullptr;
-            AnimationControllerData* animationControllerData;
-        };
-        if (animationController->registeredAnimations->TryGetValue(path, by_ref(data))) {
-            stateUpdater->enabled = true;
-            stateUpdater->set_controllerData(animationControllerData);
-            if (onFinished) onFinished();
+    void SetAndLoadImageAnimated(std::shared_ptr<ImageLoadRequest> request, std::pair<bool, System::Uri*> uri, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError) {
+        if (!request->IsCurrent()) return;
+        safe_ptr<AnimationController*, true> animationController = AnimationController::get_instance();
+
+        auto path = request->path.ptr();
+
+        AnimationControllerData* animationControllerData = nullptr;
+        if (animationController->TryGetAnimationControllerData(path, animationControllerData)) {
+            if (request->ApplyAnimation(animationControllerData) && onFinished) onFinished();
         } else {
             bool isGif = path->EndsWith("gif", System::StringComparison::OrdinalIgnoreCase) || (uri.first && StringW(uri.second->get_LocalPath())->EndsWith("gif", System::StringComparison::OrdinalIgnoreCase));
             auto animType = isGif ? AnimationLoader::AnimationType::GIF : AnimationLoader::AnimationType::APNG;
 
             auto errorType = uri.first ? ImageLoadError::NetworkError : ImageLoadError::GetDataError;
-            auto onDataFinished = [stateUpdater, path, onFinished, onError, errorType, animationController, animType](ArrayW<uint8_t> data){
+            auto onDataFinished = [request, onFinished, onError, errorType, animationController, animType](ArrayW<uint8_t> data){
+                if (!request->IsCurrent() || !animationController) return;
                 // somehow data was failed to be gotten
                 if (!data) {
                     if (onError) onError(errorType);
@@ -294,30 +317,37 @@ namespace BSML::Utilities {
                 AnimationLoader::Process(
                     animType,
                     data,
-                    [stateUpdater, path, onFinished, animationController](auto tex, auto uvs, auto delays){
-                        auto controllerData = animationController->Register(path, tex, uvs, delays);
-                        stateUpdater->enabled = true;
-                        stateUpdater->set_controllerData(controllerData);
-                        if (onFinished) onFinished();
+                    [request, onFinished, animationController](auto tex, auto uvs, auto delays){
+                        // An in-flight decode may finish after cancellation. It owns
+                        // its frames until completion; discard the unused atlas here.
+                        if (!request->IsCurrent() || !animationController) {
+                            if (tex && tex->m_CachedPtr.m_value) Object::DestroyImmediate(tex);
+                            return;
+                        }
+                        auto controllerData = animationController->Register(request->path.ptr(), tex, uvs, delays);
+                        if (request->ApplyAnimation(controllerData) && onFinished) onFinished();
                     },
-                    [onError](){
-                        if (onError) onError(ImageLoadError::GifParsingError);
+                    [request, onError](){
+                        // Dispatch consistently through the scheduler and recheck request ownership.
+                        MainThreadScheduler::Schedule([request, onError]() {
+                            if (request->IsCurrent() && onError) onError(ImageLoadError::GifParsingError);
+                        });
                     }
                 );
             };
 
             if (uri.first) {
-                DownloadData(uri.second->get_AbsoluteUri(), onDataFinished);
+                coro(DownloadImageData(request, uri.second->get_AbsoluteUri(), onDataFinished));
             } else {
                 GetData(path, onDataFinished);
             }
         }
     }
 
-    void SetAndLoadImageNonAnimated(UnityEngine::UI::Image* image, StringW path, bool loadingAnimation, ScaleOptions scaleOptions, bool cached, std::pair<bool, System::Uri*> uri, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError) {
-        auto stateUpdater = image->GetComponent<AnimationStateUpdater*>();
+    void SetAndLoadImageNonAnimated(std::shared_ptr<ImageLoadRequest> request, ScaleOptions scaleOptions, bool cached, std::pair<bool, System::Uri*> uri, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError) {
         auto errorType = uri.first ? ImageLoadError::NetworkError : ImageLoadError::GetDataError;
-        auto onDataFinished = [path, onFinished, onError, errorType, image, stateUpdater, scaleOptions, cached](ArrayW<uint8_t> data) {
+        auto onDataFinished = [request, onFinished, onError, errorType, scaleOptions, cached](ArrayW<uint8_t> data) {
+            if (!request->IsCurrent()) return;
             // somehow data was failed to be gotten
             if (!data) {
                 if (onError) onError(errorType);
@@ -342,30 +372,33 @@ namespace BSML::Utilities {
 
                 auto sprite = LoadSpriteFromTexture(texture);
                 if (!sprite) {
+                    Object::DestroyImmediate(texture);
                     ERROR("Failed to load sprite from texture");
                     if (onError) onError(ImageLoadError::ImageParsingError);
                     return;
                 }
 
-                sprite->get_texture()->set_wrapMode(TextureWrapMode::Clamp);
+                if (!request->PrepareStaticImage()) {
+                    Object::DestroyImmediate(sprite);
+                    Object::DestroyImmediate(texture);
+                    return;
+                }
+                texture->set_wrapMode(TextureWrapMode::Clamp);
 
-                stateUpdater->set_controllerData(nullptr);
-                stateUpdater->enabled = false;
-
-                image->set_sprite(sprite);
-                // if while we were loading, someone else added this key already, we skip adding (could be weird but like, I don't want crashes)
-                if (cached && !get_bsmlSetImageCache()->ContainsKey(path)) get_bsmlSetImageCache()->TryAdd(path, sprite);
+                request->image->set_sprite(sprite);
+                // Another request may have populated this key while we loaded.
+                if (cached) get_bsmlSetImageCache()->TryAdd(request->path.ptr(), sprite);
             }
 
-            if (onFinished)
+            if (request->IsCurrent() && onFinished)
                 onFinished();
             DEBUG("Done!");
         };
 
         if (uri.first) {
-            DownloadData(uri.second->get_AbsoluteUri(), onDataFinished);
+            coro(DownloadImageData(request, uri.second->get_AbsoluteUri(), onDataFinished));
         } else {
-            GetData(path, onDataFinished);
+            GetData(request->path.ptr(), onDataFinished);
         }
     }
 
@@ -374,7 +407,7 @@ namespace BSML::Utilities {
     }
 
     void SetImage(UnityEngine::UI::Image* image, StringW path, bool loadingAnimation, ScaleOptions scaleOptions, bool cached, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError) {
-        if (!image) {
+        if (!image || !image->m_CachedPtr.m_value) {
             ERROR("Can't set null image!");
             return;
         }
@@ -382,24 +415,27 @@ namespace BSML::Utilities {
         auto animationController = AnimationController::get_instance();
         auto stateUpdater = image->GetComponent<AnimationStateUpdater*>();
 
-        if (!stateUpdater) {
+        if (!stateUpdater || !stateUpdater->m_CachedPtr.m_value) {
             stateUpdater = image->gameObject->AddComponent<AnimationStateUpdater*>();
         }
 
         stateUpdater->image = image;
+        // Invalidate even synchronous cache/base-game requests before any early return.
+        stateUpdater->CancelImageLoad();
+        auto request = std::make_shared<ImageLoadRequest>(image, stateUpdater, path);
 
-        if (loadingAnimation) {
-            stateUpdater->enabled = true;
-            stateUpdater->set_controllerData(animationController->loadingAnimation);
-        } else {
-            stateUpdater->set_controllerData(nullptr);
-            stateUpdater->set_enabled(false);
+        if (loadingAnimation && animationController->loadingAnimation && !stateUpdater->get_controllerData()) {
+            if (!request->ApplyAnimation(animationController->loadingAnimation)) return;
         }
+        // Retain an existing GIF through download and parsing, even when a loading
+        // animation was requested. Detaching it can release the displayed atlas.
 
         if (path.size() > 1 && path[0] == '#') { // it's a base game sprite that is requested
+            if (!request->PrepareStaticImage()) return;
             auto imgName = path->Substring(1);
             image->set_sprite(FindSpriteCached(imgName));
 
+            if (!request->IsCurrent()) return;
             if (image->get_sprite() == nullptr)
                 ERROR("Could not find base game Sprite with image name {}", imgName);
             return;
@@ -408,11 +444,10 @@ namespace BSML::Utilities {
         UnityEngine::Sprite* sprite = nullptr;
         if (get_bsmlSetImageCache()->TryGetValue(path, by_ref(sprite)) && sprite && sprite->m_CachedPtr.m_value) {
             // we got a sprite, use it
-            stateUpdater->set_controllerData(nullptr);
-            stateUpdater->enabled = false;
+            if (!request->PrepareStaticImage()) return;
 
             image->set_sprite(sprite);
-            if (onFinished) onFinished();
+            if (request->IsCurrent() && onFinished) onFinished();
             return;
         } else if (sprite) {
             INFO("Removing {} from cache as the attached sprite was invalid", path);
@@ -424,9 +459,9 @@ namespace BSML::Utilities {
         // animated just means ".gif || .apng"
         // TODO: support for animated sprites in the future
         if (IsAnimated(path) || (isUri && IsAnimated(uri->get_LocalPath()))) {
-            SetAndLoadImageAnimated(image, path, loadingAnimation, {isUri, uri}, onFinished, onError);
+            SetAndLoadImageAnimated(request, {isUri, uri}, onFinished, onError);
         } else { // not animated
-            SetAndLoadImageNonAnimated(image, path, loadingAnimation, scaleOptions, cached, {isUri, uri}, onFinished, onError);
+            SetAndLoadImageNonAnimated(request, scaleOptions, cached, {isUri, uri}, onFinished, onError);
         }
     }
 
@@ -437,6 +472,7 @@ namespace BSML::Utilities {
             auto texture = Texture2D::New_ctor(1, 1, TextureFormat::RGBA32, false, false);
             if (ImageConversion::LoadImage(texture, data, false))
                 return texture;
+            Object::DestroyImmediate(texture);
         }
         ERROR("Failed to load texture from data");
         return nullptr;

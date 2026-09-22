@@ -5,6 +5,7 @@
 #include "beatsaber-hook/shared/arrayw.hpp"
 
 #include <memory>
+#include <atomic>
 #include <mutex>
 #include <queue>
 
@@ -19,7 +20,7 @@ namespace BSML {
             int frameCount = 0;
 
             /// @brief how many frames have been fully decoded
-            std::atomic<std::size_t> decodedFrames;
+            std::atomic<std::size_t> decodedFrames{0};
 
             /// @brief width of the animation
             int width = 0;
@@ -29,6 +30,7 @@ namespace BSML {
             /// @brief gets the next decoded frame
             std::shared_ptr<FrameInfo> PopNextFrame() {
                 std::lock_guard<std::mutex> lock(framesAccessMutex);
+                if (frames.empty()) return nullptr;
                 auto frame = frames.front();
                 frames.pop();
                 return frame;
@@ -38,6 +40,12 @@ namespace BSML {
             std::shared_ptr<FrameInfo> AddFrame(int width, int height) {
                 std::lock_guard<std::mutex> lock(framesAccessMutex);
                 return frames.emplace(std::make_shared<FrameInfo>(width, height));
+            }
+
+            /// @brief publish an already populated frame
+            void PushFrame(std::shared_ptr<FrameInfo> frame) {
+                std::lock_guard<std::mutex> lock(framesAccessMutex);
+                frames.push(std::move(frame));
             }
 
         private:

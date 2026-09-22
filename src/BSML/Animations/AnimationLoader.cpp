@@ -1,6 +1,7 @@
 #include "BSML/Animations/AnimationLoader.hpp"
 #include "BSML/Animations/AnimationInfo.hpp"
 #include "BSML/Animations/GIF/GifDecoder.hpp"
+#include "GIF/GifStreaming.hpp"
 #include "logging.hpp"
 
 #include "UnityEngine/SystemInfo.hpp"
@@ -23,6 +24,13 @@
 DEFINE_TYPE(BSML, AnimationLoader);
 
 namespace BSML {
+    namespace {
+        custom_types::Helpers::Coroutine ProcessAnimationInfoOwned(
+            std::shared_ptr<AnimationInfo> infoOwner,
+            std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed,
+            std::function<void()> onError, std::shared_ptr<detail::GifStream> stream = nullptr);
+    }
+
     int get_atlasSizeLimit() {
         static auto getMaxTextureSize = i2c::resolve_icall<int>("UnityEngine.SystemInfo::GetMaxTextureSize");
         static int maxSize = getMaxTextureSize.has_value() ? getMaxTextureSize.value()() : 4096;
@@ -41,11 +49,10 @@ namespace BSML {
         switch (type) {
             case AnimationType::GIF:
                 sharedStarter->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(
-                    GifDecoder::Process(
+                    detail::ProcessGifStreaming(
                         data,
-                        [sharedStarter, onProcessed,onError](auto animationInfo){
-                            DEBUG("Processed Data, processing animation info");
-                            sharedStarter->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(ProcessAnimationInfo(animationInfo, onProcessed, onError)));
+                        [onProcessed, onError](auto stream) {
+                            return ProcessAnimationInfoOwned(stream->info, onProcessed, onError, stream);
                         },
                         onError
                     )));
@@ -60,87 +67,114 @@ namespace BSML {
     }
 
     custom_types::Helpers::Coroutine AnimationLoader::ProcessAnimationInfo(AnimationInfo* animationInfo, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError) {
+        // Take ownership before the returned coroutine's first resume.
+        return ProcessAnimationInfoOwned(std::shared_ptr<AnimationInfo>(animationInfo), onProcessed, onError);
+    }
+
+    namespace {
+    custom_types::Helpers::Coroutine ProcessAnimationInfoOwned(std::shared_ptr<AnimationInfo> infoOwner,
+        std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed,
+        std::function<void()> onError, std::shared_ptr<detail::GifStream> stream) {
+        detail::GifStreamConsumer consumer{stream};
+        auto animationInfo = infoOwner.get();
+        if (!animationInfo || animationInfo->frameCount <= 0 || animationInfo->width <= 0 ||
+            animationInfo->height <= 0 || (!stream && animationInfo->decodedFrames.load() != animationInfo->frameCount)) {
+            if (onError) onError();
+            co_return;
+        }
         DEBUG("ProcessAnimInfo");
-        int textureSize = get_atlasSizeLimit(), width = 0, height = 0;
+        int textureSize = AnimationLoader::GetTextureSize(animationInfo);
         safe_ptr<ArrayW<UnityEngine::Texture2D*>> textureListSafe = ArrayW<UnityEngine::Texture2D*>(animationInfo->frameCount);
         ArrayW<UnityEngine::Texture2D*> textureList(textureListSafe.ptr());
+        // Destroy native textures on every exit, including a cancelled coroutine.
+        struct TextureCleanup {
+            ArrayW<UnityEngine::Texture2D*> frames;
+            safe_ptr<UnityEngine::Texture2D*, true> atlas;
+            ~TextureCleanup() {
+                for (auto texture : frames)
+                    if (texture && texture->m_CachedPtr.m_value) UnityEngine::Object::DestroyImmediate(texture);
+                if (atlas) UnityEngine::Object::DestroyImmediate(atlas.ptr());
+            }
+        } cleanup{textureList};
         safe_ptr<ArrayW<float>> delaysSafe = ArrayW<float>(animationInfo->frameCount);
         ArrayW<float> delays(delaysSafe.ptr());
         float lastThrottleTime = UnityEngine::Time::get_realtimeSinceStartup();
 
-        int gifWidth = 0, gifHeight = 0;
         for (int currentFrameIndex = 0; currentFrameIndex < animationInfo->frameCount; currentFrameIndex++) {
             DEBUG("Frame {}", currentFrameIndex);
 
-            // while the decoded frame count is larger or equal to the size of the vector, we can't be sure we're done decoding that frame
-            // decodedframes is indexed starting at 1 since it's a count, so <=
-            bool throttled = false;
-            while (animationInfo->decodedFrames <= currentFrameIndex) {
-                co_yield nullptr;
-                throttled = true;
+            std::shared_ptr<FrameInfo> currentFrameInfo;
+            if (stream) {
+                for (;;) {
+                    auto next = stream->Read();
+                    if (next.state == detail::GifStream::State::Cancelled) co_return;
+                    if (next.state == detail::GifStream::State::Failed) {
+                        if (onError) onError();
+                        co_return;
+                    }
+                    currentFrameInfo = std::move(next.frame);
+                    if (currentFrameInfo || next.state == detail::GifStream::State::Completed) break;
+                    co_yield nullptr;
+                }
+            } else {
+                currentFrameInfo = animationInfo->PopNextFrame();
             }
-            if (throttled) lastThrottleTime = UnityEngine::Time::get_realtimeSinceStartup();
-            auto currentFrameInfo = animationInfo->PopNextFrame();
-
-            if (currentFrameIndex == 0) {
-                gifWidth = currentFrameInfo->width;
-                gifHeight = currentFrameInfo->height;
-                textureSize = GetTextureSize(animationInfo);
+            if (!currentFrameInfo || currentFrameInfo->width != animationInfo->width ||
+                currentFrameInfo->height != animationInfo->height) {
+                if (onError) onError();
+                co_return;
             }
 
             delays[currentFrameIndex] = currentFrameInfo->delay;
 
             auto frameTexture = UnityEngine::Texture2D::New_ctor(currentFrameInfo->width, currentFrameInfo->height, UnityEngine::TextureFormat::RGBA32, false);
+            textureList[currentFrameIndex] = frameTexture;
             frameTexture->hideFlags = UnityEngine::HideFlags::DontSave; // Avoids unity GC
             frameTexture->set_wrapMode(UnityEngine::TextureWrapMode::Clamp);
             frameTexture->LoadRawTextureData(currentFrameInfo->colors.ptr());
+            currentFrameInfo.reset(); // Release the decoded buffer before yielding.
 
-            textureList[currentFrameIndex] = frameTexture;
             if (UnityEngine::Time::get_realtimeSinceStartup() > lastThrottleTime + 0.0005f) {
                 co_yield nullptr;
                 lastThrottleTime = UnityEngine::Time::get_realtimeSinceStartup();
             }
         }
-        safe_ptr<UnityEngine::Texture2D*> resultTexture = UnityEngine::Texture2D::New_ctor(gifWidth, gifHeight);
+        // Do not publish an atlas until the producer confirms the whole decode
+        // succeeded, even if the final frame was consumed before it finished.
+        if (stream) {
+            while (stream->GetState() == detail::GifStream::State::Decoding) co_yield nullptr;
+            if (stream->GetState() == detail::GifStream::State::Cancelled) co_return;
+            if (stream->GetState() != detail::GifStream::State::Completed ||
+                animationInfo->decodedFrames.load() != animationInfo->frameCount) {
+                if (onError) onError();
+                co_return;
+            }
+        }
+        safe_ptr<UnityEngine::Texture2D*> resultTexture = UnityEngine::Texture2D::New_ctor(animationInfo->width, animationInfo->height);
 
-        // note to self, no longer readable = true means you can't encode the texture to png!
-        // Warning: If this will ever crash, it means that one of the
-        // textures in the array has been garbage collected and we need to attach
-        // them to a gameobject to prevent that
+        cleanup.atlas = resultTexture.ptr();
+
+        // The packed atlas is no longer CPU-readable. The callback owns it.
         DEBUG("Packing gif textures");
         safe_ptr<ArrayW<::UnityEngine::Rect>> atlasSafe = resultTexture->PackTextures(textureList, 2, textureSize, true);
-        // cleanup
-        for (auto t : textureList) {
-            if (t && t->m_CachedPtr.m_value)
-                UnityEngine::Object::DestroyImmediate(t);
+        if (!atlasSafe.ptr() || atlasSafe.ptr().size() != animationInfo->frameCount) {
+            if (onError) onError();
+            co_return;
+        }
+        if (onProcessed) {
+            cleanup.atlas = nullptr; // Ownership transfers to the completion handler.
+            onProcessed(resultTexture.ptr(), atlasSafe.ptr(), delays);
         }
 
-        if (onProcessed)
-            onProcessed(resultTexture.ptr(), atlasSafe.ptr(), delays);
-
-        // we are now done with the animation info
-        delete animationInfo;
         co_return;
+    }
     }
 
     int AnimationLoader::GetTextureSize(AnimationInfo* animationInfo) {
-        int testNum = 2, numFramesInRow = 0, numFramesInColumn = 0;
-
-        while (true) {
-            int numFrames = animationInfo->frameCount;
-
-            if ((numFrames % testNum) != 0) {
-                numFrames += numFrames % testNum;
-            }
-
-            numFramesInRow = std::max(numFrames / testNum, 1);
-            numFramesInColumn = numFrames / numFramesInRow;
-            if (numFramesInRow <= numFramesInColumn) break;
-            testNum += 2;
-        }
-
-        int textureWidth = std::clamp(numFramesInRow * animationInfo->width, 0, get_atlasSizeLimit());
-        int textureHeight = std::clamp(numFramesInColumn * animationInfo->height, 0, get_atlasSizeLimit());
-        return std::max(textureWidth, textureHeight);
+        if (!animationInfo || animationInfo->frameCount <= 0 || animationInfo->width <= 0 || animationInfo->height <= 0)
+            return 0;
+        // PackTextures handles fitting/downscaling at the device limit. A fixed
+        // upper bound also handles one-frame and non-square GIFs without a search.
+        return get_atlasSizeLimit();
     }
 }
