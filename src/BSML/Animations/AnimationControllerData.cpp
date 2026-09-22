@@ -1,6 +1,7 @@
 #include "BSML/Animations/AnimationControllerData.hpp"
 #include "BSML/MainThreadScheduler.hpp"
 #include "ForEachActiveImage.hpp"
+#include "IndexedAnimation.hpp"
 #include "logging.hpp"
 
 #include "Helpers/utilities.hpp"
@@ -18,6 +19,7 @@ DEFINE_TYPE(BSML, AnimationControllerData);
 namespace BSML {
     AnimationControllerData* AnimationControllerData::Make_new(UnityEngine::Texture2D* tex, ArrayW<UnityEngine::Rect> uvs, ArrayW<float> delays) {
         auto self = AnimationControllerData::New_ctor();
+        self->indexedAnimation = nullptr;
         self->animationStateUpdaters = {};
 
         self->_isPlaying = true;
@@ -67,6 +69,7 @@ namespace BSML {
 
     void AnimationControllerData::Finalize() {
         BSML::MainThreadScheduler::Schedule([
+            indexed = std::shared_ptr<detail::IndexedAnimation>(indexedAnimation),
             sprite = safe_ptr<UnityEngine::Sprite*, true>(this->sprite),
             frames = safe_ptr<ArrayW<UnityEngine::Sprite*>>(this->sprites)]() {
             if (frames.ptr()) {
@@ -83,6 +86,7 @@ namespace BSML {
         });
         sprite = nullptr;
         sprites = nullptr;
+        indexedAnimation = nullptr;
 
         auto objectFinalize = i2c::metadata_getter<&System::Object::Finalize>::method_info();
         i2c::run_method(this, objectFinalize);
@@ -120,13 +124,24 @@ namespace BSML {
             if (uvIndex >= uvs.size()) uvIndex = 0;
         } while (!isDelayConsistent && delays[uvIndex] == 0);
 
+        // Every Image shares this output; expand once per animation advance,
+        // retaining the game's ordinary UI material and hardware filtering.
+        if (indexedAnimation) indexedAnimation->Expand(uvIndex);
         detail::ForEachActiveImage(images, [this](auto image) {
-            image->set_sprite(sprites[uvIndex]);
+            // Indexed sprites all cover the same reusable texture. Avoid
+            // rebuilding UI geometry when only its GPU pixels changed, while
+            // retaining the traversal's destroyed-image cleanup.
+            if (!indexedAnimation) image->set_sprite(sprites[uvIndex]);
         });
     }
 
     bool AnimationControllerData::IsBeingUsed() {
         return !animationStateUpdaters.empty(); // if no anim updaters exist with this data, it's not being used
+    }
+
+    void AnimationControllerData::SetIndexedAnimation(detail::IndexedAnimation* animation) {
+        delete indexedAnimation;
+        indexedAnimation = animation;
     }
 
     bool AnimationControllerData::Add(AnimationStateUpdater* animationStateUpdater) {

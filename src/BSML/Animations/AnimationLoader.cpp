@@ -2,6 +2,7 @@
 #include "BSML/Animations/AnimationInfo.hpp"
 #include "BSML/Animations/GIF/GifDecoder.hpp"
 #include "GIF/GifStreaming.hpp"
+#include "ImageAnimationLoader.hpp"
 #include "logging.hpp"
 
 #include "UnityEngine/SystemInfo.hpp"
@@ -9,6 +10,8 @@
 #include "UnityEngine/WaitUntil.hpp"
 #include "UnityEngine/TextureWrapMode.hpp"
 #include "UnityEngine/TextureFormat.hpp"
+#include "UnityEngine/FilterMode.hpp"
+#include "System/IntPtr.hpp"
 #include "UnityEngine/ImageConversion.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "System/IO/File.hpp"
@@ -28,7 +31,8 @@ namespace BSML {
         custom_types::Helpers::Coroutine ProcessAnimationInfoOwned(
             std::shared_ptr<AnimationInfo> infoOwner,
             std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed,
-            std::function<void()> onError, std::shared_ptr<detail::GifStream> stream = nullptr);
+            std::function<void()> onError, std::shared_ptr<detail::GifStream> stream = nullptr,
+            detail::ImageAnimationCallback onImageProcessed = {});
     }
 
     int get_atlasSizeLimit() {
@@ -71,10 +75,23 @@ namespace BSML {
         return ProcessAnimationInfoOwned(std::shared_ptr<AnimationInfo>(animationInfo), onProcessed, onError);
     }
 
+    void detail::ProcessImageAnimation(AnimationLoader::AnimationType type, ArrayW<uint8_t> data,
+        ImageAnimationCallback onProcessed, std::function<void()> onError) {
+        if (type != AnimationLoader::AnimationType::GIF) {
+            if (onError) onError();
+            return;
+        }
+        SharedCoroutineStarter::get_instance()->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(
+            ProcessGifStreaming(data, [onProcessed, onError](auto stream) {
+                return ProcessAnimationInfoOwned(stream->info, {}, onError, stream, onProcessed);
+            }, onError)));
+    }
+
     namespace {
     custom_types::Helpers::Coroutine ProcessAnimationInfoOwned(std::shared_ptr<AnimationInfo> infoOwner,
         std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed,
-        std::function<void()> onError, std::shared_ptr<detail::GifStream> stream) {
+        std::function<void()> onError, std::shared_ptr<detail::GifStream> stream,
+        detail::ImageAnimationCallback onImageProcessed) {
         detail::GifStreamConsumer consumer{stream};
         auto animationInfo = infoOwner.get();
         if (!animationInfo || animationInfo->frameCount <= 0 || animationInfo->width <= 0 ||
@@ -99,6 +116,25 @@ namespace BSML {
         safe_ptr<ArrayW<float>> delaysSafe = ArrayW<float>(animationInfo->frameCount);
         ArrayW<float> delays(delaysSafe.ptr());
         float lastThrottleTime = UnityEngine::Time::get_realtimeSinceStartup();
+
+        auto layout = detail::IndexedAtlasLayout::Make(animationInfo->width, animationInfo->height,
+            animationInfo->frameCount, textureSize);
+        // Two reusable RGBA surfaces cost eight bytes per frame pixel. Small
+        // animations need less storage as a conventional RGBA atlas.
+        bool useIndexed = onImageProcessed && layout.columns &&
+            int64_t(layout.width) * layout.height + int64_t(animationInfo->frameCount) * 1024 +
+                int64_t(animationInfo->width) * animationInfo->height * 8 <
+                int64_t(animationInfo->width) * animationInfo->height * animationInfo->frameCount * 4 &&
+            detail::IndexedAnimation::Supported();
+        std::vector<detail::IndexedFrame> indexedFrames;
+        auto makeTexture = [&](int index, const uint8_t* data, size_t size) {
+            auto texture = UnityEngine::Texture2D::New_ctor(animationInfo->width, animationInfo->height,
+                UnityEngine::TextureFormat::RGBA32, false);
+            textureList[index] = texture;
+            texture->set_hideFlags(UnityEngine::HideFlags::DontSave);
+            texture->set_wrapMode(UnityEngine::TextureWrapMode::Clamp);
+            texture->LoadRawTextureData(System::IntPtr(const_cast<uint8_t*>(data)), size);
+        };
 
         for (int currentFrameIndex = 0; currentFrameIndex < animationInfo->frameCount; currentFrameIndex++) {
             DEBUG("Frame {}", currentFrameIndex);
@@ -127,11 +163,24 @@ namespace BSML {
 
             delays[currentFrameIndex] = currentFrameInfo->delay;
 
-            auto frameTexture = UnityEngine::Texture2D::New_ctor(currentFrameInfo->width, currentFrameInfo->height, UnityEngine::TextureFormat::RGBA32, false);
-            textureList[currentFrameIndex] = frameTexture;
-            frameTexture->hideFlags = UnityEngine::HideFlags::DontSave; // Avoids unity GC
-            frameTexture->set_wrapMode(UnityEngine::TextureWrapMode::Clamp);
-            frameTexture->LoadRawTextureData(currentFrameInfo->colors.ptr());
+            auto colors = currentFrameInfo->colors.ptr();
+            if (useIndexed) {
+                detail::IndexedFrame frame;
+                if (frame.Encode({colors->_values, static_cast<size_t>(colors.size())})) {
+                    indexedFrames.push_back(std::move(frame));
+                } else {
+                    // A later composited frame may exceed 256 colors. Restore
+                    // all earlier frames losslessly and fall back for this GIF.
+                    useIndexed = false;
+                    for (int i = 0; i < indexedFrames.size(); ++i) {
+                        auto rgba = indexedFrames[i].Decode();
+                        makeTexture(i, rgba.data(), rgba.size());
+                        co_yield nullptr;
+                    }
+                    indexedFrames.clear();
+                }
+            }
+            if (!useIndexed) makeTexture(currentFrameIndex, colors->_values, colors.size());
             currentFrameInfo.reset(); // Release the decoded buffer before yielding.
 
             if (UnityEngine::Time::get_realtimeSinceStartup() > lastThrottleTime + 0.0005f) {
@@ -150,6 +199,31 @@ namespace BSML {
                 co_return;
             }
         }
+        if (useIndexed) {
+            cleanup.atlas = UnityEngine::Texture2D::New_ctor(animationInfo->width, animationInfo->height,
+                UnityEngine::TextureFormat::RGBA32, false, false);
+            cleanup.atlas->set_hideFlags(UnityEngine::HideFlags::DontSave);
+            cleanup.atlas->set_wrapMode(UnityEngine::TextureWrapMode::Clamp);
+            cleanup.atlas->set_filterMode(UnityEngine::FilterMode::Bilinear);
+            // Upload once and discard the CPU copy. Never Apply after CopyTexture.
+            cleanup.atlas->Apply(false, true);
+            auto indexed = detail::IndexedAnimation::Create(indexedFrames, layout, cleanup.atlas.ptr());
+            if (indexed) {
+                safe_ptr<ArrayW<UnityEngine::Rect>> rects = ArrayW<UnityEngine::Rect>(animationInfo->frameCount);
+                for (auto& rect : rects.ptr()) rect = UnityEngine::Rect(0, 0, 1, 1);
+                auto output = cleanup.atlas.ptr();
+                cleanup.atlas = nullptr;
+                onImageProcessed(output, rects.ptr(), delays, std::move(indexed));
+                co_return;
+            }
+            UnityEngine::Object::DestroyImmediate(cleanup.atlas.ptr());
+            cleanup.atlas = nullptr;
+            for (int i = 0; i < indexedFrames.size(); ++i) {
+                auto rgba = indexedFrames[i].Decode();
+                makeTexture(i, rgba.data(), rgba.size());
+                co_yield nullptr;
+            }
+        }
         safe_ptr<UnityEngine::Texture2D*> resultTexture = UnityEngine::Texture2D::New_ctor(animationInfo->width, animationInfo->height);
 
         cleanup.atlas = resultTexture.ptr();
@@ -161,7 +235,10 @@ namespace BSML {
             if (onError) onError();
             co_return;
         }
-        if (onProcessed) {
+        if (onImageProcessed) {
+            cleanup.atlas = nullptr;
+            onImageProcessed(resultTexture.ptr(), atlasSafe.ptr(), delays, nullptr);
+        } else if (onProcessed) {
             cleanup.atlas = nullptr; // Ownership transfers to the completion handler.
             onProcessed(resultTexture.ptr(), atlasSafe.ptr(), delays);
         }

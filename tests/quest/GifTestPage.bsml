@@ -1,0 +1,26 @@
+<vertical spacing='0.5' pad='1'>
+    <text text='GIF regression tests' font-size='5' align='Center'/>
+    <text text='Preview: cyan A / orange B. A should keep playing while B loads.' font-size='3' align='Center'/>
+    <horizontal spacing='2'>
+        <button pref-height='6' font-size='3' text='Offline tests' on-click='RunOffline'/>
+        <button pref-height='6' font-size='3' text='Network tests' on-click='RunNetwork'/>
+        <button pref-height='6' font-size='3' text='Stop' on-click='Stop'/>
+    </horizontal>
+    <horizontal spacing='2'>
+        <button pref-height='6' font-size='3' text='GIF A' on-click='ShowA'/>
+        <button pref-height='6' font-size='3' text='GIF B' on-click='ShowB'/>
+        <button pref-height='6' font-size='3' text='Slow B' on-click='ShowSlowB'/>
+        <button pref-height='6' font-size='3' text='Corrupt GIF' on-click='ShowBad'/>
+    </horizontal>
+    <horizontal spacing='2'>
+        <button pref-height='6' font-size='3' text='Rebuild' on-click='Rebuild'/>
+        <button pref-height='6' font-size='3' text='Loading on/off' on-click='ToggleLoading'/>
+        <button pref-height='6' font-size='3' text='Active on/off' on-click='ToggleActive'/>
+    </horizontal>
+    <horizontal id='previewRoot' pref-height='26' min-height='26' child-control-height='false' child-control-width='false' child-force-expand-height='false' child-force-expand-width='false' child-align='MiddleCenter'/>
+    <horizontal spacing='2'>
+        <button pref-height='6' font-size='3' text='No flash observed' on-click='NoFlash'/>
+        <button pref-height='6' font-size='3' text='Saw a flash' on-click='SawFlash'/>
+    </horizontal>
+    <text id='report' text='Ready. Network tests need serve_fixtures.py and adb reverse tcp:8765 tcp:8765.' font-size='2.8' word-wrapping='true' pref-height='19'/>
+</vertical>

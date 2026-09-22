@@ -12,6 +12,7 @@
 
 namespace BSML {
     class AnimationStateUpdater;
+    namespace detail { class IndexedAnimation; }
 }
 
 DECLARE_CLASS_CODEGEN(BSML, AnimationControllerData, System::Object) {
@@ -40,7 +41,10 @@ DECLARE_CLASS_CODEGEN(BSML, AnimationControllerData, System::Object) {
 
         static AnimationControllerData* Make_new(UnityEngine::Texture2D* tex, ArrayW<UnityEngine::Rect> uvs, ArrayW<float> delays);
         void CheckFrame(unsigned long long now);
+        // Takes ownership; used only by the internal indexed-image loader.
+        void SetIndexedAnimation(BSML::detail::IndexedAnimation* animation);
     private:
+        BSML::detail::IndexedAnimation* indexedAnimation;
         unsigned long long lastSwitch;
         std::set<AnimationStateUpdater*> animationStateUpdaters;
 };

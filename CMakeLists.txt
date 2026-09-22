@@ -9,7 +9,9 @@ set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED 26)
 
 # Enable link time optimization
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+# set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+add_compile_options(-O0)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 # define that stores the actual source directory
@@ -81,6 +83,12 @@ add_library(
     "${CMAKE_CURRENT_SOURCE_DIR}/include/submodules/css-color-parser-cpp/csscolorparser.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/submodules/EasyGifReader/EasyGifReader.cpp"
 )
+
+option(BSML_QUEST_TESTS "Build the optional in-game GIF regression page" OFF)
+if(BSML_QUEST_TESTS)
+    target_sources(${COMPILE_ID} PRIVATE tests/quest/GifTestPage.cpp)
+    set_property(SOURCE src/main.cpp APPEND PROPERTY COMPILE_DEFINITIONS BSML_QUEST_TESTS)
+endif()
 
 # add include dir as include dir
 target_include_directories(${COMPILE_ID} PRIVATE ${INCLUDE_DIR})

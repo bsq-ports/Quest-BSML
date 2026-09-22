@@ -1,0 +1,7 @@
+/Library/
+/Temp/
+/Logs/
+/UserSettings/
+/obj/
+/ProjectSettings/*
+!/ProjectSettings/ProjectVersion.txt

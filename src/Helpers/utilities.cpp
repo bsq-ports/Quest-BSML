@@ -1,5 +1,6 @@
 #include "Helpers/utilities.hpp"
 #include "ImageLoadRequest.hpp"
+#include "../BSML/Animations/ImageAnimationLoader.hpp"
 #include "BSMLDataCache_internal.hpp"
 #include "logging.hpp"
 
@@ -314,10 +315,10 @@ namespace BSML::Utilities {
                     return;
                 }
 
-                AnimationLoader::Process(
+                BSML::detail::ProcessImageAnimation(
                     animType,
                     data,
-                    [request, onFinished, animationController](auto tex, auto uvs, auto delays){
+                    [request, onFinished, animationController](auto tex, auto uvs, auto delays, auto indexed){
                         // An in-flight decode may finish after cancellation. It owns
                         // its frames until completion; discard the unused atlas here.
                         if (!request->IsCurrent() || !animationController) {
@@ -325,6 +326,8 @@ namespace BSML::Utilities {
                             return;
                         }
                         auto controllerData = animationController->Register(request->path.ptr(), tex, uvs, delays);
+                        if (indexed && controllerData->sprite->get_texture().ptr() == tex)
+                            controllerData->SetIndexedAnimation(indexed.release());
                         if (request->ApplyAnimation(controllerData) && onFinished) onFinished();
                     },
                     [request, onError](){
