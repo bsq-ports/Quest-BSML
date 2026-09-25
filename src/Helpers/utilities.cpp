@@ -61,16 +61,18 @@ namespace BSML::Utilities {
         if (spriteCache->TryGetValue(name, by_ref(sprite)) && sprite && sprite->m_CachedPtr.m_value)
             return sprite;
 
+        spriteCache->Remove(name);
+        sprite = nullptr;
+
         for (auto x : Resources::FindObjectsOfTypeAll<Sprite*>())
         {
-            if (x->name.size() == 0)
+            if (!x || !x->m_CachedPtr.m_value || x->get_name().size() == 0 || x->get_name() != name)
                 continue;
-            UnityEngine::Sprite* a = nullptr;
-            if(!spriteCache->TryGetValue(x->get_name(), by_ref(a)) || !a)
-                spriteCache->Add(x->get_name(), x);
 
-            if (x->get_name() == name)
-                sprite = x;
+            // This dictionary is rooted for the process lifetime. Caching the
+            // entire resource snapshot also retained unrelated song artwork.
+            if (!spriteCache->ContainsKey(name)) spriteCache->Add(name, x);
+            sprite = x;
         }
 
         return sprite;
@@ -86,16 +88,16 @@ namespace BSML::Utilities {
         if (textureCache->TryGetValue(name, by_ref(texture)) && texture && texture->m_CachedPtr.m_value)
             return texture;
 
+        textureCache->Remove(name);
+        texture = nullptr;
+
         for (auto x : Resources::FindObjectsOfTypeAll<Texture*>())
         {
-            if (x->name.size() == 0)
+            if (!x || !x->m_CachedPtr.m_value || x->get_name().size() == 0 || x->get_name() != name)
                 continue;
-            UnityEngine::Texture* a = nullptr;
-            if(!textureCache->TryGetValue(x->get_name(), by_ref(a)) || !a)
-                textureCache->Add(x->get_name(), x);
 
-            if (x->get_name() == name)
-                texture = x;
+            if (!textureCache->ContainsKey(name)) textureCache->Add(name, x);
+            texture = x;
         }
 
         return texture;
