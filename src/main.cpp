@@ -1,3 +1,4 @@
+#include "Initialization.hpp"
 #include "BSML/MainThreadScheduler.hpp"
 #include "scotland2/shared/loader.hpp"
 #include "beatsaber-hook/shared/api.hpp"
@@ -29,7 +30,7 @@ BSML_EXPORT_FUNC void setup(CModInfo* info) {
 static bool isLoaded = false;
 static bool isLateLoaded = false;
 
-BSML_EXPORT_FUNC void load() {
+void BSML::Internal::Initialize() {
     if (isLoaded) return;
     isLoaded = true;
 
@@ -45,7 +46,8 @@ static constexpr inline UnityEngine::HideFlags operator |(UnityEngine::HideFlags
     return UnityEngine::HideFlags(a.value__ | b.value__);
 }
 
-BSML_EXPORT_FUNC void late_load() {
+void BSML::Internal::LateInitialize() {
+    Initialize();
     if (isLateLoaded) return;
     isLateLoaded = true;
     // late load is on main thread and really early, great time to setup these singletons
@@ -59,6 +61,10 @@ BSML_EXPORT_FUNC void late_load() {
     scs->hideFlags = UnityEngine::HideFlags::DontUnloadUnusedAsset | UnityEngine::HideFlags::HideAndDontSave;
     scs->AddComponent<BSML::SharedCoroutineStarter*>();
 }
+
+// Public loader symbols retain the established ABI; no internal call uses them.
+BSML_EXPORT_FUNC void load() { BSML::Internal::Initialize(); }
+BSML_EXPORT_FUNC void late_load() { BSML::Internal::LateInitialize(); }
 
 BSML_DATACACHE(settings_about) {
     return ArrayW<uint8_t>(Assets::Settings::About);

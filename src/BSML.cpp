@@ -5,17 +5,16 @@
 #include "BSML/GameplaySetup/GameplaySetup.hpp"
 #include "BSML/FlowCoordinators/MainMenuHolderFlowCoordinator.hpp"
 
-extern "C" void load();
-extern "C" void late_load();
+#include "Initialization.hpp"
 
 namespace BSML {
     void Init() {
-        load();
+        Internal::Initialize();
     }
 
     void LateInit() {
-        load();
-        late_load();
+        Internal::Initialize();
+        Internal::LateInitialize();
     }
 
     std::shared_ptr<BSMLParser> parse(std::string_view str) {
