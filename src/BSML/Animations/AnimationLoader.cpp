@@ -112,7 +112,7 @@ namespace BSML {
         // cleanup
         for (auto t : textureList) {
             if (t && t->m_CachedPtr.m_value)
-                UnityEngine::Object::DestroyImmediate(t);
+                UnityEngine::Object::Destroy(t);
         }
 
         if (onProcessed)

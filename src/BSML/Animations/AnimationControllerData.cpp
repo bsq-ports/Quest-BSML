@@ -68,17 +68,17 @@ namespace BSML {
         BSML::MainThreadScheduler::Schedule([
             sprite = safe_ptr<UnityEngine::Sprite*, true>(this->sprite),
             frames = safe_ptr<ArrayW<UnityEngine::Sprite*>>(this->sprites)]() {
-            // Clean up all frames just to be sure
+            // Release the native sprites created for each animation frame.
             if (frames.ptr()) {
                 for (UnityW<UnityEngine::Sprite> frame : frames.ptr())
-                    if (frame) UnityEngine::Object::DestroyImmediate(frame);
+                    if (frame) UnityEngine::Object::Destroy(frame);
             }
             if (sprite) {
                 UnityW<UnityEngine::Texture2D> tex = sprite->texture;
                 if (tex) {
-                    UnityEngine::Object::DestroyImmediate(tex);
+                    UnityEngine::Object::Destroy(tex);
                 }
-                UnityEngine::Object::DestroyImmediate(sprite.ptr());
+                UnityEngine::Object::Destroy(sprite.ptr());
             }
         });
         sprite = nullptr;

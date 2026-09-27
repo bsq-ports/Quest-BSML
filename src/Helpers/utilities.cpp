@@ -261,7 +261,7 @@ namespace BSML::Utilities {
         UnityEngine::Sprite* img = nullptr;
         if (cache->TryGetValue(path, by_ref(img))) {
             cache->Remove(path);
-            if (img && img->m_CachedPtr.m_value) UnityEngine::Object::DestroyImmediate(img);
+            if (img && img->m_CachedPtr.m_value) UnityEngine::Object::Destroy(img);
             return true;
         }
         return false;
@@ -317,7 +317,7 @@ namespace BSML::Utilities {
                     [stateUpdater, generation, pathOwner, onFinished, animationController](UnityW<UnityEngine::Texture2D> tex, auto uvs, auto delays) mutable {
                         // The image may be destroyed or request a replacement during decoding.
                         if (!IsImageRequestCurrent(stateUpdater, generation) || !animationController) {
-                            if (tex) Object::DestroyImmediate(tex);
+                            if (tex) Object::Destroy(tex);
                             return;
                         }
                         auto controllerData = animationController->Register(pathOwner.ptr(), tex, uvs, delays);
@@ -368,14 +368,14 @@ namespace BSML::Utilities {
                 if (scaleOptions.shouldScale) {
                     auto scaledTexture = DownScaleTexture(texture, scaleOptions);
                     if (scaledTexture != texture) {
-                        Object::DestroyImmediate(texture);
+                        Object::Destroy(texture);
                         texture = scaledTexture;
                     }
                 }
 
                 auto sprite = LoadSpriteFromTexture(texture);
                 if (!sprite) {
-                    Object::DestroyImmediate(texture);
+                    Object::Destroy(texture);
                     ERROR("Failed to load sprite from texture");
                     if (onError) onError(ImageLoadError::ImageParsingError);
                     return;
@@ -386,8 +386,8 @@ namespace BSML::Utilities {
                 stateUpdater->set_controllerData(nullptr);
                 stateUpdater->enabled = false;
                 if (!IsImageTargetAlive(stateUpdater.ptr())) {
-                    Object::DestroyImmediate(sprite);
-                    Object::DestroyImmediate(texture);
+                    Object::Destroy(sprite);
+                    Object::Destroy(texture);
                     return;
                 }
 
@@ -483,7 +483,7 @@ namespace BSML::Utilities {
             auto texture = Texture2D::New_ctor(1, 1, TextureFormat::RGBA32, false, false);
             if (ImageConversion::LoadImage(texture, data, false))
                 return texture;
-            Object::DestroyImmediate(texture);
+            Object::Destroy(texture);
         }
         ERROR("Failed to load texture from data");
         return nullptr;

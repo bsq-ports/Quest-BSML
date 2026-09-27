@@ -56,8 +56,11 @@ namespace BSML {
             fileHash = newHash;
             auto t = get_transform();
             int childCount = t->get_childCount();
-            for (int i = 0; i < childCount; i++)
-            Object::DestroyImmediate(t->GetChild(0)->get_gameObject());
+            // Destroy immediately so GetChild(0) advances and the old UI is fully
+            // torn down before parse_and_construct rebuilds it below.
+            for (int i = 0; i < childCount; i++) {
+                Object::DestroyImmediate(t->GetChild(0)->get_gameObject());
+            }
 
             BSML::parse_and_construct(content, t, host);
         } else {
