@@ -5,6 +5,7 @@
 #include "beatsaber-hook/shared/arrayw.hpp"
 
 #include <memory>
+#include <atomic>
 #include <mutex>
 #include <queue>
 
@@ -13,13 +14,13 @@ namespace BSML {
     class BSML_EXPORT AnimationInfo {
         public:
             ~AnimationInfo();
-            bool isInitialized = false;
+            std::atomic<bool> isInitialized{false};
 
             /// @brief amount of frames in the animation, not neccesarily the amount of frames you can safely get
             int frameCount = 0;
 
             /// @brief how many frames have been fully decoded
-            std::atomic<std::size_t> decodedFrames;
+            std::atomic<std::size_t> decodedFrames{0};
 
             /// @brief width of the animation
             int width = 0;

@@ -10,6 +10,7 @@
 #include "UnityEngine/Vector4.hpp"
 #include "System/Object.hpp"
 #include <chrono>
+#include "beatsaber-hook/shared/safeptr.hpp"
 
 DEFINE_TYPE(BSML, AnimationControllerData);
 
@@ -64,16 +65,24 @@ namespace BSML {
     }
 
     void AnimationControllerData::Finalize() {
-        BSML::MainThreadScheduler::Schedule([sprite = this->sprite](){
-            if (sprite && sprite->m_CachedPtr.m_value) {
-                auto tex = sprite->texture;
-                if (tex && tex->m_CachedPtr.m_value) {
-                    UnityEngine::Object::DestroyImmediate(tex);
+        BSML::MainThreadScheduler::Schedule([
+            sprite = safe_ptr<UnityEngine::Sprite*, true>(this->sprite),
+            frames = safe_ptr<ArrayW<UnityEngine::Sprite*>>(this->sprites)]() {
+            // Release the native sprites created for each animation frame.
+            if (frames.ptr()) {
+                for (UnityW<UnityEngine::Sprite> frame : frames.ptr())
+                    if (frame) UnityEngine::Object::Destroy(frame);
+            }
+            if (sprite) {
+                UnityW<UnityEngine::Texture2D> tex = sprite->texture;
+                if (tex) {
+                    UnityEngine::Object::Destroy(tex);
                 }
-                UnityEngine::Object::DestroyImmediate(sprite);
+                UnityEngine::Object::Destroy(sprite.ptr());
             }
         });
         sprite = nullptr;
+        sprites = nullptr;
 
         auto objectFinalize = i2c::metadata_getter<&System::Object::Finalize>::method_info();
         i2c::run_method(this, objectFinalize);
@@ -110,7 +119,8 @@ namespace BSML {
             if (uvIndex >= uvs.size()) uvIndex = 0;
         } while (!isDelayConsistent && delays[uvIndex] == 0);
 
-        for (auto image : activeImages) {
+        for (UnityW<UnityEngine::UI::Image> image : activeImages) {
+            if (!image) continue;
             image->set_sprite(sprites[uvIndex]);
         }
     }
