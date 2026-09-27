@@ -76,7 +76,9 @@ namespace BSML {
                 ERROR("Could not hot reload '{}': {}", filePath, error.what());
                 ClearChildren(t);
                 try {
-                    auto markup = detail::FormatFallbackContent(detail::DefaultFallbackContent, error.what());
+                    auto markup = detail::FormatFallbackContent(R"(<bg>
+                        <text-page text='{0}' rich-text='false' anchor-min-x='0.1' anchor-max-x='0.9'/>
+                    </bg>)", error.what());
                     // Error UI must not invoke bindings or PostParse on the failing host.
                     BSML::parse_and_construct(markup, t, nullptr);
                 } catch (const std::exception& fallbackError) {
