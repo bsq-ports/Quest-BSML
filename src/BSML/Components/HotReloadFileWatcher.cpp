@@ -55,12 +55,14 @@ namespace BSML {
         if (newHash != fileHash) {
             fileHash = newHash;
             auto t = get_transform();
-            int childCount = t->get_childCount();
-            // Destroy immediately so GetChild(0) advances and the old UI is fully
-            // torn down before parse_and_construct rebuilds it below.
-            for (int i = 0; i < childCount; i++) {
-                Object::DestroyImmediate(t->GetChild(0)->get_gameObject());
+
+            // Remove all children of the transform, and destroy them
+            for (int i = t->get_childCount() - 1; i >= 0; --i) {
+                auto child = t->GetChild(i)->get_gameObject();
+                child->SetActive(false);
+                Object::Destroy(child);
             }
+            t->DetachChildren();
 
             BSML::parse_and_construct(content, t, host);
         } else {
