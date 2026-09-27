@@ -17,12 +17,25 @@ namespace BSML {
 
         if (get_isActiveAndEnabled()) {
             OnEnable();
+        } else {
+            ApplyCurrentFrame();
         }
     }
 
+    void AnimationStateUpdater::ApplyCurrentFrame() {
+        // Defensive checks, hot reload can invalidate anything
+        if (!_controllerData || !image || !image->m_CachedPtr.m_value) return;
+        auto sprites = _controllerData->sprites;
+        auto index = _controllerData->uvIndex;
+        if (!sprites || index < 0 || index >= sprites.size()) return;
+        auto sprite = sprites[index];
+        if (sprite && sprite->m_CachedPtr.m_value) image->set_sprite(sprite);
+    }
+
     void AnimationStateUpdater::OnEnable() {
-        if (_controllerData && image) {
+        if (_controllerData && image && image->m_CachedPtr.m_value) {
             _controllerData->get_activeImages()->Add(image);
+            ApplyCurrentFrame();
         }
     }
 
@@ -40,5 +53,7 @@ namespace BSML {
 
             _controllerData->Remove(this);
         }
+        _controllerData = nullptr;
+        image = nullptr;
     }
 }

@@ -10,6 +10,7 @@
 #include "UnityEngine/Vector4.hpp"
 #include "System/Object.hpp"
 #include <chrono>
+#include "beatsaber-hook/shared/safeptr.hpp"
 
 DEFINE_TYPE(BSML, AnimationControllerData);
 
@@ -64,16 +65,24 @@ namespace BSML {
     }
 
     void AnimationControllerData::Finalize() {
-        BSML::MainThreadScheduler::Schedule([sprite = this->sprite](){
+        BSML::MainThreadScheduler::Schedule([
+            sprite = safe_ptr<UnityEngine::Sprite*, true>(this->sprite),
+            frames = safe_ptr<ArrayW<UnityEngine::Sprite*>>(this->sprites)]() {
+            // Clean up all frames just to be sure
+            if (frames.ptr()) {
+                for (auto frame : frames.ptr())
+                    if (frame && frame->m_CachedPtr.m_value) UnityEngine::Object::DestroyImmediate(frame);
+            }
             if (sprite && sprite->m_CachedPtr.m_value) {
                 auto tex = sprite->texture;
                 if (tex && tex->m_CachedPtr.m_value) {
                     UnityEngine::Object::DestroyImmediate(tex);
                 }
-                UnityEngine::Object::DestroyImmediate(sprite);
+                UnityEngine::Object::DestroyImmediate(sprite.ptr());
             }
         });
         sprite = nullptr;
+        sprites = nullptr;
 
         auto objectFinalize = i2c::metadata_getter<&System::Object::Finalize>::method_info();
         i2c::run_method(this, objectFinalize);
@@ -111,6 +120,7 @@ namespace BSML {
         } while (!isDelayConsistent && delays[uvIndex] == 0);
 
         for (auto image : activeImages) {
+            if (!image || !image->m_CachedPtr.m_value) continue;
             image->set_sprite(sprites[uvIndex]);
         }
     }

@@ -45,10 +45,9 @@ namespace BSML {
     custom_types::Helpers::Coroutine GifDecoder::Process(ArrayW<uint8_t> data, std::function<void(AnimationInfo*)> onFinished, std::function<void()> onError) {
         auto animationInfo = new AnimationInfo();
 
-        il2cpp_thread(
-            static_cast<void(*)(ArrayW<uint8_t>, AnimationInfo*, std::function<void()>)>(&GifDecoder::ProcessingThread),
-            data, animationInfo, onError
-        ).detach();
+        il2cpp_thread([data = safe_ptr<ArrayW<uint8_t>>(data), animationInfo, onError] {
+            ProcessingThread(data.ptr(), animationInfo, onError);
+        }).detach();
 
         while (!animationInfo->isInitialized) co_yield nullptr;
 
@@ -72,9 +71,9 @@ namespace BSML {
             int width = gifReader.width(), height = gifReader.height(), frameCount = gifReader.frameCount();
 
             animationInfo->frameCount = frameCount;
-            animationInfo->isInitialized = true;
             animationInfo->width = width;
             animationInfo->height = height;
+            animationInfo->isInitialized = true;
 
             DEBUG("iterating gif frames");
             for (const auto& gifFrame : gifReader) {
