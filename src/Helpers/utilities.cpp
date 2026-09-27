@@ -427,7 +427,7 @@ namespace BSML::Utilities {
 
         stateUpdater->image = image;
         // Every request supersedes earlier loads, including cache and base-game hits.
-        ++stateUpdater->imageLoadGeneration;
+        stateUpdater->imageLoadGeneration++;
 
         if (path.size() > 1 && path[0] == '#') { // it's a base game sprite that is requested
             auto imgName = path->Substring(1);
