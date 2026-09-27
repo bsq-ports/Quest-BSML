@@ -8,7 +8,7 @@
 #include <cstdint>
 
 DECLARE_CLASS_CODEGEN(BSML, AnimationStateUpdater, UnityEngine::MonoBehaviour) {
-    DECLARE_INSTANCE_FIELD(UnityEngine::UI::Image*, image);
+    DECLARE_INSTANCE_FIELD(UnityW<UnityEngine::UI::Image>, image);
     DECLARE_INSTANCE_FIELD(uint64_t, imageLoadGeneration);
     DECLARE_INSTANCE_FIELD_PRIVATE(AnimationControllerData*, _controllerData);
     DECLARE_INSTANCE_METHOD(AnimationControllerData*, get_controllerData);

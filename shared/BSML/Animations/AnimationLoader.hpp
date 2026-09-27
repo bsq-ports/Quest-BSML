@@ -14,8 +14,8 @@ DECLARE_CLASS_CODEGEN(BSML, AnimationLoader, System::Object) {
             GIF,
             APNG,
         };
-        static void Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed);
-        static void Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError);
-        static custom_types::Helpers::Coroutine ProcessAnimationInfo(AnimationInfo* animationInfo, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError);
+        static void Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityW<UnityEngine::Texture2D>, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed);
+        static void Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityW<UnityEngine::Texture2D>, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError);
+        static custom_types::Helpers::Coroutine ProcessAnimationInfo(AnimationInfo* animationInfo, std::function<void(UnityW<UnityEngine::Texture2D>, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError);
         static int GetTextureSize(AnimationInfo* animationInfo);
 };

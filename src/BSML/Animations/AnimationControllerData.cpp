@@ -70,12 +70,12 @@ namespace BSML {
             frames = safe_ptr<ArrayW<UnityEngine::Sprite*>>(this->sprites)]() {
             // Clean up all frames just to be sure
             if (frames.ptr()) {
-                for (auto frame : frames.ptr())
-                    if (frame && frame->m_CachedPtr.m_value) UnityEngine::Object::DestroyImmediate(frame);
+                for (UnityW<UnityEngine::Sprite> frame : frames.ptr())
+                    if (frame) UnityEngine::Object::DestroyImmediate(frame);
             }
-            if (sprite && sprite->m_CachedPtr.m_value) {
-                auto tex = sprite->texture;
-                if (tex && tex->m_CachedPtr.m_value) {
+            if (sprite) {
+                UnityW<UnityEngine::Texture2D> tex = sprite->texture;
+                if (tex) {
                     UnityEngine::Object::DestroyImmediate(tex);
                 }
                 UnityEngine::Object::DestroyImmediate(sprite.ptr());
@@ -119,8 +119,8 @@ namespace BSML {
             if (uvIndex >= uvs.size()) uvIndex = 0;
         } while (!isDelayConsistent && delays[uvIndex] == 0);
 
-        for (auto image : activeImages) {
-            if (!image || !image->m_CachedPtr.m_value) continue;
+        for (UnityW<UnityEngine::UI::Image> image : activeImages) {
+            if (!image) continue;
             image->set_sprite(sprites[uvIndex]);
         }
     }

@@ -79,13 +79,13 @@ namespace BSML::Utilities {
     /// @brief sets the sprite from a path, this does not yet bother with animated textures so it will only work with base textures
     /// @param image the image to set the sprite on
     /// @param path the path, basegame name, or URI to an image
-    BSML_EXPORT void SetImage(UnityEngine::UI::Image* image, StringW path);
+    BSML_EXPORT void SetImage(UnityW<UnityEngine::UI::Image> image, StringW path);
 
     /// @brief sets the sprite from a path, this does not yet bother with animated textures so it will only work with base textures
     /// @param image the image to set the sprite on
     /// @param path the path, basegame name, or URI to an image
     /// @param cached whether to cache the resulting sprite or not
-    BSML_EXPORT void SetImage(UnityEngine::UI::Image* image, StringW path, bool cached);
+    BSML_EXPORT void SetImage(UnityW<UnityEngine::UI::Image> image, StringW path, bool cached);
 
     /// @brief sets the sprite from a path, this does not yet bother with animated textures so it will only work with base textures
     /// @param image the image to set the sprite on
@@ -93,7 +93,7 @@ namespace BSML::Utilities {
     /// @param loadingAnimation currently unused, but might eventually be used for a loading animation while stuff is downloading
     /// @param scaleOptions the scale options to use, if any
     /// @param onFinished a callback to call when the image is finished loading, if any
-    BSML_EXPORT void SetImage(UnityEngine::UI::Image* image, StringW path, bool loadingAnimation, ScaleOptions scaleOptions, std::function<void()> onFinished = nullptr);
+    BSML_EXPORT void SetImage(UnityW<UnityEngine::UI::Image> image, StringW path, bool loadingAnimation, ScaleOptions scaleOptions, std::function<void()> onFinished = nullptr);
 
     /// @brief sets the sprite from a path, this does not yet bother with animated textures so it will only work with base textures
     /// @param image the image to set the sprite on
@@ -102,7 +102,7 @@ namespace BSML::Utilities {
     /// @param scaleOptions the scale options to use, if any
     /// @param onFinished a callback to call when the image is finished loading, if any
     /// @param onError a callback to call when there was an error
-    BSML_EXPORT void SetImage(UnityEngine::UI::Image* image, StringW path, bool loadingAnimation, ScaleOptions scaleOptions, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError);
+    BSML_EXPORT void SetImage(UnityW<UnityEngine::UI::Image> image, StringW path, bool loadingAnimation, ScaleOptions scaleOptions, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError);
 
     /// @brief sets the sprite from a path, this does not yet bother with animated textures so it will only work with base textures
     /// @param image the image to set the sprite on
@@ -112,7 +112,7 @@ namespace BSML::Utilities {
     /// @param cached whether to set the image and cache it, or to skip caching it if loaded newly. only works for static images, not for animated images
     /// @param onFinished a callback to call when the image is finished loading, if any
     /// @param onError a callback to call when there was an error
-    BSML_EXPORT void SetImage(UnityEngine::UI::Image* image, StringW path, bool loadingAnimation, ScaleOptions scaleOptions, bool cached, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError);
+    BSML_EXPORT void SetImage(UnityW<UnityEngine::UI::Image> image, StringW path, bool loadingAnimation, ScaleOptions scaleOptions, bool cached, std::function<void()> onFinished, std::function<void(ImageLoadError)> onError);
 
     /// @brief function to get data at a URI, this is not blocking as it dispatches a coroutine
     /// @param uri the URI to get data from

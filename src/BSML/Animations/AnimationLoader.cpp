@@ -29,13 +29,13 @@ namespace BSML {
         return maxSize >= 4096 ? 4096 : maxSize;
     }
 
-    void AnimationLoader::Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed) {
+    void AnimationLoader::Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityW<UnityEngine::Texture2D>, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed) {
         Process(type, data, onProcessed, [](){
             ERROR("Error happened while processing Animation, and error was not handled!");
         });
     }
 
-    void AnimationLoader::Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError) {
+    void AnimationLoader::Process(AnimationType type, ArrayW<uint8_t> data, std::function<void(UnityW<UnityEngine::Texture2D>, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError) {
         auto sharedStarter = BSML::SharedCoroutineStarter::get_instance();
         DEBUG("Starting animation decode");
         switch (type) {
@@ -59,7 +59,7 @@ namespace BSML {
         }
     }
 
-    custom_types::Helpers::Coroutine AnimationLoader::ProcessAnimationInfo(AnimationInfo* animationInfo, std::function<void(UnityEngine::Texture2D*, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError) {
+    custom_types::Helpers::Coroutine AnimationLoader::ProcessAnimationInfo(AnimationInfo* animationInfo, std::function<void(UnityW<UnityEngine::Texture2D>, ArrayW<UnityEngine::Rect>, ArrayW<float>)> onProcessed, std::function<void()> onError) {
         DEBUG("ProcessAnimInfo");
         int textureSize = get_atlasSizeLimit(), width = 0, height = 0;
         safe_ptr<ArrayW<UnityEngine::Texture2D*>> textureListSafe = ArrayW<UnityEngine::Texture2D*>(animationInfo->frameCount);
