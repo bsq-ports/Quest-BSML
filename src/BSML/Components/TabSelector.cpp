@@ -17,7 +17,7 @@ namespace BSML {
     }
 
     int TabSelector::get_page() {
-        if (currentPage < 0) {
+        if (get_pageCount() == -1 || visibleTabs->get_Count() == 0 || currentPage < 0) {
             currentPage = 0;
             return currentPage;
         }
@@ -34,6 +34,9 @@ namespace BSML {
     }
 
     void TabSelector::set_pageCount(int value) {
+        if (value != -1 && value <= 0) {
+            throw ParseException(fmt::format("Attribute 'page-count': expected -1 or a positive value, got {}", value));
+        }
         pageCount = value;
         if (tabs->get_Count() > 0) Refresh();
     }
@@ -81,8 +84,10 @@ namespace BSML {
         auto tabSelectedInfo = i2c::functions::class_get_method_from_name(this->klass, "TabSelected", 2);
         auto delegate = MakeSystemAction<UnityW<HMUI::SegmentedControl>, int>(this, tabSelectedInfo);
         textSegmentedControl->add_didSelectCellEvent(delegate);
-        textSegmentedControl->SelectCellWithNumber(0);
-        TabSelected(textSegmentedControl, 0);
+        if (visibleTabs->get_Count() > 0) {
+            textSegmentedControl->SelectCellWithNumber(0);
+            TabSelected(textSegmentedControl, 0);
+        }
     }
 
     void TabSelector::TabSelected(HMUI::SegmentedControl* segmentedControl, int index) {
@@ -121,10 +126,10 @@ namespace BSML {
         } else {
             currentPage = get_page();
             ListW<Tab*> usableTabs = ListW<Tab*>::New();
-            usableTabs->EnsureCapacity(get_pageCount());
+            usableTabs->EnsureCapacity(std::min(get_pageCount(), visibleTabs->get_Count()));
 
             int start = get_pageCount() * currentPage;
-            int end = std::min(start + pageCount, visibleTabs->get_Count());
+            int end = start + std::min(pageCount, visibleTabs->get_Count() - start);
             for (int i = start; i < end; i++) {
                 usableTabs->Add(visibleTabs[i]);
             }
