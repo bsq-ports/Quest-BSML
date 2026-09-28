@@ -27,6 +27,7 @@ namespace {
 
 namespace BSML {
     void HotReloadFileWatcher::ctor() {
+        INVOKE_CTOR();
         runCheck = true;
         checkInterval = 10.0f;
         lastFileEdit = 0;
@@ -70,8 +71,9 @@ namespace BSML {
             fileHash = newHash;
             auto t = get_transform();
             ClearChildren(t);
+            parserParams.reset();
             try {
-                BSML::parse_and_construct(content, t, host);
+                parserParams = BSML::parse_and_construct(content, t, host)->parserParams;
             } catch (const std::exception& error) {
                 ERROR("Could not hot reload '{}': {}", filePath, error.what());
                 ClearChildren(t);
@@ -80,7 +82,7 @@ namespace BSML {
                         <text-page text='{0}' rich-text='false' anchor-min-x='0.1' anchor-max-x='0.9'/>
                     </bg>)", error.what());
                     // Error UI must not invoke bindings or PostParse on the failing host.
-                    BSML::parse_and_construct(markup, t, nullptr);
+                    parserParams = BSML::parse_and_construct(markup, t, nullptr)->parserParams;
                 } catch (const std::exception& fallbackError) {
                     ERROR("Could not display hot reload error: {}", fallbackError.what());
                     ClearChildren(t);
@@ -89,5 +91,9 @@ namespace BSML {
         } else {
             INFO("Content hash was not different, not reloading UI");
         }
+    }
+
+    void HotReloadFileWatcher::OnDestroy() {
+        parserParams.reset();
     }
 }
