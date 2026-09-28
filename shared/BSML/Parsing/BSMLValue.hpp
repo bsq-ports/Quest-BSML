@@ -15,6 +15,7 @@ namespace BSML {
 
         virtual void SetValue(System::Object* val);
         virtual System::Object* GetValue();
+        virtual ~BSMLValue() = default;
 
         template<typename T>
         requires(!std::is_same_v<System::Object*, T>)
