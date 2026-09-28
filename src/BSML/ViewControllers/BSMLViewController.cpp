@@ -12,7 +12,14 @@ namespace BSML {
     StringW BSMLViewController::get_Content() { return ""; }
 
     StringW BSMLViewController::get_FallbackContent() {
-        return detail::DefaultFallbackContent;
+        return R"(<bg>
+            <vertical child-control-height='false' child-control-width='true' child-align='UpperCenter' pref-width='110' pad-left='3' pad-right='3'>
+                <horizontal bg='panel-top' pad-left='10' pad-right='10' horizontal-fit='PreferredSize' vertical-fit='PreferredSize'>
+                    <text text='Invalid BSML' font-size='10'/>
+                </horizontal>
+            </vertical>
+            <text-page text='{0}' rich-text='false' anchor-min-x='0.1' anchor-max-x='0.9' anchor-max-y='0.8'/>
+        </bg>)";
     }
 
     void BSMLViewController::ClearContents() {
