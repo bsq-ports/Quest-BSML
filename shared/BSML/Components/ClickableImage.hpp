@@ -43,6 +43,7 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, ClickableImage, HMUI::ImageView, UnityEng
     DECLARE_INSTANCE_FIELD(bool, isHighlighted);
 
     DECLARE_CTOR(ctor);
+    DECLARE_OVERRIDE_METHOD_MATCH(void, Finalize, &System::Object::Finalize);
 
     public:
         unordered_event_callback<> onClick;
