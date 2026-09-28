@@ -33,30 +33,41 @@ namespace BSML {
             dropdown->add_didSelectCellWithIdxEvent(delegate);
         }
 
-        ReceiveValue();
         UpdateChoices();
+        ReceiveValue();
         get_gameObject()->SetActive(true);
     }
 
     void DropdownListSetting::UpdateChoices() {
         auto texts = ListW<StringW>::New();
-        texts->EnsureCapacity(values->get_Count());
-        bool formatted = formatter != nullptr;
-        for (auto v : values) {
-            if (!v) texts->Add("NULL");
-            if (formatted) [[unlikely]] {
-                texts->Add(formatter(v));
-            } else [[likely]] {
-                texts->Add(v->ToString());
+        if (values) {
+            texts->EnsureCapacity(values->get_Count());
+            bool formatted = formatter != nullptr;
+            for (auto v : values) {
+                if (!v) {
+                    texts->Add("NULL");
+                    continue;
+                }
+                if (formatted) [[unlikely]] {
+                    texts->Add(formatter(v));
+                } else [[likely]] {
+                    texts->Add(v->ToString());
+                }
             }
         }
 
         dropdown->SetTexts(*texts);
+        UpdateState();
     }
 
     void DropdownListSetting::ValidateRange() {
-        if (index >= values.size())
-            index = values.size() - 1;
+        if (!values || values.empty()) {
+            index = 0;
+            return;
+        }
+
+        if (index >= values->get_Count())
+            index = values->get_Count() - 1;
 
         if (index < 0)
             index = 0;
@@ -68,7 +79,7 @@ namespace BSML {
             if (value) {
                 dropdown->_text->set_text(formatter ? formatter(value) : value->ToString() );
             } else {
-                dropdown->_text->set_text("NULL");
+                dropdown->_text->set_text("");
             }
         }
     }
@@ -95,11 +106,17 @@ namespace BSML {
     }
 
     System::Object* DropdownListSetting::get_Value() {
+        if (!values || values.empty()) return nullptr;
         ValidateRange();
         return values[index];
     }
 
     void DropdownListSetting::set_Value(System::Object* value) {
+        if (!values || values.empty()) {
+            index = 0;
+            UpdateState();
+            return;
+        }
         index = 0;
         for (auto& v : values) {
             // if both are the same, or v has a value and Equals the value
@@ -111,7 +128,7 @@ namespace BSML {
         if (index == values.size())
             index = 0;
 
-        dropdown->SelectCellWithIdx(index);
+        if (dropdown) dropdown->SelectCellWithIdx(index);
 
         UpdateState();
     }

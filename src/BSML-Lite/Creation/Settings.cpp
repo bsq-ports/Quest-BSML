@@ -151,16 +151,7 @@ namespace BSML::Lite {
 
         dropdownSetting->Setup();
 
-        // is this valid, this early?
-        auto itr = std::find_if(values.begin(), values.end(), [currentValue](const auto& x){ return x == currentValue; });
-        int idx = 0;
-        if (itr != values.end()) {
-            idx = itr - values.begin();
-        }
-
-        dropdownSetting->index = idx;
-        dropdownSetting->dropdown->SelectCellWithIdx(idx);
-        dropdownSetting->UpdateState();
+        dropdownSetting->set_Value(static_cast<System::Object*>(currentValue.convert()));
 
         auto text = externalComponents->Get<TMPro::TextMeshProUGUI*>();
         text->set_text(label);
