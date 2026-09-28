@@ -29,7 +29,8 @@ void SetImage(UnityEngine::UI::RawImage* image, const StringParseHelper& path) {
     } else {
         // something else
         BSML::Utilities::GetData(path, [image](auto data){
-            image->set_texture(BSML::Utilities::LoadTextureRaw(data));
+            auto texture = BSML::Utilities::LoadTextureRaw(data);
+            if (texture) image->set_texture(texture);
         });
     }
 }

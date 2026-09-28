@@ -138,7 +138,7 @@ namespace BSML::Utilities {
 
     /// @brief Function to load a texture from a data array
     /// @param data the data to load the texture from
-    /// @return created texture
+    /// @return created texture, or nullptr if data is null, empty, or invalid
     BSML_EXPORT UnityEngine::Texture2D* LoadTextureRaw(ArrayW<uint8_t> data);
 
     /// @brief function to copy the values from other to comp
