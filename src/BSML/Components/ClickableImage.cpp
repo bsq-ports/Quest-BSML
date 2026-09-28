@@ -24,12 +24,6 @@ namespace BSML {
         INVOKE_BASE_CTOR(i2c::class_of<HMUI::ImageView*>());
     }
 
-    void ClickableImage::Finalize() {
-        // Release native callbacks and the parser events they own.
-        this->~ClickableImage();
-        i2c::run_method(this, i2c::metadata_getter<&System::Object::Finalize>::method_info());
-    }
-
     void ClickableImage::UpdateHighlight() {
         set_color(get_isHighlighted() ? get_highlightColor() : get_defaultColor());
     }

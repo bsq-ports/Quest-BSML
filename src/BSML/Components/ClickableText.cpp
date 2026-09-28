@@ -26,12 +26,6 @@ namespace BSML {
         INVOKE_BASE_CTOR(i2c::class_of<HMUI::CurvedTextMeshPro*>());
     }
 
-    void ClickableText::Finalize() {
-        // Release native callbacks and the parser events they own.
-        this->~ClickableText();
-        i2c::run_method(this, i2c::metadata_getter<&System::Object::Finalize>::method_info());
-    }
-
     void ClickableText::UpdateHighlight() {
         set_color(get_isHighlighted() ? get_highlightColor() : get_defaultColor());
     }
