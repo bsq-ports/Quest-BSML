@@ -1,28 +1,12 @@
 #include "BSML/ViewControllers/BSMLViewController.hpp"
 #include "BSML/Parsing/BSMLParser.hpp"
 #include "BSML/Parsing/ParseException.hpp"
+#include "BSMLFallback.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "logging.hpp"
 
 DEFINE_TYPE(BSML, BSMLViewController);
-
-namespace {
-    std::string EscapeXml(std::string_view text) {
-        std::string escaped;
-        for (char c : text) {
-            switch (c) {
-                case '&': escaped += "&amp;"; break;
-                case '<': escaped += "&lt;"; break;
-                case '>': escaped += "&gt;"; break;
-                case '\'': escaped += "&apos;"; break;
-                case '"': escaped += "&quot;"; break;
-                default: escaped += c; break;
-            }
-        }
-        return escaped;
-    }
-}
 
 namespace BSML {
     StringW BSMLViewController::get_Content() { return ""; }
@@ -34,7 +18,7 @@ namespace BSML {
                     <text text='Invalid BSML' font-size='10'/>
                 </horizontal>
             </vertical>
-            <text-page text='{0}' anchor-min-x='0.1' anchor-max-x='0.9' anchor-max-y='0.8'/>
+            <text-page text='{0}' rich-text='false' anchor-min-x='0.1' anchor-max-x='0.9' anchor-max-y='0.8'/>
         </bg>)";
     }
 
@@ -64,10 +48,7 @@ namespace BSML {
             ClearContents();
             auto fallback = i2c::run_method<StringW>(reinterpret_cast<Il2CppObject*>(this), "get_FallbackContent");
             if (!fallback) throw ParseException("View controller FallbackContent is null");
-            std::string markup = fallback;
-            auto message = EscapeXml(error.what());
-            for (size_t pos = 0; (pos = markup.find("{0}", pos)) != std::string::npos; pos += message.size())
-                markup.replace(pos, 3, message);
+            auto markup = detail::FormatFallbackContent(std::string(fallback), error.what());
             // Like PC, fallback failures propagate; do not recursively parse a fallback.
             BSMLParser::parse_and_construct(markup, contentObject->get_transform(), this);
         }

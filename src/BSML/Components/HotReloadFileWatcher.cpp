@@ -1,15 +1,29 @@
 #include "BSML/Components/HotReloadFileWatcher.hpp"
 #include "logging.hpp"
 #include "BSML.hpp"
+#include "BSMLFallback.hpp"
 
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Time.hpp"
+#include "UnityEngine/Transform.hpp"
 #include <sys/stat.h>
 #include <functional>
+#include <exception>
 
 DEFINE_TYPE(BSML, HotReloadFileWatcher);
 
 using namespace UnityEngine;
+
+namespace {
+    void ClearChildren(UnityW<Transform> transform) {
+        for (int i = transform->get_childCount() - 1; i >= 0; --i) {
+            auto child = transform->GetChild(i)->get_gameObject();
+            child->SetActive(false);
+            Object::Destroy(child);
+        }
+        transform->DetachChildren();
+    }
+}
 
 namespace BSML {
     void HotReloadFileWatcher::ctor() {
@@ -55,16 +69,23 @@ namespace BSML {
         if (newHash != fileHash) {
             fileHash = newHash;
             auto t = get_transform();
-
-            // Remove all children of the transform, and destroy them
-            for (int i = t->get_childCount() - 1; i >= 0; --i) {
-                auto child = t->GetChild(i)->get_gameObject();
-                child->SetActive(false);
-                Object::Destroy(child);
+            ClearChildren(t);
+            try {
+                BSML::parse_and_construct(content, t, host);
+            } catch (const std::exception& error) {
+                ERROR("Could not hot reload '{}': {}", filePath, error.what());
+                ClearChildren(t);
+                try {
+                    auto markup = detail::FormatFallbackContent(R"(<bg>
+                        <text-page text='{0}' rich-text='false' anchor-min-x='0.1' anchor-max-x='0.9'/>
+                    </bg>)", error.what());
+                    // Error UI must not invoke bindings or PostParse on the failing host.
+                    BSML::parse_and_construct(markup, t, nullptr);
+                } catch (const std::exception& fallbackError) {
+                    ERROR("Could not display hot reload error: {}", fallbackError.what());
+                    ClearChildren(t);
+                }
             }
-            t->DetachChildren();
-
-            BSML::parse_and_construct(content, t, host);
         } else {
             INFO("Content hash was not different, not reloading UI");
         }
