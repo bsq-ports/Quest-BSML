@@ -1,4 +1,5 @@
 #include "BSML/Components/TabSelector.hpp"
+#include "BSML/Parsing/ParseException.hpp"
 #include "logging.hpp"
 
 #include "Helpers/delegates.hpp"
@@ -48,6 +49,9 @@ namespace BSML {
 
         for (auto go : parserParams.GetObjectsWithTag(tabTag)) {
             auto tab = go->GetComponent<Tab*>();
+            if (!tab) {
+                throw ParseException(fmt::format("Object tagged '{}' has no Tab component", tabTag));
+            }
             tabs->Add(tab);
             tab->selector = this;
         }
