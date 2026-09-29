@@ -27,6 +27,7 @@ namespace BSML {
             contentObject->SetActive(false);
             UnityEngine::Object::Destroy(contentObject);
         }
+        parserParams.reset();
         contentObject = UnityEngine::GameObject::New_ctor("Contents");
         auto rect = contentObject->AddComponent<UnityEngine::RectTransform*>();
         rect->SetParent(get_transform(), false);
@@ -42,7 +43,7 @@ namespace BSML {
         try {
             auto content = i2c::run_method<StringW>(reinterpret_cast<Il2CppObject*>(this), "get_Content");
             if (!content) throw ParseException("View controller Content is null");
-            BSMLParser::parse_and_construct(std::string(content), contentObject->get_transform(), this);
+            parserParams = BSMLParser::parse_and_construct(std::string(content), contentObject->get_transform(), this)->parserParams;
         } catch (const std::exception& error) {
             ERROR("Error parsing BSML: {}", error.what());
             ClearContents();
@@ -50,7 +51,7 @@ namespace BSML {
             if (!fallback) throw ParseException("View controller FallbackContent is null");
             auto markup = detail::FormatFallbackContent(std::string(fallback), error.what());
             // Like PC, fallback failures propagate; do not recursively parse a fallback.
-            BSMLParser::parse_and_construct(markup, contentObject->get_transform(), this);
+            parserParams = BSMLParser::parse_and_construct(markup, contentObject->get_transform(), this)->parserParams;
         }
     }
 
@@ -60,6 +61,7 @@ namespace BSML {
 
     void BSMLViewController::OnDestroy() {
         destroyed = true;
+        parserParams.reset();
         // The generated HMUI wrapper dispatches virtually; call the base method
         // explicitly to avoid re-entering this override.
         i2c::run_method(this, i2c::metadata_getter<&HMUI::ViewController::OnDestroy>::method_info());

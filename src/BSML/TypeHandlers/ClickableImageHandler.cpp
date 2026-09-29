@@ -30,13 +30,10 @@ namespace BSML {
 
         auto clickEventItr = componentType.data.find("clickEvent");
         if (clickEventItr != componentType.data.end() && !clickEventItr->second.empty()) {
-            auto parserEvent = parserParams.GetEvent(clickEventItr->second);
+            // Keep this scope's event alive for the lifetime of the click callback.
+            auto parserEvent = parserParams.GetEvent(clickEventItr->second).lock();
             clickableImage->onClick += [parserEvent](){
-                if (!parserEvent.expired()) {
-                    parserEvent.lock()->Invoke();
-                } else {
-                    ERROR("Event pointer expired, are you saving your parser params?");
-                }
+                parserEvent->Invoke();
             };
         }
 

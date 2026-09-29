@@ -45,13 +45,10 @@ namespace BSML {
 
         auto clickEventItr = componentType.data.find("clickEvent");
         if (clickEventItr != componentType.data.end() && !clickEventItr->second.empty()) {
-            auto parserEvent = parserParams.GetEvent(clickEventItr->second);
-            auto action = MakeUnityAction([parserEvent](){
-                if (!parserEvent.expired()) {
-                    parserEvent.lock()->Invoke();
-                } else {
-                    ERROR("Event pointer expired, are you saving your parser params?");
-                }
+            // The UI listener owns its event even when the parser goes out of scope.
+            auto parserEvent = parserParams.GetEvent(clickEventItr->second).lock();
+            auto action = MakeUnityAction([parserEvent] {
+                parserEvent->Invoke();
             });
             event->AddListener(action);
         }

@@ -43,6 +43,7 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, ClickableText, HMUI::CurvedTextMeshPro, U
     DECLARE_INSTANCE_FIELD(bool, isHighlighted);
 
     DECLARE_CTOR(ctor);
+    DECLARE_SIMPLE_DTOR();
 
     public:
         unordered_event_callback<> onClick;
