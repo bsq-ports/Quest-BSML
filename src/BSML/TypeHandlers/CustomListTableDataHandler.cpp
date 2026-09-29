@@ -175,8 +175,18 @@ namespace BSML {
             auto pageUpMinfo = i2c::find_method((Il2CppObject*) scrollView, {"PageUpButtonPressed", 0});
             auto pageDownMinfo = i2c::find_method((Il2CppObject*) scrollView, {"PageDownButtonPressed", 0});
 
-            if (pageUpMinfo) parserParams.AddAction(id + "#PageUp", new BSMLAction(scrollView, pageUpMinfo));
-            if (pageDownMinfo) parserParams.AddAction(id + "#PageDown", new BSMLAction(scrollView, pageDownMinfo));
+            if (pageUpMinfo) {
+                parserParams.AddAction(id + "#PageUp", new BSMLAction(scrollView, pageUpMinfo));
+                parserParams.AddEvent(id + "#PageUp", [scrollView, pageUpMinfo] {
+                    i2c::run_method(scrollView, pageUpMinfo);
+                });
+            }
+            if (pageDownMinfo) {
+                parserParams.AddAction(id + "#PageDown", new BSMLAction(scrollView, pageDownMinfo));
+                parserParams.AddEvent(id + "#PageDown", [scrollView, pageDownMinfo] {
+                    i2c::run_method(scrollView, pageDownMinfo);
+                });
+            }
         }
     }
 }
