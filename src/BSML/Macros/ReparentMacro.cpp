@@ -16,7 +16,7 @@ namespace BSML {
     }
 
     void ReparentMacro::Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams,  std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const {
-        INFO("Executing ashost macro");
+        INFO("Executing reparent macro");
         auto transformItr = data.find("transform");
         if (transformItr != data.end()) {
             auto value = parserParams.TryGetValue(transformItr->second);

@@ -16,7 +16,7 @@ namespace BSML {
     }
 
     void DefineMacro::Execute(UnityEngine::Transform* parent, const std::map<std::string, std::string>& data, BSMLParserParams& parserParams,  std::vector<std::unique_ptr<ComponentTypeWithData>>& componentInfo) const {
-        INFO("Executing ashost macro");
+        INFO("Executing define macro");
         auto nameItr = data.find("name");
         if (nameItr == data.end()) {
             ERROR("Missing name property for macro");
