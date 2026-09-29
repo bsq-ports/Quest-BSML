@@ -6,7 +6,7 @@ namespace BSML {
     GraphicHandler::Base::PropMap GraphicHandler::get_props() const {
         return {
             {"raycastPadding", {"raycast-padding"}},
-            {"raycastTarget", {"raycast-target"}}
+            {"raycastTarget", {"raycast-target", "raycast"}}
         };
     }
 
