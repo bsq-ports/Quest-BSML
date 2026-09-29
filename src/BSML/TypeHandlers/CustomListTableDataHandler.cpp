@@ -136,7 +136,7 @@ namespace BSML {
                 auto listWidthItr = data.find("listWidth");
                 auto listWidth = listWidthItr != data.end() ? static_cast<float>(StringParseHelper(listWidthItr->second)) : 60.0f;
                 auto visibleCellsItr = data.find("visibleCells");
-                auto visibleCells = visibleCellsItr != data.end() ? static_cast<int>(StringParseHelper(visibleCellsItr->second)) : 7;
+                auto visibleCells = visibleCellsItr != data.end() ? static_cast<float>(StringParseHelper(visibleCellsItr->second)) : 7.0f;
                 float listHeight = visibleCells * tableData->cellSize;
                 transform->set_sizeDelta({listWidth, listHeight});
                 INFO("listWidth: {}, listHeight: {}", listWidth, listHeight);
@@ -146,7 +146,7 @@ namespace BSML {
                 auto listHeightItr = data.find("listHeight");
                 auto listHeight = listHeightItr != data.end() ? static_cast<float>(StringParseHelper(listHeightItr->second)) : 40.0f;
                 auto visibleCellsItr = data.find("visibleCells");
-                auto visibleCells = visibleCellsItr != data.end() ? static_cast<int>(StringParseHelper(visibleCellsItr->second)) : 4;
+                auto visibleCells = visibleCellsItr != data.end() ? static_cast<float>(StringParseHelper(visibleCellsItr->second)) : 4.0f;
                 float listWidth = visibleCells * tableData->cellSize;
                 INFO("listWidth: {}, listHeight: {}", listWidth, listHeight);
                 transform->set_sizeDelta({listWidth, listHeight});
