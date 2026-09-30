@@ -55,7 +55,7 @@
       },
       {
         "id": "custom-types",
-        "versionRange": "^0.20.0",
+        "versionRange": "^0.20.2",
         "additionalData": {}
       },
       {
@@ -96,13 +96,13 @@
     {
       "dependency": {
         "id": "custom-types",
-        "versionRange": "=0.20.1",
+        "versionRange": "=0.20.2",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.1/libcustom-types.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.1/debug_libcustom-types.so",
+          "soLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.2/libcustom-types.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.2/debug_libcustom-types.so",
           "overrideSoName": "libcustom-types.so",
-          "modLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.1/CustomTypes.qmod",
-          "branchName": "version/v0_20_1",
+          "modLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.2/CustomTypes.qmod",
+          "branchName": "version/v0_20_2",
           "compileOptions": {
             "cppFlags": [
               "-Wno-invalid-offsetof"
@@ -111,30 +111,7 @@
           "cmake": true
         }
       },
-      "version": "0.20.1"
-    },
-    {
-      "dependency": {
-        "id": "bs-cordl",
-        "versionRange": "=4500.0.0",
-        "additionalData": {
-          "headersOnly": true,
-          "branchName": "version/v4500_0_0",
-          "compileOptions": {
-            "includePaths": [
-              "include"
-            ],
-            "cppFeatures": [],
-            "cppFlags": [
-              "-fdeclspec",
-              "-DUNITY_6",
-              "-DHAS_CODEGEN",
-              "-Wno-invalid-offsetof"
-            ]
-          }
-        }
-      },
-      "version": "4500.0.0"
+      "version": "0.20.2"
     },
     {
       "dependency": {
@@ -154,6 +131,29 @@
         }
       },
       "version": "4.8.0"
+    },
+    {
+      "dependency": {
+        "id": "bs-cordl",
+        "versionRange": "=4500.1.0",
+        "additionalData": {
+          "headersOnly": true,
+          "branchName": "version/v4500_1_0",
+          "compileOptions": {
+            "includePaths": [
+              "include"
+            ],
+            "cppFeatures": [],
+            "cppFlags": [
+              "-fdeclspec",
+              "-DUNITY_6",
+              "-DHAS_CODEGEN",
+              "-Wno-invalid-offsetof"
+            ]
+          }
+        }
+      },
+      "version": "4500.1.0"
     },
     {
       "dependency": {
