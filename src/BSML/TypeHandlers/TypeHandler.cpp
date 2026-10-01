@@ -1,7 +1,20 @@
 #include "BSML/TypeHandlers/TypeHandler.hpp"
 #include "Helpers/utilities.hpp"
+#include "logging.hpp"
 
 namespace BSML {
+
+    void TypeHandlerBase::LogDataPair(std::string_view key, std::string_view value) {
+        INFO("data pair: '{}', '{}'", key, value);
+    }
+
+    void TypeHandlerBase::LogSetterFound() {
+        INFO("got a setter!");
+    }
+
+    void TypeHandlerBase::LogTypeMismatch(const Il2CppClass* expected, const Il2CppClass* actual) {
+        ERROR("klass {}::{} was not assignable from {}::{}", expected->namespaze, expected->name, actual->namespaze, actual->name);
+    }
 
     std::vector<TypeHandlerBase*>& TypeHandlerBase::get_typeHandlers() {
         static std::vector<TypeHandlerBase*> typeHandlers = {};

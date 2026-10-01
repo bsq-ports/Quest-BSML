@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/ScrollableContainerHandler.hpp"
+#include "logging.hpp"
 #include "UnityEngine/UI/Button.hpp"
 #include "HMUI/VerticalScrollIndicator.hpp"
 #include "HMUI/ItemForFocussedScrolling.hpp"

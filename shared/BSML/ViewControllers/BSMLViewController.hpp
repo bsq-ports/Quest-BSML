@@ -3,7 +3,7 @@
 #include "custom-types/shared/macros.hpp"
 #include "HMUI/ViewController.hpp"
 #include "UnityEngine/GameObject.hpp"
-#include "BSML/Parsing/BSMLParserParams.hpp"
+#include "../Parsing/BSMLParserParams.hpp"
 
 DECLARE_CLASS_CODEGEN(BSML, BSMLViewController, HMUI::ViewController) {
     DECLARE_INSTANCE_FIELD(UnityEngine::GameObject*, contentObject);

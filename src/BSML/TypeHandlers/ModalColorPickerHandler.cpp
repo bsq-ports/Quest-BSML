@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/ModalColorPickerHandler.hpp"
+#include "logging.hpp"
 
 namespace BSML {
     ModalColorPickerHandler modalColorPickerHandler{};

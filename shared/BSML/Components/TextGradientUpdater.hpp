@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../_config.h"
-#include "_config.h"
 #include "custom-types/shared/macros.hpp"
 #include "TMPro/TMP_Text.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"

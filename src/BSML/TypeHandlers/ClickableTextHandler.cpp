@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/ClickableTextHandler.hpp"
+#include "logging.hpp"
 
 namespace BSML {
     static ClickableTextHandler clickableTextHandler;

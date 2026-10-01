@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/Settings/BaseSettingHandler.hpp"
+#include "logging.hpp"
 #include "BSML/GenericSettingWrapper.hpp"
 
 namespace BSML {

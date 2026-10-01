@@ -1,4 +1,5 @@
 #include "EnumParseHelper.hpp"
+#include "logging.hpp"
 #include "BSML/TypeHandlers/CustomListTableDataHandler.hpp"
 #include "Helpers/getters.hpp"
 #include "Helpers/delegates.hpp"

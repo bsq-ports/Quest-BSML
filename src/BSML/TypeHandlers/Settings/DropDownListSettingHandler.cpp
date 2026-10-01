@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/Settings/DropDownListSettingHandler.hpp"
+#include "logging.hpp"
 
 namespace BSML {
     static DropdownListSettingHandler dropdownListSettingHandler{};

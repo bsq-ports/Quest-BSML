@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/TextSegmentedControlHandler.hpp"
+#include "logging.hpp"
 #include "beatsaber-hook/shared/listw.hpp"
 #include "Helpers/delegates.hpp"
 

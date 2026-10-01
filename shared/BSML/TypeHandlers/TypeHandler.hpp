@@ -7,11 +7,14 @@
 #include "../Parsing/ParseException.hpp"
 #include "UnityEngine/Component.hpp"
 #include "System/Type.hpp"
+#include "fmt/format.h"
+#include <functional>
 #include <string>
+#include <string_view>
+#include <type_traits>
 #include <vector>
 #include <map>
 #include <optional>
-#include "logging.hpp"
 
 #if MAKE_DOCS
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/document.h"
@@ -47,6 +50,10 @@ namespace BSML {
                 /// @return a rapidjson value of the typehandler name + properties
                 rapidjson::Value ToJson(rapidjson::Document::AllocatorType& allocator);
             #endif
+        protected:
+            static void LogDataPair(std::string_view key, std::string_view value);
+            static void LogSetterFound();
+            static void LogTypeMismatch(const Il2CppClass* expected, const Il2CppClass* actual);
         private:
             PropMap cachedProps;
             static void RegisterTypeHandler(TypeHandlerBase* typeHandler);
@@ -83,11 +90,11 @@ namespace BSML {
                     auto& cachedProps = get_cachedProps();
                     // for each key value pair
                     for (const auto &[key, value] : componentType.data) {
-                        INFO("data pair: '{}', '{}'", key, value);
+                        LogDataPair(key, value);
                         // try to find the setter
                         auto itr = cachedSetters.find(key);
                         if (itr != cachedSetters.end()) {
-                            INFO("got a setter!");
+                            LogSetterFound();
                             // execute the setter!
                             try {
                                 itr->second(reinterpret_cast<T>(componentType.component), value);
@@ -97,7 +104,7 @@ namespace BSML {
                         }
                     }
                 } else {
-                    ERROR("klass {}::{} was not assignable from {}::{}", klass->namespaze, klass->name, componentType.component->klass->namespaze, componentType.component->klass->name);
+                    LogTypeMismatch(klass, componentType.component->klass);
                 }
             }
         private:

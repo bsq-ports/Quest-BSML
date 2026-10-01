@@ -2,7 +2,7 @@
 
 #include "custom-types/shared/macros.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
-#include "BSML/Parsing/BSMLParserParams.hpp"
+#include "../Parsing/BSMLParserParams.hpp"
 #include <string>
 
 DECLARE_CLASS_CODEGEN(BSML, HotReloadFileWatcher, UnityEngine::MonoBehaviour) {

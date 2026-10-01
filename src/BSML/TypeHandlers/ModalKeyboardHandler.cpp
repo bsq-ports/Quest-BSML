@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/ModalKeyboardHandler.hpp"
+#include "logging.hpp"
 
 namespace BSML {
     static ModalKeyboardHandler modalKeyboardHandler{};

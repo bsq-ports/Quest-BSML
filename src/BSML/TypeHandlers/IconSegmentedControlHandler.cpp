@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/IconSegmentedControlHandler.hpp"
+#include "logging.hpp"
 #include "Helpers/delegates.hpp"
 #include "System/Collections/Generic/List_1.hpp"
 

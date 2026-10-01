@@ -2,7 +2,7 @@
 
 #include "../../_config.h"
 #include "TypeHandler.hpp"
-#include "BSML/Components/ProgressBar.hpp"
+#include "../Components/ProgressBar.hpp"
 
 namespace BSML {
     class BSML_EXPORT ProgressBarHandler : public TypeHandler<ProgressBar*> {

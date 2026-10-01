@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/InputFieldViewHandler.hpp"
+#include "logging.hpp"
 
 #include "UnityEngine/Events/UnityAction_1.hpp"
 

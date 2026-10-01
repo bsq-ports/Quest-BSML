@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/RawImageHandler.hpp"
+#include "logging.hpp"
 #include "Helpers/utilities.hpp"
 
 void SetImage(UnityEngine::UI::RawImage* image, const StringParseHelper& path);

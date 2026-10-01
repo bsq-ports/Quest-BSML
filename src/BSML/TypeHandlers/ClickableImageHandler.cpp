@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/ClickableImageHandler.hpp"
+#include "logging.hpp"
 
 namespace BSML {
     static ClickableImageHandler clickableImageHandler;

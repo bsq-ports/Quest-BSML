@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/Settings/ListSettingHandler.hpp"
+#include "logging.hpp"
 
 namespace BSML {
     static ListSettingHandler listSettingHandler{};

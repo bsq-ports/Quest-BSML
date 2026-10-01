@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/Settings/ListSliderSettingHandler.hpp"
+#include "logging.hpp"
 
 namespace BSML {
     static ListSliderSettingHandler listSliderSettingHandler{};

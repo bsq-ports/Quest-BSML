@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/CustomCellListTableDataHandler.hpp"
+#include "logging.hpp"
 #include "Helpers/getters.hpp"
 #include "Helpers/delegates.hpp"
 

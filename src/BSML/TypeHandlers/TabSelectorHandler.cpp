@@ -1,4 +1,5 @@
 #include "BSML/TypeHandlers/TabSelectorHandler.hpp"
+#include "logging.hpp"
 
 namespace BSML {
     static TabSelectorHandler tabSelectorHandler{};
