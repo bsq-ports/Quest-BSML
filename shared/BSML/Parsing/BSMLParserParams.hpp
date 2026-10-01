@@ -62,17 +62,17 @@ namespace BSML {
             /// @param value the value to save
             void AddAction(const std::string& key, BSMLAction* action);
 
-            /// @brief Gets a weak ptr for the event you are looking for
-            /// @param key the key for the event
+            /// @brief Gets an event, or a group invoking comma-separated event IDs in order.
+            /// @param key one event ID or comma-separated IDs; whitespace and empty IDs are literal.
             /// @return weak ptr for event, this will always be a valid weak ptr, but check if it is expired before using it
             std::weak_ptr<BSMLEvent> GetEvent(const std::string& key);
 
             /// @brief runs the functions for the passed event
-            /// @param key the key to invoke
+            /// @param key one event ID or comma-separated IDs to invoke in order.
             void EmitEvent(const std::string& key);
 
             /// @brief adds the BSMLEvent to the map
-            /// @param key the key the event is saved to
+            /// @param key one event ID or comma-separated IDs to register the callback under.
             /// @param event the function to run for the specific event
             void AddEvent(const std::string& key, std::function<void(void)> event);
 
