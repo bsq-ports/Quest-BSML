@@ -7,7 +7,7 @@
     "info": {
       "name": "BSML",
       "id": "bsml",
-      "version": "0.5.5",
+      "version": "0.6.2",
       "url": "https://github.com/bsq-ports/Quest-BSML",
       "additionalData": {
         "overrideSoName": "libbsml.so",
@@ -45,17 +45,17 @@
       },
       {
         "id": "beatsaber-hook",
-        "versionRange": "^8.0.1",
+        "versionRange": "^8.3.0",
         "additionalData": {}
       },
       {
         "id": "bs-cordl",
-        "versionRange": "^4500.0.0",
+        "versionRange": "^4500.2.0",
         "additionalData": {}
       },
       {
         "id": "custom-types",
-        "versionRange": "^0.20.2",
+        "versionRange": "^0.21.0",
         "additionalData": {}
       },
       {
@@ -96,13 +96,9 @@
     {
       "dependency": {
         "id": "custom-types",
-        "versionRange": "=0.20.2",
+        "versionRange": "=0.21.0",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.2/libcustom-types.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.2/debug_libcustom-types.so",
           "overrideSoName": "libcustom-types.so",
-          "modLink": "https://github.com/QuestPackageManager/Il2CppQuestTypePatching/releases/download/v0.20.2/CustomTypes.qmod",
-          "branchName": "version/v0_20_2",
           "compileOptions": {
             "cppFlags": [
               "-Wno-invalid-offsetof"
@@ -111,7 +107,30 @@
           "cmake": true
         }
       },
-      "version": "0.20.2"
+      "version": "0.21.0"
+    },
+    {
+      "dependency": {
+        "id": "bs-cordl",
+        "versionRange": "=4500.2.0",
+        "additionalData": {
+          "headersOnly": true,
+          "compileOptions": {
+            "includePaths": [
+              "include"
+            ],
+            "cppFeatures": [],
+            "cppFlags": [
+              "-fdeclspec",
+              "-DUNITY_6",
+              "-DUNITY_6_3",
+              "-DHAS_CODEGEN",
+              "-Wno-invalid-offsetof"
+            ]
+          }
+        }
+      },
+      "version": "4500.2.0"
     },
     {
       "dependency": {
@@ -131,29 +150,6 @@
         }
       },
       "version": "4.8.0"
-    },
-    {
-      "dependency": {
-        "id": "bs-cordl",
-        "versionRange": "=4500.1.0",
-        "additionalData": {
-          "headersOnly": true,
-          "branchName": "version/v4500_1_0",
-          "compileOptions": {
-            "includePaths": [
-              "include"
-            ],
-            "cppFeatures": [],
-            "cppFlags": [
-              "-fdeclspec",
-              "-DUNITY_6",
-              "-DHAS_CODEGEN",
-              "-Wno-invalid-offsetof"
-            ]
-          }
-        }
-      },
-      "version": "4500.1.0"
     },
     {
       "dependency": {
@@ -206,13 +202,12 @@
     {
       "dependency": {
         "id": "beatsaber-hook",
-        "versionRange": "=8.2.1",
+        "versionRange": "=8.3.0",
         "additionalData": {
-          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.2.1/libbeatsaber-hook.so",
-          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.2.1/debug_libbeatsaber-hook.so",
+          "soLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/libbeatsaber-hook.so",
+          "debugSoLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v5.0.0/debug_libbeatsaber-hook.so",
           "overrideSoName": "libbeatsaber-hook.so",
-          "modLink": "https://github.com/QuestPackageManager/beatsaber-hook/releases/download/v8.2.1/beatsaber-hook.qmod",
-          "branchName": "version/v8_2_1",
+          "branchName": "master",
           "compileOptions": {
             "cppFlags": [
               "-Wno-extra-qualification"
@@ -221,7 +216,7 @@
           "cmake": true
         }
       },
-      "version": "8.2.1"
+      "version": "8.3.0"
     },
     {
       "dependency": {
