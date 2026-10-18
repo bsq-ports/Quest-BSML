@@ -6,7 +6,7 @@
   "info": {
     "name": "BSML",
     "id": "bsml",
-    "version": "0.6.3",
+    "version": "0.6.5",
     "url": "https://github.com/bsq-ports/Quest-BSML",
     "additionalData": {
       "overrideSoName": "libbsml.so",
@@ -44,7 +44,7 @@
     },
     {
       "id": "beatsaber-hook",
-      "versionRange": "^9.2.0",
+      "versionRange": "^9.3.0",
       "additionalData": {}
     },
     {
@@ -54,7 +54,7 @@
     },
     {
       "id": "custom-types",
-      "versionRange": "^0.21.1",
+      "versionRange": "^0.21.2",
       "additionalData": {}
     },
     {
