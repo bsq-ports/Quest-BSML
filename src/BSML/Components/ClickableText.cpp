@@ -41,11 +41,6 @@ namespace BSML {
         INFO("Enter");
         set_isHighlighted(true);
         if (onEnter) onEnter();
-        if (!vrPointer || !vrPointer->m_CachedPtr.m_value || !vrPointer->lastSelectedVrController) {
-            ERROR("VRPointer or lastSelectedVrController is null in ClickableText::OnPointerEnter");
-            return;
-        }
-        Vibrate(vrPointer->lastSelectedVrController->node == UnityEngine::XR::XRNode::LeftHand);
     }
 
     void ClickableText::OnPointerExit(UnityEngine::EventSystems::PointerEventData* eventData) {
@@ -56,6 +51,7 @@ namespace BSML {
 
     void ClickableText::Vibrate(bool left)
     {
+        // Legacy explicit API; automatic hover comes from the tag's Interactable.
         UnityEngine::XR::XRNode node = left ? UnityEngine::XR::XRNode::LeftHand : UnityEngine::XR::XRNode::RightHand;
         if (hapticFeedbackManager && hapticFeedbackPresetSO) hapticFeedbackManager->PlayHapticFeedback(node, hapticFeedbackPresetSO);
     }

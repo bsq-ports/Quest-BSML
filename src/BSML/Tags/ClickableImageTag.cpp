@@ -11,11 +11,10 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "HMUI/ImageView.hpp"
+#include "HMUI/Interactable.hpp"
 
 #include "GlobalNamespace/Signal.hpp"
 #include "GlobalNamespace/MenuShockwave.hpp"
-#include "BeatSaber/Haptics/HapticFeedbackManager.hpp"
-#include "BeatSaber/Haptics/HapticPresetSO.hpp"
 
 #include "beatsaber-hook/shared/safeptr.hpp"
 
@@ -33,30 +32,12 @@ namespace BSML {
         return imageClickedSignal.ptr();
     }
 
-    BeatSaber::Haptics::HapticPresetSO* get_imageHapticPreset() {
-        static safe_ptr<BeatSaber::Haptics::HapticPresetSO*> imageHapticPreset;
-        if (!imageHapticPreset) {
-            imageHapticPreset = UnityEngine::ScriptableObject::CreateInstance<BeatSaber::Haptics::HapticPresetSO*>();
-            imageHapticPreset->_duration = 0.02f;
-            imageHapticPreset->_strength = 1.0f;
-            imageHapticPreset->_frequency = 0.2f;
-            Object::DontDestroyOnLoad(imageHapticPreset.ptr());
-        }
-        return imageHapticPreset.ptr();
-    }
-
-    BeatSaber::Haptics::HapticFeedbackManager* get_imageHapticFeedbackManager() {
-        static safe_ptr<BeatSaber::Haptics::HapticFeedbackManager*> imageHapticFeedbackManager;
-        if (!imageHapticFeedbackManager) {
-            imageHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<BeatSaber::Haptics::HapticFeedbackManager*>().front();
-        }
-        return imageHapticFeedbackManager.ptr();
-    }
-
     UnityEngine::GameObject* ClickableImageTag::CreateObject(UnityEngine::Transform* parent) const {
         DEBUG("Creating Image");
         auto gameObject = GameObject::New_ctor("BSMLClickableImage");
         auto image = gameObject->AddComponent<ClickableImage*>();
+        // Let VRInputModule provide native hover haptics, as for game controls.
+        gameObject->AddComponent<HMUI::Interactable*>();
         image->set_material(Helpers::GetUINoGlowMat());
         auto rectTransform = image->get_rectTransform();
         rectTransform->set_sizeDelta({20, 20});
@@ -65,8 +46,6 @@ namespace BSML {
         image->set_sprite(Utilities::ImageResources::GetBlankSprite());
 
         image->buttonClickedSignal = get_imageClickedSignal();
-        image->hapticFeedbackPresetSO = get_imageHapticPreset();
-        image->hapticFeedbackManager = get_imageHapticFeedbackManager();
 
         gameObject->AddComponent<UI::LayoutElement*>();
         return gameObject;
