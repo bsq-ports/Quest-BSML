@@ -23,7 +23,7 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, ClickableText, HMUI::CurvedTextMeshPro, U
     DECLARE_INSTANCE_METHOD(void, UpdateHighlight);
     DECLARE_INSTANCE_METHOD(bool, get_isHighlighted);
     DECLARE_INSTANCE_METHOD(void, set_isHighlighted, bool value);
-    // Deprecated: hover haptics now come from HMUI::Interactable. Will be removed in the next release.
+    /// @deprecated Hover haptics now come from HMUI::Interactable. Will be removed in the next release.
     DECLARE_INSTANCE_METHOD(void, Vibrate, bool left);
 
     DECLARE_OVERRIDE_METHOD_MATCH(void, OnPointerClick, &UnityEngine::EventSystems::IPointerClickHandler::OnPointerClick, UnityEngine::EventSystems::PointerEventData* eventData);
@@ -35,9 +35,11 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, ClickableText, HMUI::CurvedTextMeshPro, U
     DECLARE_INSTANCE_FIELD(void*, padding2);
 
     DECLARE_INSTANCE_FIELD(GlobalNamespace::Signal*, buttonClickedSignal);
-    // Deprecated, these three fields: hover haptics now come from HMUI::Interactable. Will be removed in the next release.
+    /// @deprecated Hover haptics now come from HMUI::Interactable. Will be removed in the next release.
     DECLARE_INSTANCE_FIELD(BeatSaber::Haptics::HapticFeedbackManager*, hapticFeedbackManager);
+    /// @deprecated Hover haptics now come from HMUI::Interactable. Will be removed in the next release.
     DECLARE_INSTANCE_FIELD(BeatSaber::Haptics::HapticPresetSO*, hapticFeedbackPresetSO);
+    /// @deprecated Hover haptics now come from HMUI::Interactable. Will be removed in the next release.
     DECLARE_INSTANCE_FIELD(VRUIControls::VRPointer*, _vrPointer);
 
     DECLARE_INSTANCE_FIELD(UnityEngine::Color, highlightColor);
@@ -52,8 +54,9 @@ DECLARE_CLASS_CODEGEN_INTERFACES(BSML, ClickableText, HMUI::CurvedTextMeshPro, U
         std::function<void()> onEnter;
         std::function<void()> onExit;
 
-        // Deprecated: hover haptics now come from HMUI::Interactable. Will be removed in the next release.
+        /// @deprecated Hover haptics now come from HMUI::Interactable. Will be removed in the next release.
         VRUIControls::VRPointer* get_vrPointer();
+        /// @deprecated Hover haptics now come from HMUI::Interactable. Will be removed in the next release.
         __declspec(property(get=get_vrPointer)) VRUIControls::VRPointer* vrPointer;
 
 };
