@@ -6,6 +6,7 @@
 
 #include "HMUI/Touchable.hpp"
 #include "HMUI/CurvedTextMeshPro.hpp"
+#include "HMUI/Interactable.hpp"
 #include "UnityEngine/RectTransform.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Resources.hpp"
@@ -13,8 +14,6 @@
 
 #include "GlobalNamespace/Signal.hpp"
 #include "GlobalNamespace/MenuShockwave.hpp"
-#include "BeatSaber/Haptics/HapticFeedbackManager.hpp"
-#include "BeatSaber/Haptics/HapticPresetSO.hpp"
 
 #include "beatsaber-hook/shared/safeptr.hpp"
 
@@ -32,26 +31,6 @@ namespace BSML {
         return textClickedSignal.ptr();
     }
 
-    BeatSaber::Haptics::HapticPresetSO* get_textHapticPreset() {
-        static safe_ptr<BeatSaber::Haptics::HapticPresetSO*> textHapticPreset;
-        if (!textHapticPreset) {
-            textHapticPreset = UnityEngine::ScriptableObject::CreateInstance<BeatSaber::Haptics::HapticPresetSO*>();
-            textHapticPreset->_duration = 0.02f;
-            textHapticPreset->_strength = 1.0f;
-            textHapticPreset->_frequency = 0.2f;
-            Object::DontDestroyOnLoad(textHapticPreset.ptr());
-        }
-        return textHapticPreset.ptr();
-    }
-
-    BeatSaber::Haptics::HapticFeedbackManager* get_textHapticFeedbackManager() {
-        static safe_ptr<BeatSaber::Haptics::HapticFeedbackManager*> textHapticFeedbackManager;
-        if (!textHapticFeedbackManager) {
-            textHapticFeedbackManager = UnityEngine::Resources::FindObjectsOfTypeAll<BeatSaber::Haptics::HapticFeedbackManager*>().front();
-        }
-        return textHapticFeedbackManager.ptr();
-    }
-
     UnityEngine::GameObject* ClickableTextTag::CreateObject(UnityEngine::Transform* parent) const {
         DEBUG("Creating Clickable text");
         auto gameObject = GameObject::New_ctor("BSMLClickableText");
@@ -59,6 +38,8 @@ namespace BSML {
         gameObject->get_transform()->SetParent(parent, false);
 
         auto textMesh = gameObject->AddComponent<ClickableText*>();
+        // Let VRInputModule provide native hover haptics, as for game controls.
+        gameObject->AddComponent<HMUI::Interactable*>();
         textMesh->set_font(Helpers::GetMainTextFont());
         textMesh->set_fontSharedMaterial(Helpers::GetMainUIFontMaterial());
         textMesh->set_text("BSMLClickableText");
@@ -74,8 +55,6 @@ namespace BSML {
         gameObject->AddComponent<UI::LayoutElement*>();
 
         textMesh->buttonClickedSignal = get_textClickedSignal();
-        textMesh->hapticFeedbackPresetSO = get_textHapticPreset();
-        textMesh->hapticFeedbackManager = get_textHapticFeedbackManager();
 
         gameObject->SetActive(true);
         return gameObject;
