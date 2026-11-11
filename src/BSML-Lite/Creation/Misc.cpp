@@ -1,5 +1,7 @@
 #include "BSML-Lite/Creation/Misc.hpp"
 
+#include <utility>
+
 #include "Helpers/getters.hpp"
 #include "Helpers/creation.hpp"
 
@@ -30,7 +32,7 @@ namespace BSML::Lite {
         return BSML::ProgressBar::CreateProgressBar(position, scale, rotation, headerText, subText1, subText2);
     }
 
-    HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::span<std::string_view> values, std::function<void(int)> onCellWithIdxClicked) {
+    HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::span<const std::string_view> values, std::function<void(int)> onCellWithIdxClicked) {
         auto go = BSML::TextSegmentedControlTag{}.CreateObject(parent);
         auto textSegmentedControl = go->GetComponent<HMUI::TextSegmentedControl*>();
 
@@ -52,6 +54,12 @@ namespace BSML::Lite {
         }
 
         return textSegmentedControl;
+    }
+
+    // Keep the original export for mods built against the mutable-span signature.
+    [[deprecated("Use the const-element span overload. This export will be removed in the next release.")]]
+    BSML_EXPORT HMUI::TextSegmentedControl* CreateTextSegmentedControl(const TransformWrapper& parent, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::span<std::string_view> values, std::function<void(int)> onCellWithIdxClicked) {
+        return CreateTextSegmentedControl(parent, anchoredPosition, sizeDelta, std::span<const std::string_view>(values), std::move(onCellWithIdxClicked));
     }
 
     static inline UnityEngine::AdditionalCanvasShaderChannels operator |(UnityEngine::AdditionalCanvasShaderChannels a, UnityEngine::AdditionalCanvasShaderChannels b) {

@@ -1,5 +1,7 @@
 #include "BSML-Lite/Creation/Settings.hpp"
 
+#include <utility>
+
 #include "BSML/Components/ExternalComponents.hpp"
 #include "custom-types/shared/delegate.hpp"
 
@@ -139,7 +141,7 @@ namespace BSML::Lite {
         return sliderSetting;
     }
 
-    BSML::DropdownListSetting* CreateDropdown(const TransformWrapper& parent, StringW label, StringW currentValue, std::span<std::string_view> values, std::function<void(StringW)> onValueChange) {
+    BSML::DropdownListSetting* CreateDropdown(const TransformWrapper& parent, StringW label, StringW currentValue, std::span<const std::string_view> values, std::function<void(StringW)> onValueChange) {
         auto go = BSML::DropdownListSettingTag{}.CreateObject(parent);
         auto externalComponents = go->GetComponent<BSML::ExternalComponents*>();
         auto dropdownSetting = externalComponents->Get<BSML::DropdownListSetting*>();
@@ -159,6 +161,12 @@ namespace BSML::Lite {
         dropdownSetting->onChange = onValueChange;
 
         return dropdownSetting;
+    }
+
+    // Keep the original export for mods built against the mutable-span signature.
+    [[deprecated("Use the const-element span overload. This export will be removed in the next release.")]]
+    BSML_EXPORT BSML::DropdownListSetting* CreateDropdown(const TransformWrapper& parent, StringW label, StringW currentValue, std::span<std::string_view> values, std::function<void(StringW)> onValueChange) {
+        return CreateDropdown(parent, label, currentValue, std::span<const std::string_view>(values), std::move(onValueChange));
     }
 
     BSML::ColorSetting* CreateColorPicker(const TransformWrapper& parent, StringW label, UnityEngine::Color defaultColor, std::function<void(UnityEngine::Color)> onDone, std::function<void()> onCancel, std::function<void(UnityEngine::Color)> onChange) {

@@ -223,7 +223,8 @@ namespace BSML::Lite {
     /// @param values the possible string values that can be displayed
     /// @param onValueChange callback ran when the value changes
     /// @return the created dropdown
-    BSML_EXPORT BSML::DropdownListSetting* CreateDropdown(const TransformWrapper& parent, StringW label, StringW currentValue, std::span<std::string_view> values, std::function<void(StringW)> onValueChange = nullptr);
+    /// @note The legacy mutable-span binary export is deprecated and will be removed in the next release.
+    BSML_EXPORT BSML::DropdownListSetting* CreateDropdown(const TransformWrapper& parent, StringW label, StringW currentValue, std::span<const std::string_view> values, std::function<void(StringW)> onValueChange = nullptr);
 
     /// @brief creates a dropdown menu to select from a set of pre-known strings (like an enum)
     /// @param parent what to parent it to
@@ -233,9 +234,9 @@ namespace BSML::Lite {
     /// @param onValueChange callback ran when the value changes
     /// @return the created dropdown
     template<typename T>
-    requires(std::is_constructible_v<std::span<std::string_view>, T> && !std::is_same_v<std::span<std::string_view>, T>)
+    requires(std::is_constructible_v<std::span<const std::string_view>, T> && !std::is_same_v<std::span<const std::string_view>, T>)
     BSML::DropdownListSetting* CreateDropdown(const TransformWrapper& parent, StringW label, StringW currentValue, T values, std::function<void(StringW)> onValueChange = nullptr) {
-        return CreateDropdown(parent, label, currentValue, std::span<std::string_view>(values), onValueChange);
+        return CreateDropdown(parent, label, currentValue, std::span<const std::string_view>(values), onValueChange);
     }
 
     /// @brief creates a color picker
